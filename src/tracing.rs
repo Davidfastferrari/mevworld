@@ -30,9 +30,9 @@ where
     });
 
     // Execute the debug trace block call
-    let results = client.debug_trace_block_by_number(block_tag, tracer_opts);
-        .await
-        .expect("Failed to trace block");
+    let results = client.debug_trace_block_by_number(block_tag, tracer_opts)
+    .await
+    .expect("Failed to trace block");
 
     // Collect diff-mode frames from GethTrace responses
     let mut post: Vec<BTreeMap<Address, AccountState>> = Vec::new();
