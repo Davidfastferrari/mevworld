@@ -84,13 +84,13 @@ where
     ) -> U256 {
         match pool_type {
             PoolType::UniswapV2 | PoolType::SushiSwapV2 | PoolType::SwapBasedV2 => {
-                uniswap::Calculator::uniswap_v2_out(self, input_amount, &pool_address, &token_in, U256::from(9970))
+                crate::calculation::Calculator::uniswap_v2_out(self, input_amount, &pool_address, &token_in, U256::from(9970))
             }
             PoolType::PancakeSwapV2 | PoolType::BaseSwapV2 | PoolType::DackieSwapV2 => {
-                uniswap::Calculator::uniswap_v2_out(self, input_amount, &pool_address, &token_in, U256::from(9975))
+                crate::calculation::Calculator::uniswap_v2_out(self, input_amount, &pool_address, &token_in, U256::from(9975))
             }
             PoolType::AlienBaseV2 => {
-                uniswap::Calculator::uniswap_v2_out(self, input_amount, &pool_address, &token_in, U256::from(9984))
+                crate::calculation::Calculator::uniswap_v2_out(self, input_amount, &pool_address, &token_in, U256::from(9984))
             }
             PoolType::UniswapV3
             | PoolType::SushiSwapV3
@@ -100,7 +100,7 @@ where
             | PoolType::AlienBaseV3
             | PoolType::SwapBasedV3
             | PoolType::DackieSwapV3 => {
-                uniswap::Calculator::uniswap_v3_out(self, input_amount, &pool_address, &token_in, fee)
+                crate::calculation::Calculator::uniswap_v3_out(self, input_amount, &pool_address, &token_in, fee)
                     .expect("Uniswap V3 computation failed")
             }
             PoolType::Aerodrome => aerodrome::Calculator::aerodrome_out(self, input_amount, token_in, pool_address),

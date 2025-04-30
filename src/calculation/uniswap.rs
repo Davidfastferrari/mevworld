@@ -8,7 +8,7 @@ use uniswap_v3_sdk::prelude::*;
 use uniswap_v3_sdk::swap_math::SwapMath;
 use std::collections::HashMap;
 use log::{info, error};
-use crate::constants;
+use crate::constants as mev_constants;
 use crate::calculation::Calculator;
 
 pub const U256_1: U256 = U256::from_limbs([1, 0, 0, 0]);
