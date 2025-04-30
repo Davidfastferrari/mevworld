@@ -28,7 +28,7 @@ pub mod quoter;
 pub mod searcher;
 #[path = "simulator.rs"]
 pub mod simulator;
-#[path = "state_db.rs"]
+#[path = "state_db/mod.rs"]
 pub mod state_db;
 #[path = "stream.rs"]
 pub mod stream;
@@ -43,15 +43,6 @@ pub mod history_db;
 #[path = "node_db.rs"]
 pub mod node_db;
 
-pub mod state_db {
-    #[path = "state_db/blockstate_db.rs"]
-    pub mod blockstate_db;
-    #[path = "state_db/v2_db.rs"]
-    pub mod v2_db;
-    #[path = "state_db/v3_db.rs"]
-    pub mod v3_db;
-}
-
 pub mod calculation {
     #[path = "calculation/calculator.rs"]
     pub mod calculator;
@@ -63,4 +54,13 @@ pub mod calculation {
     pub mod maverick;
     #[path = "calculation/uniswap.rs"]
     pub mod uniswap;
+}
+
+pub mod state_db {
+    #[path = "state_db/blockstate_db.rs"]
+    pub mod blockstate_db;
+    #[path = "state_db/v2_db.rs"]
+    pub mod v2_db;
+    #[path = "state_db/v3_db.rs"]
+    pub mod v3_db;
 }
