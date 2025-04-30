@@ -5,26 +5,27 @@ use alloy::providers::Provider;
 use anyhow::{Result, anyhow};
 use proptest::prelude::*;
 use uniswap_v3_sdk::prelude::*;
+use uniswap_v3_sdk::swap_math::SwapMath;
 use std::collections::HashMap;
 use log::{info, error};
-use crate::constants::U256_ONE;
-use super::Calculator;
+use crate::constants;
+use crate::calculation::Calculator;
 
 pub const U256_1: U256 = U256::from_limbs([1, 0, 0, 0]);
 
 /// Mock DB access interface
-struct MockDB {
-    liquidity: u128,
-    sqrt_price_x_96: U256,
-    tick: i32,
+pub struct MockDB {
+    pub liquidity: u128,
+    pub sqrt_price_x_96: U256,
+    pub tick: i32,
 }
 
 pub struct CurrentState {
-    amount_specified_remaining: I256,
-    amount_calculated: I256,
-    sqrt_price_x_96: U256,
-    tick: i32,
-    liquidity: u128,
+    pub amount_specified_remaining: I256,
+    pub amount_calculated: I256,
+    pub sqrt_price_x_96: U256,
+    pub tick: i32,
+    pub liquidity: u128,
 }
 
 #[derive(Default)]
@@ -98,9 +99,9 @@ where
 
         // Set sqrt_price_limit_x_96 to the max or min sqrt price in the pool depending on zero_for_one
         let sqrt_price_limit_x_96 = if zero_to_one {
-            U256::from(MIN_SQRT_RATIO) + U256_1
+            U256::from(constants::MIN_SQRT_RATIO) + U256_1
         } else {
-            MAX_SQRT_RATIO - U256_1
+            constants::MAX_SQRT_RATIO - U256_1
         };
 
         // Initialize a mutable state struct to hold the dynamic simulated state of the pool
@@ -134,7 +135,7 @@ where
                 zero_to_one,
             )?;
 
-            step.tick_next = tick_next.clamp(MIN_TICK, MAX_TICK);
+            step.tick_next = tick_next.clamp(constants::MIN_TICK, constants::MAX_TICK);
             step.initialized = initialized;
 
             // Get the next sqrt price from the input amount using uniswap_v3_sdk
@@ -208,7 +209,7 @@ where
 }
 
 impl MockDB {
-    fn build(liquidity: u128, tick: i32) -> Self {
+    pub fn build(liquidity: u128, tick: i32) -> Self {
         let sqrt_price = TickMath::get_sqrt_ratio_at_tick(tick).unwrap_or(U256::from(1));
         Self {
             liquidity,
@@ -217,7 +218,7 @@ impl MockDB {
         }
     }
 
-    fn simulate_v3_swap(
+    pub fn simulate_v3_swap(
         &self,
         amount_in: U256,
         zero_to_one: bool,
@@ -225,9 +226,9 @@ impl MockDB {
     ) -> Result<U256> {
         let tick_spacing = 60;
         let price_limit = if zero_to_one {
-            U256::from(MIN_SQRT_RATIO) + U256_ONE
+            U256::from(constants::MIN_SQRT_RATIO) + crate::constants::U256_ONE
         } else {
-            MAX_SQRT_RATIO - U256_ONE
+            constants::MAX_SQRT_RATIO - crate::constants::U256_ONE
         };
 
         let mut state = CurrentState {
@@ -252,7 +253,7 @@ impl MockDB {
                 state.tick + tick_spacing
             };
 
-            step.tick_next = next_tick.clamp(MIN_TICK, MAX_TICK);
+            step.tick_next = next_tick.clamp(constants::MIN_TICK, constants::MAX_TICK);
             step.sqrt_price_next_x96 = TickMath::get_sqrt_ratio_at_tick(step.tick_next)?;
 
             let target = if zero_to_one {
