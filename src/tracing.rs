@@ -5,6 +5,10 @@ use alloy_sol_types::BlockNumberOrTag;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
+use reth_node_ethereum::DebugApi;
+use reth::revm::{db::AccountState, primitives::{AccountInfo, Bytecode, KECCAK_EMPTY}};
+use reth::tracing::{with_tracer, with_prestate_config, GethDebugTracerType, GethDebugBuiltInTracerType, GethDefaultTracingOptions, PreStateConfig, GethTrace, PreStateFrame};
+use tracing::warn;
 
 /// Vector of address-to-account-state maps representing post-trace changes.
 pub async fn debug_trace_block<N>(
@@ -30,9 +34,9 @@ where
     });
 
     // Execute the debug trace block call
-    let results = client.debug_trace_block_by_number(block_tag, tracer_opts);
-        .await
-        .expect("Failed to trace block");
+    let results = client.debug_trace_block_by_number(block_tag, tracer_opts)
+    .await
+    .expect("Failed to trace block");
 
     // Collect diff-mode frames from GethTrace responses
     let mut post: Vec<BTreeMap<Address, AccountState>> = Vec::new();

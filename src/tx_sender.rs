@@ -9,11 +9,15 @@ use alloy::providers::RootProvider;
 use alloy_sol_types::TransactionRequest;
 use alloy_signer::wallet::LocalWallet;
 use alloy_signer::local::PrivateKeySigner;
+use alloy_signer::wallet::EthereumWallet;
 use alloy_transport_http::Http;
 use tokio::sync::mpsc::Receiver;
 use std::{sync::Arc, str::FromStr, time::{Duration, Instant}};
 use reqwest::Client;
 use serde_json::Value;
+use hex;
+use k256::ecdsa::SigningKey as SecretKey;
+use alloy_sol_types::TransactionBuilder;
 
 use crate::events::Event;
 use crate::gas_station::GasStation;

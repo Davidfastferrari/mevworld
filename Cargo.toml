@@ -84,3 +84,6 @@ pool-sync = { git = "https://github.com/Zacholme7/PoolSync" }
 
 # Optional DB support (can remove if unused)
 essential-node-db-sql = "0.5.0"
+
+# Added hex crate for encoding/decoding
+hex = "0.4"

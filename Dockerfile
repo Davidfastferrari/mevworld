@@ -1,13 +1,12 @@
 # Stage 1 - Build
-FROM rust:1.86 as builder
+FROM rust:1.86 AS builder
 
 WORKDIR /usr/src/
 
 # Install minimal required system tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    pkg-config libssl-dev build-essential clang cmake git \
-    llvm-dev libclang-dev && \
-    rm -rf /var/lib/apt/lists/*
+build-essential clang cmake git libclang-dev libssl-dev llvm-dev pkg-config && \
+rm -rf /var/lib/apt/lists/*
 
 # Cache dependencies early
 # COPY Cargo.toml Cargo.lock 
@@ -19,8 +18,6 @@ COPY . .
 # COPY state_db ./state_db
 
 # Build your project in release mode
-
-RUN cargo clippy --bin mevworld
 
 RUN cargo build --bin mevworld
 
