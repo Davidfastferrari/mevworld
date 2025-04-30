@@ -5,8 +5,9 @@ use std::{
     },
     time::Duration,
 };
-use std::sync::mpmc::channel;
-use tokio::sync::{broadcast, mpsc::{Sender, Receiver}};
+// Removed unstable std mpmc channel import
+// use std::sync::mpmc::channel;
+use tokio::sync::{broadcast, mpsc::{Sender, Receiver, channel}};
 use alloy::providers::ProviderBuilder;
 use log::{info, error};
 use pool_sync::{Chain, Pool};

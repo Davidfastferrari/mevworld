@@ -223,8 +223,8 @@ async fn filter_by_swap(
 
         // Insert fake balances
         for (token, slot) in [(pool.token0_address(), slot0), (pool.token1_address(), slot1)] {
-            nodedb.insert_account_storage(token, slot.into(), *FAKE_TOKEN_AMOUNT, InsertionType::OnChain)
-                .map_err(|e| anyhow::anyhow!("Failed to insert account storage: {}", e))?;
+            // nodedb.insert_account_storage(token, slot.into(), *FAKE_TOKEN_AMOUNT, InsertionType::OnChain)
+            //     .map_err(|e| anyhow::anyhow!("Failed to insert account storage: {}", e))?;
         }
 
         let mut evm = InspectEvm::builder()
