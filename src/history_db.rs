@@ -3,7 +3,10 @@ use std::{
     sync::Arc,
 };
 use alloy::primitives::{Address, B256, StorageKey, U256};
-use anyhow::{Context, Result};
+use eyre::{Context, Result};
+use reth::rpc::types::AccountInfo;
+use reth::primitives::Bytecode;
+use alloy_consensus::constants::KECCAK_EMPTY;
 use reth::api::NodeTypesWithDBAdapter;
 use reth::providers::{
     providers::StaticFileProvider,
@@ -55,7 +58,7 @@ impl HistoryDB {
 
 // === revm Database Implementation ===
 impl Database for HistoryDB {
-    type Error = anyhow::Error;
+    type Error = eyre::Error;
 
     fn basic(&mut self, address: Address) -> Result<Option<AccountInfo>, Self::Error> {
         DatabaseRef::basic_ref(self, address)
@@ -76,7 +79,7 @@ impl Database for HistoryDB {
 
 // === revm DatabaseRef Implementation ===
 impl DatabaseRef for HistoryDB {
-    type Error = anyhow::Error;
+    type Error = eyre::Error;
 
     fn basic_ref(&self, address: Address) -> Result<Option<AccountInfo>, Self::Error> {
         let account = self

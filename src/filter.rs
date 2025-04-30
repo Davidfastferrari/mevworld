@@ -19,7 +19,7 @@ use anyhow::{Result, Context};
 use serde::{Serialize, Deserialize};
 use pool_sync::{Chain, Pool, PoolInfo, PoolType};
 use crate::node_db::InsertionType;
-use crate::state_db::blockstate_db::InsertionType;
+use crate::state_db::InsertionType;
 use crate::rgen::ERC20Token::{self, approveCall};
 use crate::rgen::{V2Aerodrome, V2Swap, V3Swap, V3SwapDeadline, V3SwapDeadlineTick};
 use crate::constants::AMOUNT;
