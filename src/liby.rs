@@ -55,12 +55,3 @@ pub mod calculation {
     #[path = "calculation/uniswap.rs"]
     pub mod uniswap;
 }
-
-pub mod state_db {
-    #[path = "state_db/blockstate_db.rs"]
-    pub mod blockstate_db;
-    #[path = "state_db/v2_db.rs"]
-    pub mod v2_db;
-    #[path = "state_db/v3_db.rs"]
-    pub mod v3_db;
-}
