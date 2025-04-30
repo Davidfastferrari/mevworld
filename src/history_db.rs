@@ -17,6 +17,9 @@ use reth_chainspec::ChainSpecBuilder;
 use reth_db::{mdbx::DatabaseArguments, ClientVersion, DatabaseEnv};
 use reth_node_ethereum::EthereumNode;
 use reth::revm::{ db::{AccountState, Database, DatabaseCommit, DatabaseRef}, };
+use eyre::ErrReport;
+use std::error::Error as StdError;
+use revm::revm_database::DBErrorMarker;
 
 
 /// Core struct that provides access to historical state from Reth database.
@@ -58,7 +61,7 @@ impl HistoryDB {
 
 // === revm Database Implementation ===
 impl Database for HistoryDB {
-    type Error = revm::revm_database::alloydb::DBTransportError;
+    type Error = eyre::ErrReport;
 
     fn basic(&mut self, address: Address) -> std::result::Result<Option<AccountInfo>, Self::Error> {
         DatabaseRef::basic_ref(self, address)
@@ -79,7 +82,7 @@ impl Database for HistoryDB {
 
 // === revm DatabaseRef Implementation ===
 impl DatabaseRef for HistoryDB {
-    type Error = revm::revm_database::alloydb::DBTransportError;
+    type Error = eyre::ErrReport;
 
     fn basic_ref(&self, address: Address) -> std::result::Result<Option<AccountInfo>, Self::Error> {
         let account = self

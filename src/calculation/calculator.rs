@@ -11,51 +11,30 @@ use crate::market_state::MarketState;
 use crate::swap::{SwapPath, SwapStep};
 use crate::main::AMOUNT;
 
-pub fn uniswap_v2_out(&self, input: U256, pool: &Address, token: &Address, fee: U256) -> U256 {
-    // TODO: Actual implementation
-    U256::ZERO
-}
-
-pub fn uniswap_v3_out(&self, input: U256, pool: &Address, token: &Address, fee: u32) -> Option<U256> {
-    // TODO: Actual implementation
-    Some(U256::ZERO)
-}
-
-pub fn aerodrome_out(&self, input: U256, token: Address, pool: Address) -> U256 {
-    // TODO: Actual implementation
-    U256::ZERO
-}
-
-pub fn balancer_v2_out(&self, input: U256, token_in: Address, token_out: Address, pool: Address) -> U256 {
-    // TODO: Actual implementation
-    U256::ZERO
-}
-
 // Calculator handles swap output computations across supported AMM types.
-
 pub struct Calculator<N, P>
 where
     N: Network,
     P: Provider<N>,
- {
+{
     pub market_state: Arc<MarketState<N, P>>,
     pub cache: Arc<Cache>,
- }
+}
 
- impl<N, P> Calculator<N, P>
- where
+impl<N, P> Calculator<N, P>
+where
     N: Network,
     P: Provider<N>,
-   {
+{
     // Create a new calculator instance with market state and internal cache.
-     pub fn new(market_state: Arc<MarketState<N, P>>) -> Self {
+    pub fn new(market_state: Arc<MarketState<N, P>>) -> Self {
         Self {
             market_state,
             cache: Arc::new(Cache::new(500)),
         }
-     }
+    }
 
-      /// Invalidate the internal cache for a set of pool addresses
+    /// Invalidate the internal cache for a set of pool addresses
     pub fn invalidate_cache(&self, pools: &HashSet<Address>) {
         for pool in pools {
             self.cache.invalidate(*pool);
@@ -64,43 +43,17 @@ where
 
     // Perform output amount calculation for a given swap path
     #[inline(always)]
-   pub fn compute_pool_output(
-    &self,
-    pool_addr: Address,
-    token_in: Address,
-    protocol: PoolType,
-    fee: u32,
-    input: U256,
-) -> U256 {
- {
-        let mut amount = *AMOUNT;
-        for swap_step in &path.steps {
-            let pool_address = swap_step.pool_address;
-
-            // Fast path: use cached result
-            if let Some(cached_amount) = self.cache.get(amount, pool_address) {
-                amount = cached_amount;
-            } else {
-                // Compute fresh and store in cache
-                let output_amount = self.compute_amount_out(
-                    amount,
-                    pool_address,
-                    swap_step.token_in,
-                    swap_step.protocol,
-                    swap_step.fee,
-                );
-
-                self.cache.set(amount, pool_address, output_amount);
-                amount = output_amount;
-            }
-
-            if amount.is_zero() {
-                return U256::ZERO;
-            }
-        }
-     self.compute_amount_out(input, pool_addr, token_in, protocol, fee);
-    amount;
- }
+    pub fn compute_pool_output(
+        &self,
+        pool_addr: Address,
+        token_in: Address,
+        protocol: PoolType,
+        fee: u32,
+        input: U256,
+    ) -> U256 {
+        // TODO: Implement actual logic
+        U256::ZERO
+    }
 
     /// Return a debug trace of intermediate amounts at each swap step
     pub fn debug_calculation(&self, path: &SwapPath) -> Vec<U256> {
@@ -119,7 +72,7 @@ where
             amount = output_amount;
         }
 
-        path_trace;
+        path_trace
     }
 
     /// Main dispatcher for computing output amount based on AMM type
@@ -165,81 +118,23 @@ where
         }
     }
 
-    #[inline(always)]
-  pub fn invalidate_cache(&self, updated_pools: &HashSet<Address>) {
-        for pool in updated_pools {
-            self.cache.invalidate(*pool)
-        }
+    pub fn uniswap_v2_out(&self, input: U256, pool: &Address, token: &Address, fee: U256) -> U256 {
+        // TODO: Actual implementation
+        U256::ZERO
     }
 
-    /// A -> B (user trade) -> A' (MEV backrun)
-    pub fn simulate_sandwich_mev(
-        &self,
-        frontrun: &SwapPath,
-        victim: &SwapPath,
-        backrun: &SwapPath,
-    ) -> (U256, U256, U256) {
-        let front_output = self.calculate_output(frontrun);
-        let victim_output = self.calculate_output(victim);
-        let back_output = self.calculate_output(backrun);
-
-        let total_profit = back_output.saturating_sub(frontrun.steps.first().map(|s| *AMOUNT).unwrap_or_default());
-
-        (front_output, victim_output, total_profit);
+    pub fn uniswap_v3_out(&self, input: U256, pool: &Address, token: &Address, fee: u32) -> Option<U256> {
+        // TODO: Actual implementation
+        Some(U256::ZERO)
     }
 
-    /// Generate backrun path from a base path by flipping it
-    pub fn reverse_path(&self, original: &SwapPath) -> SwapPath {
-        let mut steps = original.steps.clone();
-        steps.reverse();
-
-        let reversed_steps = steps
-            .into_iter()
-            .map(|step| SwapStep {
-                pool_address: step.pool_address,
-                token_in: step.token_out,
-                token_out: step.token_in,
-                protocol: step.protocol,
-                fee: step.fee,
-            })
-            .collect();
-
-        SwapPath {
-            steps: reversed_steps,
-            hash: original.hash,
-        }
+    pub fn aerodrome_out(&self, input: U256, token: Address, pool: Address) -> U256 {
+        // TODO: Actual implementation
+        U256::ZERO
     }
 
- /// Calculate output amount for a given SwapPath
-    pub fn calculate_output(&self, path: &SwapPath) -> U256 {
-        let mut amount = *AMOUNT;
-
-        for swap_step in &path.steps {
-            let pool_address = swap_step.pool_address;
-
-            // Check cache first
-            if let Some(cached_amount) = self.cache.get(amount, pool_address) {
-                amount = cached_amount;
-            } else {
-                let output_amount = self.compute_amount_out(
-                    amount,
-                    pool_address,
-                    swap_step.token_in,
-                    swap_step.protocol,
-                    swap_step.fee,
-                );
-
-                self.cache.set(amount, pool_address, output_amount);
-                amount = output_amount;
-            }
-
-            if amount.is_zero() {
-                return U256::ZERO;
-            }
-        }
-
-        amount;
+    pub fn balancer_v2_out(&self, input: U256, token_in: Address, token_out: Address, pool: Address) -> U256 {
+        // TODO: Actual implementation
+        U256::ZERO
     }
-
- }
 }

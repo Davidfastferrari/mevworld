@@ -30,16 +30,16 @@ struct Point {
 }
 
 // Handles sending transactions
-pub struct TransactionSender {
+pub struct TransactionSender<HttpClient> {
     wallet: EthereumWallet<PrivateKeySigner>,
     gas_station: Arc<GasStation>,
     contract_address: Address,
     client: Arc<Client>,
-    provider: Arc<RootProvider<Http<Client>>>,
+    provider: Arc<RootProvider<Http<HttpClient>>>,
     nonce: u64,
 }
 
-impl TransactionSender {
+impl<HttpClient> TransactionSender<HttpClient> {
     pub async fn new(gas_station: Arc<GasStation>) -> Self {
         // construct a wallet
         let key = std::env::var("PRIVATE_KEY").expect("PRIVATE_KEY not set");
@@ -71,7 +71,7 @@ impl TransactionSender {
             .unwrap();
 
         // setup provider
-        let http_provider = std::env::var("FULL").unwrap().parse::<Http<Client>>().unwrap();
+        let http_provider = std::env::var("FULL").unwrap().parse::<Http<HttpClient>>().unwrap();
         let provider = Arc::new(ProviderBuilder::new().on_http(http_provider));
 
         let nonce = provider
@@ -147,7 +147,7 @@ impl TransactionSender {
     }
 
     pub async fn send_and_monitor(
-        provider: Arc<RootProvider<Http<Client>>>,
+        provider: Arc<RootProvider<Http<HttpClient>>>,
         tx_hash: FixedBytes<32>,
         block_number: u64,
     ) {
