@@ -71,8 +71,8 @@ impl<HttpClient> TransactionSender<HttpClient> {
             .unwrap();
 
         // setup provider
-        let http_provider = std::env::var("FULL").unwrap().parse::<Http<HttpClient>>().unwrap();
-        let provider = Arc::new(ProviderBuilder::new().on_http(http_provider));
+        let http_url = std::env::var("FULL").expect("FULL env var not set");
+        let provider = Arc::new(ProviderBuilder::new().on_http(http_url));
 
         let nonce = provider
             .get_transaction_count(std::env::var("ACCOUNT").unwrap().parse().unwrap())

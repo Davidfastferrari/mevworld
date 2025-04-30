@@ -6,20 +6,20 @@ use std::{
     str::FromStr,
 };
 use alloy::primitives::{address, Address, U160, U256};
-use alloy::alloy_sol_types::SolCall as AlloySolCall;
+use alloy_sol_types::SolCall as AlloySolCall;
 use lazy_static::lazy_static;
 use once_cell::sync::Lazy;
 use log::{info, debug};
 use rayon::prelude::*;
 use reqwest::header::{HeaderMap, HeaderValue};
-use reth::revm::{Evm, inspector_handle_register};
+use reth::revm::{Evm};
 use revm::primitives::{Bytes, ExecutionResult, FixedBytes, TransactTo};
-use revm_inspectors::access_list::InspectEvm;
+use revm_inspectors::access_list::Inspector;
 use anyhow::{Result, Context};
 use serde::{Serialize, Deserialize};
 use pool_sync::{Chain, Pool, PoolInfo, PoolType};
-use crate::node_db::InsertionType;
-use crate::state_db::InsertionType;
+use crate::node_db::InsertionType as NodeInsertionType;
+use crate::state_db::InsertionType as StateInsertionType;
 use crate::rgen::ERC20Token::{self, approveCall};
 use crate::rgen::{V2Aerodrome, V2Swap, V3Swap, V3SwapDeadline, V3SwapDeadlineTick};
 use crate::constants::AMOUNT;

@@ -11,9 +11,9 @@ use crate::market_state::MarketState;
 use crate::swap::{SwapPath, SwapStep};
 use crate::main::AMOUNT;
 
-mod uniswap;
-mod balancer;
-mod aerodrome;
+use crate::calculation::uniswap;
+use crate::calculation::balancer;
+use crate::calculation::aerodrome;
 
 pub struct Calculator<N, P>
 where
