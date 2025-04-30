@@ -1,7 +1,7 @@
 use tracing::{info, warn};
 use alloy::alloy_sol_types::SolCall;
 use alloy::primitives::{address, Address, U256};
-use revm::Evm; with use reth::revm::primitives::{ExecutionResult, TransactTo};
+use reth::revm::primitives::{ExecutionResult, TransactTo};
 use reth::revm::Evm;
 
 use super::Calculator;
