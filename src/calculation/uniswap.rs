@@ -2,11 +2,11 @@ use alloy_sol_types::sol;
 use alloy::network::Network;
 use alloy::primitives::{Address, I256, U256};
 use alloy::providers::Provider;
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use proptest::prelude::*;
-use uniswap_v3_math::tick_math::{MAX_SQRT_RATIO, MAX_TICK, MIN_SQRT_RATIO, MIN_TICK};
+use uniswap_v3_sdk::prelude::*;
 use std::collections::HashMap;
-use uniswap_v3_math::swap_math;
+use log::{info, error};
 use crate::constants::U256_ONE;
 use super::Calculator;
 
@@ -48,7 +48,7 @@ where
     N: Network,
     P: Provider<N>,
 {
-    // Calcualte the amount out for a uniswapv2 swap
+    // Calculate the amount out for a uniswapv2 swap
     #[inline]
     pub fn uniswap_v2_out(
         &self,
@@ -103,7 +103,7 @@ where
             MAX_SQRT_RATIO - U256_1
         };
 
-        // Initialize a mutable state state struct to hold the dynamic simulated state of the pool
+        // Initialize a mutable state struct to hold the dynamic simulated state of the pool
         let mut current_state = CurrentState {
             sqrt_price_x_96: slot0.sqrtPriceX96.to(), //Active price on the pool
             amount_calculated: I256::ZERO,            //Amount of token_out that has been calculated
@@ -113,9 +113,12 @@ where
         };
 
         let exact_input = true; // We're always doing exact input when calculating output
-        
-        while current_state.amount_specified_remaining != I256::ZERO 
-            && current_state.sqrt_price_x_96 != sqrt_price_limit_x_96 
+
+        // Prepare tick data provider from uniswap_v3_sdk extensions
+        let mut tick_data_provider = TickDataProvider::new(db_read.clone(), *pool_address, tick_spacing);
+
+        while current_state.amount_specified_remaining != I256::ZERO
+            && current_state.sqrt_price_x_96 != sqrt_price_limit_x_96
         {
             // Initialize a new step struct to hold the dynamic state of the pool at each step
             let mut step = StepComputations {
@@ -124,29 +127,18 @@ where
                 ..Default::default()
             };
 
-            let mut tick_bitmap: HashMap<i16, U256> = HashMap::new();
-            let (word_pos, _bit_pos) = position(current_state.tick / (tick_spacing));
+            // Get the next initialized tick using uniswap_v3_sdk tick data provider
+            let (tick_next, initialized) = tick_data_provider.next_initialized_tick_within_one_word(
+                current_state.tick,
+                tick_spacing,
+                zero_to_one,
+            )?;
 
-            for i in word_pos - 1..=word_pos + 1 {
-                tick_bitmap.insert(i, db_read.tick_bitmap(*pool_address, i).unwrap_or_default());
-            }
+            step.tick_next = tick_next.clamp(MIN_TICK, MAX_TICK);
+            step.initialized = initialized;
 
-            // Get the next tick from the current tick
-            (step.tick_next, step.initialized) =
-                tick_bitmap::next_initialized_tick_within_one_word(
-                    &tick_bitmap,
-                    current_state.tick,
-                    tick_spacing,
-                    zero_to_one,
-                )?;
-
-            // ensure that we do not overshoot the min/max tick, as the tick bitmap is not aware of these bounds
-            // Note: this could be removed as we are clamping in the batch contract
-            step.tick_next = step.tick_next.clamp(MIN_TICK, MAX_TICK);
-
-            // Get the next sqrt price from the input amount
-            step.sqrt_price_next_x96 =
-                tick_math::get_sqrt_ratio_at_tick(step.tick_next)?;
+            // Get the next sqrt price from the input amount using uniswap_v3_sdk
+            step.sqrt_price_next_x96 = TickMath::get_sqrt_ratio_at_tick(step.tick_next)?;
 
             // Target spot price
             let swap_target_sqrt_ratio = if zero_to_one {
@@ -161,9 +153,9 @@ where
                 step.sqrt_price_next_x96
             };
 
-            // Compute swap step and update the current state
-            let (sqrt_price_next_x96, amount_in, amount_out, fee_amount) = 
-                swap_math::compute_swap_step(
+            // Compute swap step and update the current state using uniswap_v3_sdk swap math
+            let (sqrt_price_next_x96, amount_in, amount_out, fee_amount) =
+                SwapMath::compute_swap_step(
                     current_state.sqrt_price_x_96,
                     swap_target_sqrt_ratio,
                     current_state.liquidity,
@@ -181,19 +173,19 @@ where
             // Update tick and liquidity only if needed for next iteration
             if current_state.sqrt_price_x_96 == step.sqrt_price_next_x96 {
                 if step.initialized {
-                    let mut liquidity_net: i128 = 
+                    let mut liquidity_net: i128 =
                         db_read.ticks_liquidity_net(*pool_address, step.tick_next)?;
-                    
+
                     if zero_to_one {
                         liquidity_net = -liquidity_net;
                     }
-                    
+
                     current_state.liquidity = if liquidity_net < 0 {
                         current_state.liquidity.checked_sub(-liquidity_net as u128)
-                            .ok_or_else(|| anyhow::anyhow!("Insufficient liquidity"))?
+                            .ok_or_else(|| anyhow!("Insufficient liquidity"))?
                     } else {
                         current_state.liquidity.checked_add(liquidity_net as u128)
-                            .ok_or_else(|| anyhow::anyhow!("Liquidity overflow"))?
+                            .ok_or_else(|| anyhow!("Liquidity overflow"))?
                     };
                 }
                 current_state.tick = if zero_to_one {
@@ -202,10 +194,13 @@ where
                     step.tick_next
                 };
             } else if current_state.sqrt_price_x_96 != step.sqrt_price_start_x_96 {
-                current_state.tick = uniswap_v3_math::tick_math::get_tick_at_sqrt_ratio(
+                current_state.tick = TickMath::get_tick_at_sqrt_ratio(
                     current_state.sqrt_price_x_96,
                 )?;
             }
+
+            info!("Swap step: tick_next={}, sqrt_price_next_x96={}, amount_in={}, amount_out={}, fee_amount={}",
+                step.tick_next, step.sqrt_price_next_x96, amount_in, amount_out, fee_amount);
         }
 
         Ok((-current_state.amount_calculated).into_raw())
@@ -214,7 +209,7 @@ where
 
 impl MockDB {
     fn build(liquidity: u128, tick: i32) -> Self {
-        let sqrt_price = tick_math::get_sqrt_ratio_at_tick(tick).unwrap_or(U256::from(1));
+        let sqrt_price = TickMath::get_sqrt_ratio_at_tick(tick).unwrap_or(U256::from(1));
         Self {
             liquidity,
             sqrt_price_x_96: sqrt_price,
@@ -258,7 +253,7 @@ impl MockDB {
             };
 
             step.tick_next = next_tick.clamp(MIN_TICK, MAX_TICK);
-            step.sqrt_price_next_x96 = tick_math::get_sqrt_ratio_at_tick(step.tick_next)?;
+            step.sqrt_price_next_x96 = TickMath::get_sqrt_ratio_at_tick(step.tick_next)?;
 
             let target = if zero_to_one {
                 step.sqrt_price_next_x96.min(price_limit)
@@ -266,7 +261,7 @@ impl MockDB {
                 step.sqrt_price_next_x96.max(price_limit)
             };
 
-            let (sqrt_next, amt_in, amt_out, fee_amt) = swap_math::compute_swap_step(
+            let (sqrt_next, amt_in, amt_out, fee_amt) = SwapMath::compute_swap_step(
                 state.sqrt_price_x_96,
                 target,
                 state.liquidity,
@@ -278,6 +273,9 @@ impl MockDB {
             state.amount_calculated -= I256::from_raw(amt_out);
             state.sqrt_price_x_96 = sqrt_next;
             state.tick = step.tick_next;
+
+            info!("Simulate step: tick_next={}, sqrt_price_next_x96={}, amt_in={}, amt_out={}, fee_amt={}",
+                step.tick_next, step.sqrt_price_next_x96, amt_in, amt_out, fee_amt);
         }
 
         Ok((-state.amount_calculated).into_raw())
