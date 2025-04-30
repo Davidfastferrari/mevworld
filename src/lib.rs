@@ -15,5 +15,8 @@ extern crate lazy_static;
 // Import alloy sol macro
 pub use alloy_sol_types::sol;
 
+// Declare calculation module
+pub mod calculation;
+
 // Re-export Calculator for easier import
 pub use crate::calculation::Calculator;
