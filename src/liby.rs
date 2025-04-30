@@ -42,16 +42,3 @@ pub mod tx_sender;
 pub mod history_db;
 #[path = "node_db.rs"]
 pub mod node_db;
-
-pub mod calculation {
-    #[path = "calculation/calculator.rs"]
-    pub mod calculator;
-    #[path = "calculation/curve.rs"]
-    pub mod curve;
-    #[path = "calculation/aerodrome.rs"]
-    pub mod aerodrome;
-    #[path = "calculation/maverick.rs"]
-    pub mod maverick;
-    #[path = "calculation/uniswap.rs"]
-    pub mod uniswap;
-}
