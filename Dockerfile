@@ -20,8 +20,6 @@ COPY . .
 
 # Build your project in release mode
 
-RUN cargo clippy --bin mevworld
-
 RUN cargo build --bin mevworld
 
 # Stage 2 - Minimal Runtime
