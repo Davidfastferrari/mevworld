@@ -1,4 +1,3 @@
-.
 use alloy::alloy_sol_types::SolCall;
 use alloy::primitives::Address;
 use alloy_sol_types::trace::{common::TraceResult, geth::GethDebugTracingOptions};
@@ -7,11 +6,10 @@ use std::collections::BTreeMap;
 use std::sync::Arc;
 
 use alloy::providers::Network;
-use log::trace;
+use tracing::{trace, warn, error};
 use reth_node_ethereum::DebugApi;
 use reth::revm::{db::AccountState, primitives::{AccountInfo, Bytecode, KECCAK_EMPTY}}; 
 use reth::tracing::{with_tracer, with_prestate_config, GethDebugTracerType, GethDebugBuiltInTracerType, GethDefaultTracingOptions, PreStateConfig, GethTrace, PreStateFrame};
-use tracing::warn;
 
 /// Vector of address-to-account-state maps representing post-trace changes.
 pub async fn debug_trace_block<N>(

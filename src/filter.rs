@@ -6,7 +6,7 @@ use std::{
     str::FromStr,
 };
 use alloy::primitives::{address, Address, U160, U256};
-use alloy::alloy_sol_types::SolCall;
+use alloy::alloy_sol_types::SolCall as AlloySolCall;
 use lazy_static::lazy_static;
 use once_cell::sync::Lazy;
 use log::{info, debug};
