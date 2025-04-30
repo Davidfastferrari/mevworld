@@ -6,13 +6,13 @@ use std::{
     str::FromStr,
 };
 use alloy::primitives::{address, Address, U160, U256};
-use alloy_sol_types::SolCall as AlloySolCall;
+use alloy_sol_types::sol;
 use lazy_static::lazy_static;
 use once_cell::sync::Lazy;
 use log::{info, debug};
 use rayon::prelude::*;
 use reqwest::header::{HeaderMap, HeaderValue};
-use reth::revm::{Evm};
+use reth::revm::Evm;
 use revm::primitives::{Bytes, ExecutionResult, FixedBytes, TransactTo};
 use revm_inspectors::access_list::Inspector;
 use anyhow::{Result, Context};

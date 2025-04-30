@@ -1,23 +1,19 @@
 use tracing::info;
 use serde::{Serialize, Deserialize};
 use serde_json::json;
-use alloy::alloy_sol_types::SolCall;
+use alloy_sol_types::sol;
 use alloy::primitives::{Address, Bytes as AlloyBytes, FixedBytes};
-use alloy::providers::Provider;
-use alloy::providers::ProviderBuilder;
-use alloy::providers::RootProvider;
+use alloy::providers::{Provider, ProviderBuilder, RootProvider};
 use alloy_sol_types::TransactionRequest;
-use alloy_signer::wallet::LocalWallet;
-use alloy_signer::local::PrivateKeySigner;
-use alloy_signer::wallet::EthereumWallet;
-use alloy_transport_http::Http;
+use alloy_signer::{LocalWallet, PrivateKeySigner, EthereumWallet};
+use alloy_network::TransactionBuilder;
+use alloy_transport_http::{Http, Client as HttpClient};
 use tokio::sync::mpsc::Receiver;
 use std::{sync::Arc, str::FromStr, time::{Duration, Instant}};
 use reqwest::Client;
 use serde_json::Value;
 use hex;
 use k256::ecdsa::SigningKey as SecretKey;
-use alloy_sol_types::TransactionBuilder;
 
 use crate::events::Event;
 use crate::gas_station::GasStation;
@@ -35,7 +31,7 @@ pub struct TransactionSender<HttpClient> {
     gas_station: Arc<GasStation>,
     contract_address: Address,
     client: Arc<Client>,
-    provider: Arc<RootProvider<Http<HttpClient>>>,
+    provider: Arc<RootProvider<alloy_network::Ethereum>>,
     nonce: u64,
 }
 
@@ -72,7 +68,7 @@ impl<HttpClient> TransactionSender<HttpClient> {
 
         // setup provider
         let http_url = std::env::var("FULL").expect("FULL env var not set");
-        let provider = Arc::new(ProviderBuilder::new().on_http(http_url));
+        let provider = Arc::new(ProviderBuilder::new().on_http(Url::parse(&http_url).unwrap()));
 
         let nonce = provider
             .get_transaction_count(std::env::var("ACCOUNT").unwrap().parse().unwrap())

@@ -1,4 +1,4 @@
-use alloy::alloy_sol_types::SolCall;
+use alloy_sol_types::sol;
 use alloy::primitives::Address;
 use alloy_sol_types::trace::{common::TraceResult, geth::GethDebugTracingOptions};
 use alloy_sol_types::BlockNumberOrTag;

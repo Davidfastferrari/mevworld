@@ -2,7 +2,7 @@ use tracing::{info, warn};
 use alloy_sol_types::sol;
 use alloy::alloy_sol_types::SolCall;
 use alloy::primitives::{address, Address, U256};
-use reth::revm::primitives::{ExecutionResult, TransactTo};
+use reth::primitives::{ExecutionResult, TransactTo};
 use reth::revm::Evm;
 
 use super::Calculator;
@@ -118,7 +118,7 @@ where
     /// 🧪 Helper to analyze EVM state difference after call
     fn analyze_state_changes(
         &self,
-        pre: &std::collections::HashMap<Address, crate::state_db::BlockStateDBAccount>,
+        pre: &std::collections::HashMap<Address, crate::state_db::blockstate_db::BlockStateDBAccount>,
         post: &crate::state_db::BlockStateDB<N, P>,
         pool: Address,
     ) {

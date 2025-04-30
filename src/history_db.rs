@@ -21,7 +21,6 @@ use eyre::ErrReport;
 use std::error::Error as StdError;
 use revm::revm_database::DBErrorMarker;
 
-
 /// Core struct that provides access to historical state from Reth database.
 pub struct HistoryDB {
     db_provider: StateProviderBox,

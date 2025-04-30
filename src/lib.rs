@@ -1,44 +1,19 @@
-#[path = "bytecode.rs"]
-pub mod bytecode;
-#[path = "cache.rs"]
-pub mod cache;
-#[path = "calculation/mod.rs"]
-pub mod calculation;
-#[path = "constants.rs"]
-pub mod constants;
-#[path = "estimator.rs"]
-pub mod estimator;
-#[path = "events.rs"]
-pub mod events;
-#[path = "filter.rs"]
-pub mod filter;
-#[path = "gas_station.rs"]
-pub mod gas_station;
-#[path = "rgen.rs"]
-pub mod rgen;
-#[path = "graph.rs"]
-pub mod graph;
-#[path = "ignition.rs"]
-pub mod ignition;
-#[path = "market_state.rs"]
-pub mod market_state;
-#[path = "quoter.rs"]
-pub mod quoter;
-#[path = "searcher.rs"]
-pub mod searcher;
-#[path = "simulator.rs"]
-pub mod simulator;
-#[path = "state_db/mod.rs"]
-pub mod state_db;
-#[path = "stream.rs"]
-pub mod stream;
-#[path = "swap.rs"]
-pub mod swap;
-#[path = "tracing.rs"]
-pub mod tracing;
-#[path = "tx_sender.rs"]
-pub mod tx_sender;
-#[path = "history_db.rs"]
-pub mod history_db;
-#[path = "node_db.rs"]
-pub mod node_db;
+//! Library root for mevworld crate.
+
+// Import macros for logging
+#[macro_use]
+extern crate log;
+
+// Import tracing macros
+#[macro_use]
+extern crate tracing;
+
+// Import lazy_static macro
+#[macro_use]
+extern crate lazy_static;
+
+// Import alloy sol macro
+pub use alloy_sol_types::sol;
+
+// Re-export Calculator for easier import
+pub use crate::calculation::Calculator;

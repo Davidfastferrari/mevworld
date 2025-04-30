@@ -1,4 +1,4 @@
-use alloy_sol_types::SolCall;
+use alloy_sol_types::sol;
 use alloy::network::Network;
 use alloy::primitives::{Address, I256, U256};
 use alloy::providers::Provider;
