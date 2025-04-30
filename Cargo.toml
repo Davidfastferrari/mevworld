@@ -20,7 +20,7 @@ criterion = "0.5"
 lazy_static = "1.4.0"
 block-db = "0.2.0"
 blockstate = "0.1.0"
-winit = "0.30.9"
+winit = "0.30.10"
 futures = { version = "0.3.31", features = ["executor"] }
 reqwest = { version = "0.12.3", features = ["json", "gzip", "blocking", "stream"] }
 hyper = { version = "1.3.0", features = ["client"] }
@@ -33,12 +33,12 @@ serde_json = "1.0.114"
 once_cell = "1.21.3"
 sha2 = "0.10.8"
 rustc-hash = "2.1.1"
-uniswap_v3_math = "0.6.0"
+uniswap-v3-math = { git = "https://github.com/0xKitsune/uniswap-v3-math.git", branch = "main" }
 uniswap-v3-sdk = "4.3.0"
-chrono = "0.4.38"
+chrono = "0.4.41"
 
 # Alloy (Ethereum Types, EIPs, Primitives, etc.)
-alloy = { version = "0.14.0", features = ["full"] }
+alloy = { version = "0.15.6", features = ["full"] }
 alloy-consensus = "0.14.0"
 alloy-eips = "0.14.0"
 alloy-primitives = "1.0.0"
@@ -53,12 +53,12 @@ serde_derive = "1.0.197"
 thiserror = "1.0.50"
 
 # Alloy additional crates (sol-types + http transports)
-alloy-sol-types = { version = "0.4.2", features = ["std"] }
+alloy-sol-types = { version = "1.0.0", features = ["std"] }
 alloy-transport-http = { version = "0.4.2", features = ["reqwest"] }
 
 # REVM + Precompile Logic
 revm = { version = "22.0.1", features = ["alloydb"] }
-revm-inspectors = "0.19.1"
+revm-inspectors = "0.20.1"
 
 # Reth Crates
 reth = { git = "https://github.com/paradigmxyz/reth", package = "reth", rev = "6f8e725" }
@@ -87,8 +87,5 @@ essential-node-db-sql = "0.5.0"
 
 # Added hex crate for encoding/decoding
 hex = "0.4"
-k256 = "0.11"
-
-# Added missing crates for tick math and bitmap
-tick-math = "0.1.0"
-tick-bitmap = "0.1.0"
+k256 = "0.13.4"
+ 
