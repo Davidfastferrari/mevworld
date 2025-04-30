@@ -4,8 +4,8 @@ use std::{
 };
 use alloy::primitives::{Address, B256, StorageKey, U256};
 use eyre::{Context, Result};
-use reth::rpc::types::AccountInfo;
-use reth::primitives::Bytecode;
+use revm::revm_state::AccountInfo;
+use revm::revm_bytecode::Bytecode;
 use alloy_consensus::constants::KECCAK_EMPTY;
 use reth::api::NodeTypesWithDBAdapter;
 use reth::providers::{
@@ -37,7 +37,7 @@ impl HistoryDB {
         ).wrap_err("Failed to open DB in read-only mode")?);
 
         // Construct the mainnet ChainSpec
-         spec = Arc::new(ChainSpecBuilder::mainnet().build());
+        let spec = Arc::new(ChainSpecBuilder::mainnet().build());
 
         // Load static file provider (used for history lookups)
         let static_provider = StaticFileProvider::read_only(db_path.join("static_files"), true)
@@ -58,30 +58,30 @@ impl HistoryDB {
 
 // === revm Database Implementation ===
 impl Database for HistoryDB {
-    type Error = eyre::Error;
+    type Error = revm::revm_database::alloydb::DBTransportError;
 
-    fn basic(&mut self, address: Address) -> Result<Option<AccountInfo>, Self::Error> {
+    fn basic(&mut self, address: Address) -> std::result::Result<Option<AccountInfo>, Self::Error> {
         DatabaseRef::basic_ref(self, address)
     }
 
-    fn code_by_hash(&mut self, _code_hash: B256) -> Result<Bytecode, Self::Error> {
+    fn code_by_hash(&mut self, _code_hash: B256) -> std::result::Result<Bytecode, Self::Error> {
         panic!("code_by_hash should never be called directly; code is preloaded via basic_ref")
     }
 
-    fn storage(&mut self, address: Address, index: U256) -> Result<U256, Self::Error> {
+    fn storage(&mut self, address: Address, index: U256) -> std::result::Result<U256, Self::Error> {
         DatabaseRef::storage_ref(self, address, index)
     }
 
-    fn block_hash(&mut self, number: u64) -> Result<B256, Self::Error> {
+    fn block_hash(&mut self, number: u64) -> std::result::Result<B256, Self::Error> {
         DatabaseRef::block_hash_ref(self, number)
     }
 }
 
 // === revm DatabaseRef Implementation ===
 impl DatabaseRef for HistoryDB {
-    type Error = eyre::Error;
+    type Error = revm::revm_database::alloydb::DBTransportError;
 
-    fn basic_ref(&self, address: Address) -> Result<Option<AccountInfo>, Self::Error> {
+    fn basic_ref(&self, address: Address) -> std::result::Result<Option<AccountInfo>, Self::Error> {
         let account = self
             .db_provider
             .basic_account(&address)?
@@ -102,17 +102,17 @@ impl DatabaseRef for HistoryDB {
         Ok(Some(account_info))
     }
 
-    fn code_by_hash_ref(&self, _code_hash: B256) -> Result<Bytecode, Self::Error> {
+    fn code_by_hash_ref(&self, _code_hash: B256) -> std::result::Result<Bytecode, Self::Error> {
         panic!("code_by_hash_ref should not be invoked directly; preloading expected")
     }
 
-    fn storage_ref(&self, address: Address, index: U256) -> Result<U256, Self::Error> {
+    fn storage_ref(&self, address: Address, index: U256) -> std::result::Result<U256, Self::Error> {
         let key = StorageKey::from(index);
         let value = self.db_provider.storage(address, key)?;
         Ok(value.unwrap_or_default())
     }
 
-    fn block_hash_ref(&self, number: u64) -> Result<B256, Self::Error> {
+    fn block_hash_ref(&self, number: u64) -> std::result::Result<B256, Self::Error> {
         match self.db_provider.block_hash(number)? {
             Some(hash) => Ok(B256::from(hash.0)),
             None => Ok(KECCAK_EMPTY),

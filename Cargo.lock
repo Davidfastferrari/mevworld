@@ -5540,6 +5540,7 @@ dependencies = [
  "eyre",
  "foldhash",
  "futures",
+ "hex",
  "http-body-util",
  "hyper",
  "hyper-tls",

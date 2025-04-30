@@ -5,6 +5,7 @@ use alloy_sol_types::BlockNumberOrTag;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
+use alloy::providers::Network;
 use reth_node_ethereum::DebugApi;
 use reth::revm::{db::AccountState, primitives::{AccountInfo, Bytecode, KECCAK_EMPTY}};
 use reth::tracing::{with_tracer, with_prestate_config, GethDebugTracerType, GethDebugBuiltInTracerType, GethDefaultTracingOptions, PreStateConfig, GethTrace, PreStateFrame};

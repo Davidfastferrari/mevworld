@@ -35,7 +35,7 @@ pub struct TransactionSender {
     gas_station: Arc<GasStation>,
     contract_address: Address,
     client: Arc<Client>,
-    provider: Arc<RootProvider<Http<HttpClient>>>,
+    provider: Arc<RootProvider<Http<Client>>>,
     nonce: u64,
 }
 
@@ -71,7 +71,7 @@ impl TransactionSender {
             .unwrap();
 
         // setup provider
-        let http_provider = std::env::var("FULL").unwrap().parse::<Http<HttpClient>>().unwrap();
+        let http_provider = std::env::var("FULL").unwrap().parse::<Http<Client>>().unwrap();
         let provider = Arc::new(ProviderBuilder::new().on_http(http_provider));
 
         let nonce = provider
@@ -89,8 +89,8 @@ impl TransactionSender {
         }
     }
 
-pub async fn send_transactions(&mut self, mut tx_receiver: Receiver<Event>){
-    while let Some(Event::ValidPath((arb_path, profit, block_number))) = tx_receiver.recv().await{
+    pub async fn send_transactions(&mut self, mut tx_receiver: Receiver<Event>){
+        while let Some(Event::ValidPath((arb_path, profit, block_number))) = tx_receiver.recv().await{
             info!("Sending path...");
 
             let converted_path: FlashSwap::SwapParams = arb_path.clone().into();
@@ -115,7 +115,7 @@ pub async fn send_transactions(&mut self, mut tx_receiver: Receiver<Event>){
             let tx_envelope = tx.build(&self.wallet).await.unwrap();
             let mut encoded_tx = vec![];
             tx_envelope.encode_2718(&mut encoded_tx);
-            let rlp_hex = hex::encode_prefixed(encoded_tx);
+            let rlp_hex = hex::encode(encoded_tx);
 
             let tx_data = json!({
                 "jsonrpc": "2.0",
@@ -147,7 +147,7 @@ pub async fn send_transactions(&mut self, mut tx_receiver: Receiver<Event>){
     }
 
     pub async fn send_and_monitor(
-        provider: Arc<RootProvider<Http<HttpClient>>>,
+        provider: Arc<RootProvider<Http<Client>>>,
         tx_hash: FixedBytes<32>,
         block_number: u64,
     ) {
