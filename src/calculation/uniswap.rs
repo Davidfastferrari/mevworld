@@ -7,7 +7,7 @@ use proptest::prelude::*;
 use uniswap_v3_sdk::prelude::*;
 use uniswap_v3_sdk::swap_math::SwapMath;
 use std::collections::HashMap;
-use log::{info, error};
+use log::{info};
 use crate::constants as mev_constants;
 use crate::calculation::Calculator;
 
@@ -99,9 +99,9 @@ where
 
         // Set sqrt_price_limit_x_96 to the max or min sqrt price in the pool depending on zero_for_one
         let sqrt_price_limit_x_96 = if zero_to_one {
-            U256::from(constants::MIN_SQRT_RATIO) + U256_1
+            U256::from(mev_constants::MIN_SQRT_RATIO) + U256_1
         } else {
-            constants::MAX_SQRT_RATIO - U256_1
+            mev_constants::MAX_SQRT_RATIO - U256_1
         };
 
         // Initialize a mutable state struct to hold the dynamic simulated state of the pool
@@ -135,7 +135,7 @@ where
                 zero_to_one,
             )?;
 
-            step.tick_next = tick_next.clamp(constants::MIN_TICK, constants::MAX_TICK);
+            step.tick_next = tick_next.clamp(mev_constants::MIN_TICK, mev_constants::MAX_TICK);
             step.initialized = initialized;
 
             // Get the next sqrt price from the input amount using uniswap_v3_sdk
@@ -226,9 +226,9 @@ impl MockDB {
     ) -> Result<U256> {
         let tick_spacing = 60;
         let price_limit = if zero_to_one {
-            U256::from(constants::MIN_SQRT_RATIO) + crate::constants::U256_ONE
+            U256::from(mev_constants::MIN_SQRT_RATIO) + crate::constants::U256_ONE
         } else {
-            constants::MAX_SQRT_RATIO - crate::constants::U256_ONE
+            mev_constants::MAX_SQRT_RATIO - crate::constants::U256_ONE
         };
 
         let mut state = CurrentState {
@@ -253,7 +253,7 @@ impl MockDB {
                 state.tick + tick_spacing
             };
 
-            step.tick_next = next_tick.clamp(constants::MIN_TICK, constants::MAX_TICK);
+            step.tick_next = next_tick.clamp(mev_constants::MIN_TICK, mev_constants::MAX_TICK);
             step.sqrt_price_next_x96 = TickMath::get_sqrt_ratio_at_tick(step.tick_next)?;
 
             let target = if zero_to_one {
