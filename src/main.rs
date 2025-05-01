@@ -1,22 +1,15 @@
-use std::{
-    collections::HashMap,
-    sync::RwLock,
-    time::Duration,
-};
+use std::{collections::HashMap, sync::{Arc, RwLock}, time::Duration};
 use tracing::{info, debug, warn};
 use anyhow::Result;
 use once_cell::sync::Lazy;
 use pool_sync::{Chain, PoolSync, PoolType};
-use alloy::alloy_sol_types::SolCall;
 use alloy::primitives::U256;
 use ignition::start_workers;
 use log::LevelFilter;
 
 mod liby;
 
-pub const AMOUNT_USD: u64 = 100_000;
-pub static AMOUNT: Lazy<RwLock<U256>> = Lazy::new(|| RwLock::new(U256::from(1_000_000_000_000_000_000u128)));
-
+pub const AMOUNT: Lazy<RwLock<U256>> = Lazy::new(|| RwLock::new(U256::from(1_000_000_000_000_000_000u128)));
 
 /// Token decimals map to convert $100k into base units
 pub static TOKEN_DECIMALS: Lazy<HashMap<&'static str, u8>> = Lazy::new(|| {
@@ -32,7 +25,7 @@ pub static TOKEN_DECIMALS: Lazy<HashMap<&'static str, u8>> = Lazy::new(|| {
 pub fn amount_for_token(token_symbol: &str) -> U256 {
     let decimals = TOKEN_DECIMALS.get(token_symbol).copied().unwrap_or(18);
     let multiplier = U256::exp10(decimals as usize);
-    U256::from(AMOUNT_USD) * multiplier
+    U256::from(100_000) * multiplier // Correct conversion
 }
 
 /// Updates the global `AMOUNT` based on the token

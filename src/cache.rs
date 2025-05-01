@@ -1,5 +1,4 @@
 use std::hash::{BuildHasherDefault, Hash, Hasher};
-
 use alloy::primitives::{Address, U256};
 use dashmap::DashMap;
 use rustc_hash::FxHasher;
@@ -21,18 +20,10 @@ impl Hasher for CacheHasher {
 }
 
 /// Composite key to cache a specific pool's quote with an exact input amount
-#[derive(PartialEq, Eq, Clone, Copy, Debug)]
+#[derive(PartialEq, Eq, Clone, Copy, Debug, Hash)]
 struct CacheKey {
     pub pool_address: Address,
     pub amount_in: U256,
-}
-
-impl Hash for CacheKey {
-    #[inline]
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.pool_address.hash(state);
-        self.amount_in.hash(state);
-    }
 }
 
 /// Represents a single output entry from a simulation or estimation
@@ -53,7 +44,7 @@ impl Cache {
         Self {
             entries: DashMap::with_capacity_and_hasher(
                 num_pools * 100,
-                BuildHasherDefault::<CacheHasher>::default(),
+                BuildHasherDefault::default(),
             ),
         }
     }
