@@ -6,7 +6,7 @@ use alloy::providers::Provider;
 use once_cell::sync::Lazy;
 use std::str::FromStr;
 
-use crate::calculation::Calculator;
+use mevworld::calculation::Calculator;
 
 pub static INITIAL_AMT: Lazy<U256> = Lazy::new(|| U256::from_str("1000000000000000000").unwrap());
 pub static WETH: Lazy<Address> = Lazy::new(|| Address::from_str("0x4200000000000000000000000000000000000006").unwrap());
@@ -29,7 +29,13 @@ where
     N: Network,
     P: Provider<N>,
 {
-    pub fn aerodrome_out(&self, amount_in: U256, token_in: Address, pool_address: Address) -> U256 {
+   
+    pub fn aerodrome_out<N: Network, P: Provider<N>>(
+        calculator: &Calculator<N, P>,
+        amount_in: U256,
+        token_in: Address,
+        pool_address: Address,
+    ) -> U256 {
         let db = self.market_state.db.read().expect("DB read poisoned");
 
         let (reserve0, reserve1) = db.get_reserves(&pool_address);

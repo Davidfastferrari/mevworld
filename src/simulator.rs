@@ -1,6 +1,6 @@
 use alloy::alloy_sol_types::SolCall;
-use crate::simulator::Quoter;
-use crate::calculator::Calculator;
+use mevworld::simulator::Quoter;
+use mevworld::calculator::Calculator;
 use alloy::network::Network;
 use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
@@ -124,8 +124,6 @@ where
 }
 
 // === Extra Utility Functions ===
-
-/// Simulate a MEV sandwich attack on Aerodrome + Uniswap
 pub fn simulate_bundle_profit(
     calculator: &Calculator,
     aerodrome_pool_address: Address,
@@ -140,7 +138,6 @@ pub fn simulate_bundle_profit(
     );
     profit;
 }
-
 /// Example usage to print best route
 pub fn ample_best_route(
     calculator: &Calculator,

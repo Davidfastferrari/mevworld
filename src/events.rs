@@ -3,8 +3,8 @@ use std::collections::HashSet;
 use alloy::primitives::{Address, U256};
 use alloy::rpc::types::Header;
 
-use crate::rgen::FlashQuoter::SwapParams;
-use crate::swap::SwapPath;
+use mevworld::rgen::FlashQuoter::SwapParams;
+use mevworld::swap::SwapPath;
 
 
 /// Represents messages passed across the bot's internal event pipeline

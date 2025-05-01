@@ -7,10 +7,10 @@ use alloy::providers::Provider;
 use once_cell::sync::Lazy;
 
 use pool_sync::{Pool, PoolInfo};
-use crate::calculation::Calculator;
-use crate::market_state::MarketState;
-use crate::swap::SwapPath;
-use crate::main::AMOUNT;
+use mevworld::calculation::Calculator;
+use mevworld::market_state::MarketState;
+use mevworld::swap::SwapPath;
+use mevworld::main::AMOUNT;
 
 // Constants
 const RATE_SCALE: u32 = 18;

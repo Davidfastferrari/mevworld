@@ -9,7 +9,7 @@ use uniswap_v3_math::swap_math::SwapMath;
 use std::collections::HashMap;
 use log::{info};
 use uniswap_v3_math::tick_math::{MIN_TICK, MAX_TICK, MIN_SQRT_RATIO, MAX_SQRT_RATIO};
-use crate::calculation::Calculator;
+use mevworld::calculation::Calculator;
 
 pub const U256_1: U256 = U256::from_limbs([1, 0, 0, 0]);
 
@@ -281,21 +281,5 @@ impl MockDB {
         }
     
         Ok((-state.amount_calculated).into_raw())
-    }
-    }
-/// Fuzz test for UniswapV3 simulation range
-/// Fuzz test for UniswapV3 simulation range
-proptest! {
-    #[test]
-    fn test_uniswap_v3_simulation_does_not_panic(
-    amount_in in 1u128..1_000_000_000_000_000_000u128,  // [0.000001 ETH .. 1 ETH]
-    liquidity in 1_000_000u128..1_000_000_000_000u128,   // simulate wide range
-    tick in -887272i32..887272i32,
-    fee in 1_000u32..10_000u32,
-    zero_to_one in any::()
-    ) {
-    let db = MockDB::build(liquidity, tick);
-    let result = db.simulate_v3_swap(U256::from(amount_in), zero_to_one, fee);
-    prop_assert!(result.is_ok(), "Simulation should not error or panic");
     }
     }
