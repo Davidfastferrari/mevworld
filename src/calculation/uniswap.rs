@@ -8,7 +8,7 @@ use uniswap_v3_sdk::prelude::*;
 use uniswap_v3_sdk::extensions::swap_math::SwapMath;
 use std::collections::HashMap;
 use log::{info};
-use alloy_consensus::constants as mev_constants;
+use uniswap_v3_math::tick_math::{MIN_TICK, MAX_TICK, MIN_SQRT_RATIO, MAX_SQRT_RATIO};
 use crate::calculation::Calculator;
 
 pub const U256_1: U256 = U256::from_limbs([1, 0, 0, 0]);
@@ -99,9 +99,9 @@ where
 
         // Set sqrt_price_limit_x_96 to the max or min sqrt price in the pool depending on zero_for_one
         let sqrt_price_limit_x_96 = if zero_to_one {
-            U256::from(mev_constants::MIN_SQRT_RATIO) + mev_constants::U256_ONE
+            U256::from(MIN_SQRT_RATIO) + U256::from(1u64)
         } else {
-            mev_constants::MAX_SQRT_RATIO - mev_constants::U256_ONE
+            MAX_SQRT_RATIO - U256::from(1u64)
         };
 
         // Initialize a mutable state struct to hold the dynamic simulated state of the pool
@@ -135,7 +135,7 @@ where
                 zero_to_one,
             )?;
 
-            step.tick_next = tick_next.clamp(mev_constants::MIN_TICK, mev_constants::MAX_TICK);
+            step.tick_next = tick_next.clamp(MIN_TICK, MAX_TICK);
             step.initialized = initialized;
 
             // Get the next sqrt price from the input amount using uniswap_v3_sdk
