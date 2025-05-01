@@ -14,14 +14,6 @@ use crate::main::AMOUNT;
 use crate::calculation::uniswap;
 use crate::calculation::balancer;
 use crate::calculation::aerodrome;
-use crate::cache::Cache;
-use crate::market_state::MarketState;
-use crate::swap::{SwapPath, SwapStep};
-use crate::main::AMOUNT;
-
-use crate::calculation::uniswap;
-use crate::calculation::balancer;
-use crate::calculation::aerodrome;
 use crate::calculation::Calculator;
 
 pub struct Calculator<N, P>
@@ -60,8 +52,7 @@ where
         fee: u32,
         input: U256,
     ) -> U256 {
-        // TODO: Implement actual logic
-        U256::ZERO
+        self.compute_amount_out(input, pool_addr, token_in, protocol, fee)
     }
 
     pub fn debug_calculation(&self, path: &SwapPath) -> Vec<U256> {

@@ -13,7 +13,7 @@ where
 {
     /// Calculate output for a Balancer V2 style swap using exponentiation invariant
     pub fn balancer_v2_out(
-        &self, 
+        &self,
         amount_in: U256,
         token_in: Address,
         token_out: Address,
@@ -68,7 +68,7 @@ where
         if a.is_zero() {
             return U256::ZERO;
         }
-        let one = U256::from(1e18);
+        let one = U256::from(1_000_000_000_000_000_000u64);
         ((a * one - 1u64) / b) + 1u64
     }
 
@@ -76,30 +76,31 @@ where
         if a.is_zero() {
             return U256::ZERO;
         }
-        (a * U256::from(1e18)) / b
+        (a * U256::from(1_000_000_000_000_000_000u64)) / b
     }
 
     fn mul_up(a: U256, b: U256) -> U256 {
         if a.is_zero() || b.is_zero() {
             return U256::ZERO;
         }
-        let one = U256::from(1e18);
+        let one = U256::from(1_000_000_000_000_000_000u64);
         ((a * b - 1u64) / one) + 1u64
     }
 
     fn mul_down(a: U256, b: U256) -> U256 {
-        (a * b) / U256::from(1e18)
+        (a * b) / U256::from(1_000_000_000_000_000_000u64)
     }
 
     fn pow_up(x: U256, y: U256) -> U256 {
-        let one = U256::from(1e18);
+        let one = U256::from(1_000_000_000_000_000_000u64);
         if y == one {
             return x;
         } else if y == one * 2 {
             return Self::mul_up(x, x);
         }
 
-        let result = pow(x, y);
+        // Use uniswap_v3_math crate's pow function for exponentiation
+        let result = uniswap_v3_math::pow(x, y);
         let max_relative_error = U256::from(10_000); // 0.001% tolerance
 
         let max_error = Self::mul_up(result, max_relative_error) + 1u64;
@@ -107,7 +108,7 @@ where
     }
 
     fn complement(x: U256) -> U256 {
-        let one = U256::from(1e18);
+        let one = U256::from(1_000_000_000_000_000_000u64);
         if x < one {
             one - x
         } else {
