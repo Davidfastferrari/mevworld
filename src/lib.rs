@@ -18,5 +18,11 @@ pub use alloy_sol_types::sol;
 // Declare calculation module
 pub mod calculation;
 
+// Declare additional modules to fix unresolved imports
+pub mod cache;
+pub mod market_state;
+pub mod swap;
+pub mod main;
+
 // Re-export Calculator for easier import
 pub use crate::calculation::Calculator;
