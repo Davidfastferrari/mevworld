@@ -11,14 +11,14 @@ where
 N: Network,
 P: Provider,
 {
-// Calculate output for a Balancer V2 style swap using exponentiation invariant
-pub fn balancer_v2_out<N: Network, P: Provider<N>>(
-    calculator: &Calculator<N, P>,
-    amount_in: U256,
-    token_in: Address,
-    token_out: Address,
-    pool_address: Address,
-) -> U256{
+/// Calculate output for a Balancer V2 style swap using exponentiation invariant
+pub fn balancer_v2_out(
+&self,
+amount_in: U256,
+token_in: Address,
+token_out: Address,
+pool_address: Address,
+) -> U256 {
 let pool = self.pool_manager.get_balancer_pool(&pool_address)
 .expect("Pool not found");
 
