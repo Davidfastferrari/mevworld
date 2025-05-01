@@ -1,7 +1,7 @@
 use alloy::network::Network;
 use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
-use uniswap_v3_math::log_exp_math;
+use uniswap_v3_sdk::prelude::*;
 
 use crate::calculation::Calculator;
 
@@ -99,7 +99,7 @@ where
             return Self::mul_up(x, x);
         }
 
-        let result = LogExpMath::pow(x, y);
+        let result = pow(x, y);
         let max_relative_error = U256::from(10_000); // 0.001% tolerance
 
         let max_error = Self::mul_up(result, max_relative_error) + 1u64;

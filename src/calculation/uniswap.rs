@@ -5,10 +5,10 @@ use alloy::providers::Provider;
 use anyhow::{Result, anyhow};
 use proptest::prelude::*;
 use uniswap_v3_sdk::prelude::*;
-use uniswap_v3_sdk::math::SwapMath;
+use uniswap_v3_sdk::extensions::swap_math::SwapMath;
 use std::collections::HashMap;
 use log::{info};
-use crate::calculation::constants as mev_constants;
+use alloy_consensus::constants as mev_constants;
 use crate::calculation::Calculator;
 
 pub const U256_1: U256 = U256::from_limbs([1, 0, 0, 0]);

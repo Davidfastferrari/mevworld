@@ -14,6 +14,14 @@ use crate::main::AMOUNT;
 use crate::calculation::uniswap;
 use crate::calculation::balancer;
 use crate::calculation::aerodrome;
+use crate::cache::Cache;
+use crate::market_state::MarketState;
+use crate::swap::{SwapPath, SwapStep};
+use crate::main::AMOUNT;
+
+use crate::calculation::uniswap;
+use crate::calculation::balancer;
+use crate::calculation::aerodrome;
 use crate::calculation::Calculator;
 
 pub struct Calculator<N, P>
@@ -85,13 +93,13 @@ where
     ) -> U256 {
         match pool_type {
             PoolType::UniswapV2 | PoolType::SushiSwapV2 | PoolType::SwapBasedV2 => {
-                Calculator::uniswap_v2_out(self, input_amount, &pool_address, &token_in, U256::from(9970))
+                uniswap::uniswap_v2_out(self, input_amount, &pool_address, &token_in, U256::from(9970))
             }
             PoolType::PancakeSwapV2 | PoolType::BaseSwapV2 | PoolType::DackieSwapV2 => {
-                Calculator::uniswap_v2_out(self, input_amount, &pool_address, &token_in, U256::from(9975))
+                uniswap::uniswap_v2_out(self, input_amount, &pool_address, &token_in, U256::from(9975))
             }
             PoolType::AlienBaseV2 => {
-                Calculator::uniswap_v2_out(self, input_amount, &pool_address, &token_in, U256::from(9984))
+                uniswap::uniswap_v2_out(self, input_amount, &pool_address, &token_in, U256::from(9984))
             }
             PoolType::UniswapV3
             | PoolType::SushiSwapV3
@@ -101,11 +109,11 @@ where
             | PoolType::AlienBaseV3
             | PoolType::SwapBasedV3
             | PoolType::DackieSwapV3 => {
-                Calculator::uniswap_v3_out(self, input_amount, &pool_address, &token_in, fee)
+                uniswap::uniswap_v3_out(self, input_amount, &pool_address, &token_in, fee)
                     .expect("Uniswap V3 computation failed")
             }
-            PoolType::Aerodrome => Calculator::aerodrome_out(self, input_amount, token_in, pool_address),
-            PoolType::BalancerV2 => Calculator::balancer_v2_out(self, input_amount, token_in, token_in, pool_address),
+            PoolType::Aerodrome => aerodrome::aerodrome_out(self, input_amount, token_in, pool_address),
+            PoolType::BalancerV2 => balancer::balancer_v2_out(self, input_amount, token_in, token_in, pool_address),
             PoolType::MaverickV1 | PoolType::MaverickV2 => {
                 tracing::warn!("Maverick pool logic not implemented");
                 U256::ZERO
