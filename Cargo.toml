@@ -87,4 +87,5 @@ essential-node-db-sql = "0.5.0"
 # Added hex crate for encoding/decoding
 hex = "0.4"
 k256 = "0.13.4"
+tiny-keccak = "2.0"
 uniswap_v3_math = "=0.6.0"

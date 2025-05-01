@@ -29,7 +29,13 @@ where
     N: Network,
     P: Provider<N>,
 {
-    pub fn aerodrome_out(&self, amount_in: U256, token_in: Address, pool_address: Address) -> U256 {
+   
+    pub fn aerodrome_out<N: Network, P: Provider<N>>(
+        calculator: &Calculator<N, P>,
+        amount_in: U256,
+        token_in: Address,
+        pool_address: Address,
+    ) -> U256 {
         let db = self.market_state.db.read().expect("DB read poisoned");
 
         let (reserve0, reserve1) = db.get_reserves(&pool_address);

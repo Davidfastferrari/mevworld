@@ -50,23 +50,20 @@ N: Network,
 P: Provider,
 {
 // Calculate the amount out for a uniswapv2 swap
-#[inline]
-pub fn uniswap_v2_out(
-&self,
-amount_in: U256,
-pool_address: &Address,
-token_in: &Address,
-fee: U256,
+
+pub fn uniswap_v2_out<N: Network, P: Provider<N>>(
+    calculator: &Calculator<N, P>,
+    amount_in: U256,
+    pool_address: &Address,
+    token_in: &Address,
+    fee: U256,
 ) -> U256 {
 // get read access to db
-let db_read = self.market_state.db.read().unwrap();
-let zero_to_one = db_read.zero_to_one(pool_address, *token_in).unwrap();
-let (reserve0, reserve1) = db_read.get_reserves(pool_address);
-
-
-    let scalar = U256::from(10000);
-
-    let (reserve0, reserve1) = if zero_to_one {
+   let db_read = self.market_state.db.read().unwrap();
+   let zero_to_one = db_read.zero_to_one(pool_address, *token_in).unwrap();
+   let (reserve0, reserve1) = db_read.get_reserves(pool_address);
+   let scalar = U256::from(10000);
+   let (reserve0, reserve1) = if zero_to_one {
         (reserve0, reserve1)
     } else {
         (reserve1, reserve0)
@@ -79,14 +76,13 @@ let (reserve0, reserve1) = db_read.get_reserves(pool_address);
 }
 
 // calculate the amount out for a uniswapv3 swap
-#[inline]
-pub fn uniswap_v3_out(
-    &self,
+pub fn uniswap_v3_out<N: Network, P: Provider<N>>(
+    calculator: &Calculator<N, P>,
     amount_in: U256,
     pool_address: &Address,
     token_in: &Address,
     fee: u32,
-) -> Result<U256> {
+) -> Result<U256>{
     if amount_in.is_zero() {
         return Ok(U256::ZERO);
     }
