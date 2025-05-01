@@ -226,9 +226,9 @@ impl MockDB {
     ) -> Result<U256> {
         let tick_spacing = 60;
         let price_limit = if zero_to_one {
-            U256::from(mev_constants::MIN_SQRT_RATIO) + mev_constants::U256_ONE
+            U256::from(MIN_SQRT_RATIO) + U256::from(1u64)
         } else {
-            mev_constants::MAX_SQRT_RATIO - mev_constants::U256_ONE
+            MAX_SQRT_RATIO - U256::from(1u64)
         };
 
         let mut state = CurrentState {
@@ -253,7 +253,7 @@ impl MockDB {
                 state.tick + tick_spacing
             };
 
-            step.tick_next = next_tick.clamp(mev_constants::MIN_TICK, mev_constants::MAX_TICK);
+            step.tick_next = next_tick.clamp(MIN_TICK, MAX_TICK);
             step.sqrt_price_next_x96 = TickMath::get_sqrt_ratio_at_tick(step.tick_next)?;
 
             let target = if zero_to_one {
