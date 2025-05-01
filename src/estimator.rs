@@ -10,7 +10,7 @@ use pool_sync::{Pool, PoolInfo};
 use mevworld::calculation::Calculator;
 use mevworld::market_state::MarketState;
 use mevworld::swap::SwapPath;
-use mevworld::main::AMOUNT;
+use mevworld::constants::AMOUNT;
 
 // Constants
 const RATE_SCALE: u32 = 18;

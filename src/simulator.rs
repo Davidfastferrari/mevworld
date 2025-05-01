@@ -136,7 +136,7 @@ pub fn simulate_bundle_profit(
         aerodrome_pool_address,
         uniswap_pool_address,
     );
-    profit;
+    profit
 }
 /// Example usage to print best route
 pub fn ample_best_route(
