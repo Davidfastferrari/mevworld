@@ -1,7 +1,7 @@
 use alloy::network::Network;
 use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
-use uniswap_v3_math::log_exp_math::LogExpMath;
+use uniswap_v3_math::log_exp_math;
 
 use crate::calculation::Calculator;
 

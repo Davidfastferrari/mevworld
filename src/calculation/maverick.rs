@@ -1,10 +1,9 @@
 use tracing::{info, debug, warn};
 use alloy_sol_types::sol;
-use alloy::alloy_sol_types::SolCall;
 use alloy::primitives::{address, Address, U256};
-use reth::primitives::{ExecutionResult, TransactTo};
-use reth::revm::Evm;
-use crate::curve::CurveOut;
+use reth_primitives::{ExecutionResult, Transaction as TransactTo};
+use revm::Evm;
+use crate::calculation::curve;
 
 use super::Calculator;
 
@@ -88,25 +87,22 @@ where
         let calldata = self.build_meta_swap_calldata(amount_in, pool, zero_for_one, tick_limit);
 
         let mut db = self.db.write().expect("lock DB");
-        let mut evm = Evm::builder()
-            .with_db(&mut *db)
-            .modify_tx_env(|tx| {
-                tx.caller = address!("0000000000000000000000000000000000000001");
-                tx.transact_to = TransactTo::Call(pool);
-                tx.data = calldata.clone().into();
-                tx.value = U256::ZERO;
-            })
-            .build();
+        let mut evm = Evm::new();
+        evm.database(&mut *db);
+        evm.env.tx.caller = address!("0000000000000000000000000000000000000001");
+        evm.env.tx.transact_to = TransactTo::Call(pool);
+        evm.env.tx.data = calldata.clone().into();
+        evm.env.tx.value = U256::ZERO;
 
-        let state_before = format!("{:?}", evm.db().accounts()).into_bytes();
+        let state_before = format!("{:?}", evm.database().unwrap().accounts()).into_bytes();
 
         let _ = evm.transact(); // discard output
 
-        let state_after = format!("{:?}", evm.db().accounts()).into_bytes();
+        let state_after = format!("{:?}", evm.database().unwrap().accounts()).into_bytes();
         (state_before, state_after)
     }
 
-    /// 🧬 Gas heatmap for input sweep
+    ///  Gas heatmap for input sweep
     pub fn gas_estimate_heatmap(
         &self,
         pool: Address,
@@ -157,15 +153,12 @@ where
         let calldata = self.build_meta_swap_calldata(amount_in, pool, token_a_in, tick_limit);
 
         let mut db = self.db.write().expect("lock DB");
-        let mut evm = Evm::builder()
-            .with_db(&mut *db)
-            .modify_tx_env(|tx| {
-                tx.caller = address!("0000000000000000000000000000000000000001");
-                tx.transact_to = TransactTo::Call(pool);
-                tx.data = calldata.into();
-                tx.value = U256::ZERO;
-            })
-            .build();
+        let mut evm = Evm::new();
+        evm.database(&mut *db);
+        evm.env.tx.caller = address!("0000000000000000000000000000000000000001");
+        evm.env.tx.transact_to = TransactTo::Call(pool);
+        evm.env.tx.data = calldata.into();
+        evm.env.tx.value = U256::ZERO;
 
         match evm.transact() {
             Ok(ref_tx) => match ref_tx.result {
