@@ -11,11 +11,11 @@ use alloy::network::Network;
 use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
 
-use super::estimator::Estimator;
-use super::events::Event;
-use super::market_state::MarketState;
-use super::swap::SwapPath;
-use super::constants::AMOUNT;
+use crate::utils::estimator::Estimator;
+use crate::utils::events::Event;
+use crate::utils::market_state::MarketState;
+use crate::utils::swap::SwapPath;
+use crate::utils::constants::AMOUNT;
 
 
 /// Top-level search engine for arbitrage cycles

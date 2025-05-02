@@ -8,7 +8,7 @@ use petgraph::prelude::*;
 
 use pool_sync::{BalancerV2Pool, CurveTriCryptoPool, Pool};
 
-use super::swap::{SwapPath, SwapStep};
+use crate::utils::swap::{SwapPath, SwapStep};
 
 pub struct ArbGraph;
 

@@ -4,11 +4,11 @@ use anyhow::Result;
 use once_cell::sync::Lazy;
 use pool_sync::{Chain, PoolSync, PoolType};
 use alloy::primitives::U256;
-use super::ignition::start_workers;
+use crate::utils::ignition::start_workers;
 use log::LevelFilter;
 
-pub mod calculation;
-mod utils;
+use crate::utils::utils::calculation::calculator;
+use crate::utils::utils;
 
 pub const AMOUNT: Lazy<RwLock<U256>> = Lazy::new(|| RwLock::new(U256::from(1_000_000_000_000_000_000u128)));
 

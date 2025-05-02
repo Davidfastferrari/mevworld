@@ -6,9 +6,9 @@ use lazy_static::lazy_static;
 use pool_sync::{Pool, PoolInfo};
 use revm::DatabaseRef;
 
-use super::BlockStateDB;
-use crate::state_db::blockstate_db::BlockStateDBSlot;
-use crate::state_db::InsertionType;
+use crate::mod::BlockStateDB;
+use crate::mod::state_db::blockstate_db::BlockStateDBSlot;
+use crate::mod::state_db::InsertionType;
 
 lazy_static! {
     // Uniswap V2 reserves are stored as two packed U112 values

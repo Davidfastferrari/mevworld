@@ -1,13 +1,13 @@
 use alloy::alloy_sol_types::SolCall;
-use super::simulator::Quoter;
+use crate::utils::simulator::Quoter;
 use super::calculator::Calculator;
 use alloy::network::Network;
+use alloy_contract::SolCallBuilder;
 use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
 use once_cell::sync::Lazy;
 use std::str::FromStr;
 
-use super::Calculator;
 
 
 pub static WETH: Lazy<Address> = Lazy::new(|| Address::from_str("0x4200000000000000000000000000000000000006").unwrap());

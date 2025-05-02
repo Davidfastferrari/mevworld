@@ -18,12 +18,12 @@ use revm_inspectors::access_list::Inspector;
 use anyhow::{Result, Context};
 use serde::{Serialize, Deserialize};
 use pool_sync::{Chain, Pool, PoolInfo, PoolType};
-use super::node_db::InsertionType as NodeInsertionType;
-use super::state_db::InsertionType as StateInsertionType;
-use super::rgen::ERC20Token::{self, approveCall};
-use super::rgen::{V2Aerodrome, V2Swap, V3Swap, V3SwapDeadline, V3SwapDeadlineTick};
-use super::constants::AMOUNT;
-use super::node_db::NodeDB;
+use crate::utils::node_db::InsertionType as NodeInsertionType;
+use crate::utils::state_db::InsertionType as StateInsertionType;
+use crate::utils::rgen::ERC20Token::{self, approveCall};
+use crate::utils::rgen::{V2Aerodrome, V2Swap, V3Swap, V3SwapDeadline, V3SwapDeadlineTick};
+use crate::utils::constants::AMOUNT;
+use crate::utils::node_db::NodeDB;
 
 /// Represents the logical router + calldata type for different swap protocols
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

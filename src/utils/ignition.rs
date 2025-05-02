@@ -11,7 +11,7 @@ use tokio::sync::{broadcast, mpsc::{Sender, Receiver, channel}};
 use alloy::providers::ProviderBuilder;
 use log::{info, error};
 use pool_sync::{Chain, Pool};
-use super::{
+use crate::utils::{
     events::Event,
     estimator::Estimator,
     filter::filter_pools,

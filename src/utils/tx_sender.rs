@@ -15,9 +15,9 @@ use serde_json::Value;
 use hex;
 use k256::ecdsa::SigningKey as SecretKey;
 
-use super::events::Event;
-use super::gas_station::GasStation;
-use super::rgen::FlashSwap;
+use crate::utils::events::Event;
+use crate::utils::gas_station::GasStation;
+use crate::utils::rgen::FlashSwap;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Point {

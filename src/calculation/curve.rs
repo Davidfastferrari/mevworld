@@ -1,6 +1,7 @@
 use tracing::{info, warn};
 use alloy_sol_types::sol;
 use alloy::alloy_sol_types::SolCall;
+use alloy_contract::SolCallBuilder;
 use alloy::primitives::{address, Address, U256};
 use reth::primitives::{ExecutionResult, TransactTo};
 use reth::revm::Evm;

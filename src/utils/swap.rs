@@ -4,8 +4,8 @@ use pool_sync::PoolType;
 use std::convert::From;
 use std::hash::Hash;
 
-use super::rgen::{FlashQuoter, FlashSwap};
-use super::constants::AMOUNT;
+use crate::utils::rgen::{FlashQuoter, FlashSwap};
+use crate::utils::constants::AMOUNT;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Point {

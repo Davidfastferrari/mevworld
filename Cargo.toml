@@ -38,6 +38,7 @@ chrono = "0.4.41"
 
 # Alloy (Ethereum Types, EIPs, Primitives, etc.)
 alloy = { version = "0.15.6", features = ["full"] }
+alloy-contract = "0.15.7"
 alloy-consensus = "0.14.0"
 alloy-eips = "0.14.0"
 alloy-primitives = "1.0.0"

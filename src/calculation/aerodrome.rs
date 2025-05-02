@@ -6,7 +6,7 @@ use alloy::providers::Provider;
 use once_cell::sync::Lazy;
 use std::str::FromStr;
 
-use utils::calculation::Calculator;
+use crate::mod::Calculator;
 
 pub static INITIAL_AMT: Lazy<U256> = Lazy::new(|| U256::from_str("1000000000000000000").unwrap());
 pub static WETH: Lazy<Address> = Lazy::new(|| Address::from_str("0x4200000000000000000000000000000000000006").unwrap());
