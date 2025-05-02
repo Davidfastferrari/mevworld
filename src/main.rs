@@ -50,7 +50,7 @@ async fn main() -> Result<()> {
 
     // Initialize pool sync across all supported AMM protocols
     let pool_sync = PoolSync::builder()
-        .add_pools(&[
+        .add_pools([
             PoolType::UniswapV2,
             PoolType::PancakeSwapV2,
             PoolType::SushiSwapV2,
@@ -66,7 +66,7 @@ async fn main() -> Result<()> {
             PoolType::BaseSwapV3,
             PoolType::MaverickV1,
             PoolType::MaverickV2,
-        ])
+        ].into_iter())
         .chain(Chain::Base)
         .build()?;
 

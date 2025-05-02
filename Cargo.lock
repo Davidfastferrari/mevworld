@@ -118,7 +118,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3287a60462d933cbc753a1a87439016d4eb717401f3052ff72742c6dd0dbce3f"
 dependencies = [
  "alloy-consensus 0.15.6",
- "alloy-contract 0.15.6",
+ "alloy-contract 0.15.7",
  "alloy-core",
  "alloy-eips 0.15.6",
  "alloy-genesis 0.15.6",
@@ -246,9 +246,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-contract"
-version = "0.15.6"
+version = "0.15.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "258feff52f1e3be58b4d235ef85f5c0224905e371fb023dfbf758d5a7e027672"
+checksum = "e1d42161d813270b26fb100b4b7f8336da35d55af4f0fb01b5f9ebe79074c541"
 dependencies = [
  "alloy-consensus 0.15.6",
  "alloy-dyn-abi",
@@ -5924,6 +5924,7 @@ version = "0.1.0"
 dependencies = [
  "alloy",
  "alloy-consensus 0.14.0",
+ "alloy-contract 0.15.7",
  "alloy-eips 0.14.0",
  "alloy-network 0.14.0",
  "alloy-primitives 1.0.0",
