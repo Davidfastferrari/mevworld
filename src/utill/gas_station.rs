@@ -4,7 +4,7 @@ use tokio::sync::broadcast::Receiver;
 use alloy::primitives::U256;
 use alloy::eips::eip1559::{BaseFeeParams, calc_next_block_base_fee};
 
-use crate::util::util::events::Event;
+use crate::utill_events::Event;
 
 /// Handles dynamic gas fee estimation using EIP-1559-style base fees.
 pub struct GasStation {

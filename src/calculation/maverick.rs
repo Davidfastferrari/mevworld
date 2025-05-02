@@ -5,7 +5,7 @@ use reth_primitives::{ExecutionResult, Transaction as TransactTo};
 use revm::Evm;
 use crate::modcal::curve;
 
-use super::Calculator;
+use super::calculator;
 
 sol! {
     #[sol(rpc)]

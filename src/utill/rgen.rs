@@ -1,6 +1,5 @@
 use alloy::alloy_sol_types::SolCall;
 
-
 // define our flash swap contract {FlashQuoter, FlashSwap};     // #[derive(Debug)]   // #[derive(Debug)]
 use alloy_sol_types::sol;
 

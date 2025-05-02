@@ -3,8 +3,8 @@ use serde::{Serialize, Deserialize};
 use serde_json::json;
 use alloy::primitives::{Address, Bytes as AlloyBytes, FixedBytes};
 use alloy::providers::{Provider, ProviderBuilder, RootProvider};
-use alloy_sol_types::TransactionRequest;
-use alloy_signer::{LocalWallet, PrivateKeySigner, EthereumWallet};
+use reth::rpc::types::TransactionRequest;
+use alloy_network::EthereumWallet;
 use alloy_network::TransactionBuilder;
 use alloy_transport_http::Http;
 use tokio::sync::mpsc::Receiver;
@@ -14,9 +14,9 @@ use serde_json::Value;
 use hex;
 use k256::ecdsa::SigningKey as SecretKey;
 
-use crate::util::events::Event;
-use crate::util::gas_station::GasStation;
-use crate::util::rgen::FlashSwap;
+use crate::utill_events::Event;
+use crate::utill_gas_station::GasStation;
+use crate::utill_rgen::FlashSwap;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Point {

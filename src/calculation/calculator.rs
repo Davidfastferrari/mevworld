@@ -6,15 +6,15 @@ use pool_sync::PoolType;
 use std::collections::HashSet;
 use std::sync::Arc;
 
-mod utils;
+mod utill;
 
-use crate::utils::modcal::cache::Cache;
-use crate::utils::modcal::market_state::MarketState;
-use crate::utils::modcal::swap::{SwapPath, SwapStep};
-use crate::utils::utils::constants::AMOUNT;
-use crate::modcal::uniswap;
-use crate::modcal::balancer;
-use crate::modcal::aerodrome;
+use crate::utill_modcal_cache::Cache;
+use crate::utill_modcal_market_state::MarketState;
+use crate::utill_modcal_swap::{SwapPath, SwapStep};
+use crate::utill_constant::AMOUNT;
+use crate::calculation_uniswap as uniswap;
+use crate::calculation_balancer as balancer;
+use crate::calculation_aerodrome as aerodrome;
 
 pub struct Calculator<N, P>
 where

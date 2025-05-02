@@ -32,7 +32,7 @@ pub mod market_state;
 pub mod ignition;
 
 // Re-export Calculator for easier import
-pub use calculation::modcal::Calculator;
+pub use calculation::calculator;
 
 //pub use constants::EMPTY_OMMER_ROOT_HASH;
 pub use transaction::EthereumTxEnvelope;

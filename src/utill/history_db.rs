@@ -6,7 +6,7 @@ use alloy::primitives::{Address, B256, StorageKey, U256};
 use eyre::{Context, Result};
 use revm::revm_state::AccountInfo;
 use revm::revm_bytecode::Bytecode;
-use alloy_consensus::constants::KECCAK_EMPTY;
+use alloy_consensus::constant::KECCAK_EMPTY;
 use reth::api::NodeTypesWithDBAdapter;
 use reth::providers::{
     providers::StaticFileProvider,
@@ -16,7 +16,7 @@ use reth::utils::open_db_read_only;
 use reth_chainspec::ChainSpecBuilder;
 use reth_db::{mdbx::DatabaseArguments, ClientVersion, DatabaseEnv};
 use reth_node_ethereum::EthereumNode;
-use reth::revm::{ db::{AccountState, Database, DatabaseCommit, DatabaseRef}, };
+use reth::revm::{db::{AccountState, Database, DatabaseCommit, DatabaseRef},};
 use eyre::ErrReport;
 use std::error::Error as StdError;
 use revm::revm_database::DBErrorMarker;

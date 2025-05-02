@@ -3,9 +3,8 @@ use alloy::primitives::Address;
 use pool_sync::PoolType;
 use std::convert::From;
 use std::hash::Hash;
-
-use crate::util::util::rgen::{FlashQuoter, FlashSwap};
-use crate::util::util::constants::AMOUNT;
+use crate::utill_rgen::{FlashQuoter, FlashSwap};
+use crate::utill_constant::AMOUNT;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Point {

@@ -3,7 +3,7 @@ use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
 use anyhow::Result;
 
-use crate::modcal::Calculator;
+use crate::modcal::calculator;
 
 /// Balancer V2 swap formula implemented on top of AMM math.
 impl<N, P> Calculator<N, P>

@@ -11,17 +11,17 @@ use tokio::sync::{broadcast, mpsc::{Sender, Receiver, channel}};
 use alloy::providers::ProviderBuilder;
 use log::{info, error};
 use pool_sync::{Chain, Pool};
-use crate::util::{
-    events::Event,
-    estimator::Estimator,
-    filter::filter_pools,
-    gas_station::GasStation,
-    graph::ArbGraph,
-    market_state::MarketState,
-    searcher::Searchoor,
-    simulator::simulate_paths,
-    stream::stream_new_blocks,
-    tx_sender::TransactionSender,
+use crate::{
+    utill_events::Event,
+    utill_estimator::Estimator,
+    utill_filter::filter_pools,
+    utill_gas_station::GasStation,
+    utill_graph::ArbGraph,
+    utill_market_state::MarketState,
+    utill_searcher::Searchoor,
+    utill_simulator::simulate_paths,
+    utill_stream::stream_new_blocks,
+    utill_tx_sender::TransactionSender,
 };
 
 /// Bootstraps the entire system: syncing, simulation, and arbitrage search

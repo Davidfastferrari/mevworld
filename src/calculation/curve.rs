@@ -6,7 +6,7 @@ use alloy::primitives::{address, Address, U256};
 use reth::primitives::{ExecutionResult, TransactTo};
 use reth::revm::Evm;
 
-use super::Calculator;
+use super::calculator;
 
 sol! {
     #[sol(rpc)]

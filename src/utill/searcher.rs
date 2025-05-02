@@ -11,14 +11,13 @@ use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
 use alloy_sol_types::SolCall;
 
-use crate::util::estimator::Estimator;
-use crate::util::events::Event;
-use crate::util::market_state::MarketState;
-use crate::util::swap::SwapPath;
-use crate::util::constants::AMOUNT;
-use crate::calculation::modcal::calculator;
-//use crate::utils::calculation::calculator;
-
+use crate::utill_estimator::Estimator;
+use crate::utill_events::Event;
+use crate::utill_market_state::MarketState;
+use crate::utill_swap::SwapPath;
+use crate::utill_constant::AMOUNT;
+use crate::calculation_calculator as calculator;
+//use crate::utills::calculation::calculator;
 
 /// Top-level search engine for arbitrage cycles
 pub struct Searchoor<N, P>
