@@ -1,5 +1,9 @@
 use std::{collections::HashMap, sync::{Arc, RwLock}, time::Duration};
 use tracing::{info, debug, warn};
+use alloy_consensus::utils;
+use alloy::transports::utils;
+use alloy::signers::utils;
+use alloy::providers::utils;
 use anyhow::Result;
 use once_cell::sync::Lazy;
 use pool_sync::{Chain, PoolSync, PoolType};
@@ -8,7 +12,7 @@ use crate::utils::ignition::start_workers;
 use log::LevelFilter;
 
 use crate::calculation::calculator;
-use crate::utils;
+use crate::utils::utils;
 
 pub const AMOUNT: Lazy<RwLock<U256>> = Lazy::new(|| RwLock::new(U256::from(1_000_000_000_000_000_000u128)));
 
