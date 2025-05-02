@@ -4,15 +4,15 @@ use anyhow::Result;
 use once_cell::sync::Lazy;
 use pool_sync::{Chain, PoolSync, PoolType};
 use alloy::primitives::U256;
-use utils::ignition::start_workers;
+use super::ignition::start_workers;
 use log::LevelFilter;
 
 pub mod calculation;
-pub mod utils;
+mod utils;
 
 pub const AMOUNT: Lazy<RwLock<U256>> = Lazy::new(|| RwLock::new(U256::from(1_000_000_000_000_000_000u128)));
 
-/// Token decimals map to convert $100k into base units
+// Token decimals map to convert $100k into base units
 pub static TOKEN_DECIMALS: Lazy<HashMap<&'static str, u8>> = Lazy::new(|| {
     let mut map = HashMap::new();
     map.insert("USDC", 6);

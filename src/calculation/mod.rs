@@ -5,4 +5,4 @@ pub mod calculator;
 pub mod curve;
 pub mod maverick;
 pub mod balancer;
-pub mod calculator::Calculator;
+pub mod Calculator;
