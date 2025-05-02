@@ -6,9 +6,9 @@ use pool_sync::{Chain, PoolSync, PoolType};
 use alloy::primitives::U256;
 use log::LevelFilter;
 
-use crate::utill::ignition::start_workers;
+use crate::utill_ignition::start_workers;
 
-use crate::calculation::calculator as calculator;
+use crate::utill::calculation::calculator as calculator;
  
 
 pub const AMOUNT: Lazy<RwLock<U256>> = Lazy::new(|| RwLock::new(U256::from(1_000_000_000_000_000_000u128)));
