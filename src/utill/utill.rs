@@ -11,6 +11,7 @@ pub use tracing;
 pub use lazy_static;
 
 pub mod calculation;
+pub mod calculator;
 pub mod cache;
 pub mod swap;
 pub mod rgen;
@@ -29,8 +30,9 @@ pub mod constants;
 pub mod bytecode;
 pub mod market_state;
 pub mod ignition;
+
 // Re-export Calculator for easier import
-pub use calculation::Calculator;
+pub use calculation::modcal::Calculator;
 
 //pub use constants::EMPTY_OMMER_ROOT_HASH;
 pub use transaction::EthereumTxEnvelope;
