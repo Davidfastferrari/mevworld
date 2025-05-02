@@ -2,13 +2,15 @@ use std::collections::HashSet;
 use std::hash::{Hash, Hasher, DefaultHasher};
 
 use alloy::primitives::Address;
-use alloy::alloy_sol_types::SolCall;
+use alloy_sol_types::SolCall;
 use petgraph::graph::UnGraph;
 use petgraph::prelude::*;
 
-use pool_sync::{BalancerV2Pool, CurveTriCryptoPool, Pool};
+use pool_sync::{BalancerV2Pool, CurveTriCryptoPool, Pool, PoolInfo};
 
 use crate::utils::swap::{SwapPath, SwapStep};
+
+use pool_sync::PoolInfo;  // Added to bring token0_address and token1_address into scope
 
 pub struct ArbGraph;
 

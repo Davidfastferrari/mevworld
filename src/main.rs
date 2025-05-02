@@ -1,18 +1,21 @@
 use std::{collections::HashMap, sync::{Arc, RwLock}, time::Duration};
 use tracing::{info, debug, warn};
-use alloy_consensus::utils;
-use alloy::transports::utils;
-use alloy::signers::utils;
-use alloy::providers::utils;
+use alloy_consensus::Header;
+use alloy::providers::{Provider, ProviderBuilder, RootProvider};
+use reth::rpc::types::TransactionRequest;
+use alloy_signer::{Signer, SignerSync};
+use alloy_network::TransactionBuilder;
+use alloy_transport_http::{Http, Client as HttpClient};
 use anyhow::Result;
 use once_cell::sync::Lazy;
 use pool_sync::{Chain, PoolSync, PoolType};
 use alloy::primitives::U256;
-use crate::utils::ignition::start_workers;
-use log::LevelFilter;
 
-use crate::calculation::calculator;
-use crate::utils::utils;
+mod utils;
+
+use crate::utils::ignition::start_workers;
+use crate::utils::Calculator;
+use log::LevelFilter;
 
 pub const AMOUNT: Lazy<RwLock<U256>> = Lazy::new(|| RwLock::new(U256::from(1_000_000_000_000_000_000u128)));
 

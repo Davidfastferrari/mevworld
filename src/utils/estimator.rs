@@ -7,7 +7,7 @@ use alloy::providers::Provider;
 use once_cell::sync::Lazy;
 
 use pool_sync::{Pool, PoolInfo};
-use crate::utils::calculation::Calculator;
+use crate::utils::Calculator;
 use crate::utils::market_state::MarketState;
 use crate::utils::swap::SwapPath;
 use crate::utils::constants::AMOUNT;
@@ -78,13 +78,13 @@ where
         final_rate > (*RATE_SCALE_VALUE + min_profit_ratio)
     }
 
-    fn scale_to_rate(&self, amount: U256, token_decimals: u32) -> U256 {
-        if token_decimals <= RATE_SCALE {
-            amount * U256::exp10((RATE_SCALE - token_decimals) as usize)
-        } else {
-            amount / U256::exp10((token_decimals - RATE_SCALE) as usize)
-        }
+fn scale_to_rate(&self, amount: U256, token_decimals: u32) -> U256 {
+    if token_decimals <= RATE_SCALE {
+        amount * U256::from(10u64).pow((RATE_SCALE - token_decimals) as usize)
+    } else {
+        amount / U256::from(10u64).pow((token_decimals - RATE_SCALE) as usize)
     }
+}
 
     fn calculate_rate(
         &self,
@@ -138,8 +138,8 @@ where
         cnt_map: &mut HashMap<Address, u32>,
     ) {
         let (token0, token1) = (pool.token0_address(), pool.token1_address());
-        self.token_decimals.insert(token0, pool.token0_decimals());
-        self.token_decimals.insert(token1, pool.token1_decimals());
+        self.token_decimals.insert(token0, pool.token0_decimals().into());
+        self.token_decimals.insert(token1, pool.token1_decimals().into());
 
         let (eth_token, alt_token) = if token0 == weth { (token0, token1) } else { (token1, token0) };
         alt_tokens.insert(alt_token);

@@ -7,6 +7,8 @@ use std::{
 };
 use alloy::primitives::{address, Address, U160, U256};
 use alloy_sol_types::sol;
+use alloy_sol_types::{SolCall, SolValue};
+use alloy_sol_types::SolCall;  // Added explicit import to bring abi_encode and abi_decode into scope
 use lazy_static::lazy_static;
 use once_cell::sync::Lazy;
 use log::{info, debug};
@@ -61,12 +63,14 @@ struct BirdeyeResponse {
 
 #[derive(Debug, Deserialize)]
 struct ResponseData {
-    tokens: Vec<Token>,
+    #[serde(default)]
+    tokens: Option<Vec<Token>>,
 }
 
 #[derive(Debug, Deserialize)]
 struct Token {
-    address: String,
+    #[serde(default)]
+    address: Option<String>,
 }
 
 pub async fn filter_pools(pools: Vec<Pool>, num_results: usize, chain: Chain) -> Vec<Pool> {
@@ -308,14 +312,14 @@ fn decode_swap_return(output: &Bytes, is_vec: bool) -> U256 {
 fn resolve_router_and_type(pt: PoolType) -> Option<(Address, SwapType)>{
     use PoolType::*;
     match pt {
-        UniswapV2 => (address!("4752..."), SwapType::V2Basic),
-        SushiSwapV2 => (address!("6BDE..."), SwapType::V2Basic),
-        PancakeSwapV2 => (address!("8cFe..."), SwapType::V2Basic),
-        UniswapV3 => (address!("2626..."), SwapType::V3Basic),
-        SushiSwapV3 => (address!("FB7e..."), SwapType::V3Deadline),
-        Aerodrome => (address!("cF77..."), SwapType::V2Aerodrome),
-        Slipstream => (address!("BE6D..."), SwapType::V3DeadlineTick),
-       _ => return None,
+        UniswapV2 => Some((address!("4752..."), SwapType::V2Basic)),
+        SushiSwapV2 => Some((address!("6BDE..."), SwapType::V2Basic)),
+        PancakeSwapV2 => Some((address!("8cFe..."), SwapType::V2Basic)),
+        UniswapV3 => Some((address!("2626..."), SwapType::V3Basic)),
+        SushiSwapV3 => Some((address!("FB7e..."), SwapType::V3Deadline)),
+        Aerodrome => Some((address!("cF77..."), SwapType::V2Aerodrome)),
+        Slipstream => Some((address!("BE6D..."), SwapType::V3DeadlineTick)),
+       _ => None,
     }
 }
 
@@ -336,6 +340,8 @@ fn setup_router_calldata(
     swap_type: SwapType,
     zero_to_one: bool,
 ) -> (Vec<u8>, bool) {
+    use alloy_sol_types::SolCall; // Ensure trait is in scope for abi_encode
+
     // Determine the correct token order
     let (token0, token1) = if zero_to_one {
         (pool.token0_address(), pool.token1_address())

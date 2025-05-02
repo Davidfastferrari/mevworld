@@ -2,6 +2,7 @@ use tracing::{info, warn};
 use std::sync::Arc;
 
 use alloy::alloy_sol_types::SolCall;
+use alloy::alloy_sol_types::SolCall; // Add this import to bring trait into scope
 use alloy::network::Ethereum;
 use alloy::primitives::{address, U256};
 use alloy::providers::RootProvider;
@@ -76,7 +77,7 @@ impl Quoter {
         let mut best_output = initial_out;
         let mut curr_input = *AMOUNT.read().unwrap();
 
-        let step = U256::from_dec_str("200000000000000").unwrap(); // ✅ precise 2e14 step
+        let step = U256::from_str("200000000000000").unwrap(); // ✅ precise 2e14 step
 
         for _ in 0..50 {
             curr_input += step;

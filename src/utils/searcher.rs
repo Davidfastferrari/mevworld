@@ -10,12 +10,15 @@ use alloy::alloy_sol_types::SolCall;
 use alloy::network::Network;
 use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
+use alloy_sol_types::SolCall;
 
 use crate::utils::estimator::Estimator;
 use crate::utils::events::Event;
 use crate::utils::market_state::MarketState;
 use crate::utils::swap::SwapPath;
 use crate::utils::constants::AMOUNT;
+
+use crate::utils::Calculator;
 
 
 /// Top-level search engine for arbitrage cycles

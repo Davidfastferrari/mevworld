@@ -17,6 +17,8 @@ use alloy::providers::{Provider, ProviderBuilder};
 use alloy_rpc_types::BlockNumberOrTag;
 use alloy_transport_http::{Client, Http};
 
+use alloy_sol_types::{SolCall, SolValue};
+
 use revm::{Evm, primitives::{AccountInfo, Bytecode, ExecutionResult, TransactTo}};
 
 use pool_sync::{Pool, PoolInfo};
