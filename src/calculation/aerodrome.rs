@@ -1,5 +1,6 @@
 use alloy::sol;
 use alloy::sol_types::SolCall;
+use alloy_contract::SolCallBuilder;
 use alloy::network::Network;
 use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
