@@ -7,8 +7,8 @@ use alloy::primitives::U256;
 use utils::ignition::start_workers;
 use log::LevelFilter;
 
-
-mod utils;
+pub mod calculation;
+pub mod utils;
 
 pub const AMOUNT: Lazy<RwLock<U256>> = Lazy::new(|| RwLock::new(U256::from(1_000_000_000_000_000_000u128)));
 

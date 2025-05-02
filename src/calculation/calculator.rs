@@ -6,14 +6,14 @@ use pool_sync::PoolType;
 use std::collections::HashSet;
 use std::sync::Arc;
 
-use utils::cache::Cache;
-use utils::market_state::MarketState;
-use utils::swap::{SwapPath, SwapStep};
-use utils::main::AMOUNT;
+use super::cache::Cache;
+use super::market_state::MarketState;
+use super::swap::{SwapPath, SwapStep};
+use super::main::AMOUNT;
 
-use utils::calculation::uniswap;
-use utils::calculation::balancer;
-use utils::calculation::aerodrome;
+use super::calculation::uniswap;
+use super::calculation::balancer;
+use super::calculation::aerodrome;
 
 
 pub struct Calculator<N, P>

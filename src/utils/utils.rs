@@ -13,11 +13,12 @@ pub use tracing;
 pub use lazy_static;
 
 // Import alloy sol macro
-pub use alloy_sol_types::sol;
+// pub use alloy_sol_types::sol;
 
-pub use alloy;
+// pub use alloy;
 
-pub use revm;
+// pub use revm;
+
 // Declare calculation module
 // pub mod calculation;
 // Declare additional modules to fix unresolved imports
@@ -41,4 +42,3 @@ pub mod market_state;
 pub mod ignition;
 // Re-export Calculator for easier import
 pub use crate::calculation::Calculator;
-pub const AMOUNT: Lazy<RwLock<U256>> = Lazy::new(|| RwLock::new(U256::from(1_000_000_000_000_000_000u128)));

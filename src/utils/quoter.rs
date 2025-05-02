@@ -9,9 +9,9 @@ use alloy_transport_http::Http;
 use anyhow::{anyhow, Result};
 use revm::{Evm, primitives::{ExecutionResult, TransactTo}};
 
-use utils::rgen::FlashQuoter;
-use utils::market_state::MarketState;
-use utils::constants::AMOUNT;
+use super::rgen::FlashQuoter;
+use super::market_state::MarketState;
+use super::constants::AMOUNT;
 
 
 /// Quoter – runs an EVM simulation to quote arbitrage profitability.

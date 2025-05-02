@@ -7,7 +7,7 @@ use log::trace;
 use pool_sync::{Pool, PoolInfo};
 
 use super::BlockStateDB;
-use crate::state_db::blockstate_db::{InsertionType, BlockStateDBSlot};
+use super::state_db::blockstate_db::{InsertionType, BlockStateDBSlot};
 
 // === Bitmasks used for packing slot0 ===
 lazy_static! {

@@ -18,12 +18,12 @@ use revm_inspectors::access_list::Inspector;
 use anyhow::{Result, Context};
 use serde::{Serialize, Deserialize};
 use pool_sync::{Chain, Pool, PoolInfo, PoolType};
-use utils::node_db::InsertionType as NodeInsertionType;
-use utils::state_db::InsertionType as StateInsertionType;
-use utils::rgen::ERC20Token::{self, approveCall};
-use utils::rgen::{V2Aerodrome, V2Swap, V3Swap, V3SwapDeadline, V3SwapDeadlineTick};
-use utils::constants::AMOUNT;
-use utils::node_db::NodeDB;
+use super::node_db::InsertionType as NodeInsertionType;
+use super::state_db::InsertionType as StateInsertionType;
+use super::rgen::ERC20Token::{self, approveCall};
+use super::rgen::{V2Aerodrome, V2Swap, V3Swap, V3SwapDeadline, V3SwapDeadlineTick};
+use super::constants::AMOUNT;
+use super::node_db::NodeDB;
 
 /// Represents the logical router + calldata type for different swap protocols
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
