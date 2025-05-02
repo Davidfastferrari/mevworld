@@ -32,7 +32,7 @@ pub mod ignition;
 // Re-export Calculator for easier import
 pub use calculation::Calculator;
 
-pub use constants::EMPTY_OMMER_ROOT_HASH;
+//pub use constants::EMPTY_OMMER_ROOT_HASH;
 pub use transaction::EthereumTxEnvelope;
 pub use transaction::EthereumTypedTransaction;
 pub use transaction::SignableTransaction;
