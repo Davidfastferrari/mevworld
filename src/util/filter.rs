@@ -13,18 +13,26 @@ use once_cell::sync::Lazy;
 use log::{info, debug};
 use rayon::prelude::*;
 use reqwest::header::{HeaderMap, HeaderValue};
-use reth::revm::Evm;
-use revm::primitives::{Bytes, ExecutionResult, FixedBytes, TransactTo};
-use revm_inspector::inspector::Inspector;
+
+use revm::{
+    Config,
+    EVM,
+    EVMError,
+    Result,
+    executor::create_executor,
+    primitives::{U256, Address},
+    Database
+};
+use revm_primitives::BlockEnv;
 use anyhow::{Result, Context};
 use serde::{Serialize, Deserialize};
 use pool_sync::{Chain, Pool, PoolInfo, PoolType};
-use crate::utils::node_db::InsertionType as NodeInsertionType;
-use crate::utils::state_db::InsertionType as StateInsertionType;
-use crate::utils::rgen::ERC20Token::{approveCall};
-use crate::utils::rgen::{V2Aerodrome, V2Swap, V3Swap, V3SwapDeadline, V3SwapDeadlineTick};
-use crate::utils::constants::AMOUNT;
-use crate::utils::node_db::NodeDB;
+use crate::util::node_db::InsertionType as NodeInsertionType;
+use crate::util::state_db::InsertionType as StateInsertionType;
+use crate::util::rgen::ERC20Token::{approveCall};
+use crate::util::rgen::{V2Aerodrome, V2Swap, V3Swap, V3SwapDeadline, V3SwapDeadlineTick};
+use crate::util::constants::AMOUNT;
+use crate::util::node_db::NodeDB;
 
 /// Represents the logical router + calldata type for different swap protocols
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -230,7 +238,7 @@ async fn filter_by_swap(
             //     .map_err(|e| anyhow::anyhow!("Failed to insert account storage: {}", e))?;
         }
 
-        let mut evm = InspectEvm::builder()
+        let mut evm = EVM::builder()
             .with_db(& nodedb)
             .modify_tx_env(|tx| {
                 tx.caller = SIMULATED_ACCOUNT;

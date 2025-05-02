@@ -7,13 +7,13 @@ use alloy_sol_types::sol;
 sol!(
     #[sol(rpc)]
     FlashSwap,
-    "src/abi/FlashSwap.json"
+    "./abi/FlashSwap.json"
 );
 
 sol!(
     #[sol(rpc)]
     FlashQuoter,
-    "src/abi/FlashQuoter.json"
+    "./abi/FlashQuoter.json"
 );
 
 // Abi Generation an ERC20 token

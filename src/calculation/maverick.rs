@@ -3,7 +3,7 @@ use alloy_sol_types::sol;
 use alloy::primitives::{address, Address, U256};
 use reth_primitives::{ExecutionResult, Transaction as TransactTo};
 use revm::Evm;
-use crate::mod::curve;
+use crate::modcal::curve;
 
 use super::Calculator;
 

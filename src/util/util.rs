@@ -10,6 +10,7 @@ pub use tracing;
 #[macro_use]
 pub use lazy_static;
 
+pub mod calculation;
 pub mod cache;
 pub mod swap;
 pub mod rgen;
@@ -29,7 +30,7 @@ pub mod bytecode;
 pub mod market_state;
 pub mod ignition;
 // Re-export Calculator for easier import
-pub use crate::calculation::Calculator;
+pub use calculation::Calculator;
 
 pub use constants::EMPTY_OMMER_ROOT_HASH;
 pub use transaction::EthereumTxEnvelope;
@@ -46,3 +47,14 @@ pub use transaction::TxEnvelope;
 pub use transaction::TxLegacy;
 pub use transaction::TxType;
 pub use transaction::TypedTransaction;
+pub use bytecode;
+pub use context;
+pub use context_interface;
+pub use database;
+pub use database_interface;
+pub use handler;
+pub use inspector;
+pub use interpreter;
+pub use precompile;
+pub use primitives;
+pub use state;

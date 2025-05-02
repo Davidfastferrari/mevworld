@@ -23,7 +23,7 @@ use revm::{Evm, primitives::{AccountInfo, Bytecode, ExecutionResult, TransactTo}
 
 use pool_sync::{Pool, PoolInfo};
 
-use crate::utils::{
+use crate::util::{
     events::Event,
     rgen::{ERC20Token, FlashQuoter},
     state_db::{BlockStateDB, InsertionType},

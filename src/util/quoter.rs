@@ -5,13 +5,6 @@ use alloy_sol_types::SolCall;
 use alloy::network::Ethereum;
 use alloy::primitives::{address, U256};
 use alloy::providers::RootProvider;
-use alloy_transport_http::Http;
-use anyhow::{anyhow, Result};
-use reth::revm::{Evm, primitives::{ExecutionResult, TransactTo}};
-
-use crate::utils::market_state::MarketState;
-use crate::utils::constants::AMOUNT;
-use crate::utils::rgen::FlashQuoter;
 
 /// Quoter – runs an EVM simulation to quote arbitrage profitability.
 pub struct Quoter;
