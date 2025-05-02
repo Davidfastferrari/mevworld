@@ -38,7 +38,6 @@ pub mod estimator;
 pub mod constants;
 pub mod bytecode;
 pub mod market_state;
-pub mod main;
 pub mod ignition;
 // Re-export Calculator for easier import
 pub use crate::calculation::Calculator;
