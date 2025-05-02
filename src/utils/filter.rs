@@ -6,9 +6,8 @@ use std::{
     str::FromStr,
 };
 use alloy::primitives::{address, Address, U160, U256};
-use alloy_sol_types::sol;
 use alloy_sol_types::{SolCall, SolValue};
-use alloy_sol_types::SolCall;  // Added explicit import to bring abi_encode and abi_decode into scope
+  // Added explicit import to bring abi_encode and abi_decode into scope
 use lazy_static::lazy_static;
 use once_cell::sync::Lazy;
 use log::{info, debug};
@@ -16,13 +15,13 @@ use rayon::prelude::*;
 use reqwest::header::{HeaderMap, HeaderValue};
 use reth::revm::Evm;
 use revm::primitives::{Bytes, ExecutionResult, FixedBytes, TransactTo};
-use revm_inspectors::access_list::Inspector;
+use revm_inspector::inspector::Inspector;
 use anyhow::{Result, Context};
 use serde::{Serialize, Deserialize};
 use pool_sync::{Chain, Pool, PoolInfo, PoolType};
 use crate::utils::node_db::InsertionType as NodeInsertionType;
 use crate::utils::state_db::InsertionType as StateInsertionType;
-use crate::utils::rgen::ERC20Token::{self, approveCall};
+use crate::utils::rgen::ERC20Token::{approveCall};
 use crate::utils::rgen::{V2Aerodrome, V2Swap, V3Swap, V3SwapDeadline, V3SwapDeadlineTick};
 use crate::utils::constants::AMOUNT;
 use crate::utils::node_db::NodeDB;

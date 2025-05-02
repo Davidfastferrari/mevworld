@@ -27,7 +27,7 @@ pub struct SwapStep {
 // Custom serde module for PoolType
 mod pool_type_serde {
     use super::PoolType;
-    use serde::{Deserializer, Serializer, Deserialize, Serialize};
+    use serde::{Deserializer, Serializer, Deserialize};
 
     pub fn serialize<S>(pt: &PoolType, serializer: S) -> Result<S::Ok, S::Error>
     where

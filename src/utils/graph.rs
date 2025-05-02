@@ -10,7 +10,7 @@ use pool_sync::{BalancerV2Pool, CurveTriCryptoPool, Pool, PoolInfo};
 
 use crate::utils::swap::{SwapPath, SwapStep};
 
-use pool_sync::PoolInfo;  // Added to bring token0_address and token1_address into scope
+  // Added to bring token0_address and token1_address into scope
 
 pub struct ArbGraph;
 

@@ -2,7 +2,6 @@ use alloy::alloy_sol_types::SolCall;
 use crate::utils::simulator::Quoter;
 use crate::utils::Calculator;
 use alloy::network::Network;
-use alloy_contract::SolCallBuilder;
 use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
 use once_cell::sync::Lazy;

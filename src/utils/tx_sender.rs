@@ -1,13 +1,12 @@
 use tracing::info;
 use serde::{Serialize, Deserialize};
 use serde_json::json;
-use alloy_sol_types::sol;
 use alloy::primitives::{Address, Bytes as AlloyBytes, FixedBytes};
 use alloy::providers::{Provider, ProviderBuilder, RootProvider};
 use alloy_sol_types::TransactionRequest;
 use alloy_signer::{LocalWallet, PrivateKeySigner, EthereumWallet};
 use alloy_network::TransactionBuilder;
-use alloy_transport_http::{Http, Client as HttpClient};
+use alloy_transport_http::Http;
 use tokio::sync::mpsc::Receiver;
 use std::{sync::Arc, str::FromStr, time::{Duration, Instant}};
 use reqwest::Client;
@@ -97,7 +96,7 @@ impl<HttpClient> TransactionSender<HttpClient> {
 
             let (max_fee, priority_fee) = self.gas_station.get_gas_fees(profit);
 
-            let tx = TransactionBuilder::default()
+            let tx = <dyn TransactionBuilder>::default()
                 .with_to(self.contract_address)
                 .with_nonce(self.nonce)
                 .with_gas_limit(2_000_000)

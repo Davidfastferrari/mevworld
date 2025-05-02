@@ -1,11 +1,7 @@
-use std::{collections::HashMap, sync::{Arc, RwLock}, time::Duration};
-use tracing::{info, debug, warn};
-use alloy_consensus::Header;
-use alloy::providers::{Provider, ProviderBuilder, RootProvider};
-use reth::rpc::types::TransactionRequest;
-use alloy_signer::{Signer, SignerSync};
+use std::{collections::HashMap, sync::RwLock, time::Duration};
+use tracing::info;
+use alloy::providers::Provider;
 use alloy_network::TransactionBuilder;
-use alloy_transport_http::{Http, Client as HttpClient};
 use anyhow::Result;
 use once_cell::sync::Lazy;
 use pool_sync::{Chain, PoolSync, PoolType};
