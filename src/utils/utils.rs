@@ -2,15 +2,15 @@
 
 // Import macros for logging
 #[macro_use]
-extern crate log;
+pub use log;
 
 // Import tracing macros
 #[macro_use]
-extern crate tracing;
+pub use tracing;
 
 // Import lazy_static macro
 #[macro_use]
-extern crate lazy_static;
+pub use lazy_static;
 
 // Import alloy sol macro
 pub use alloy_sol_types::sol;
@@ -18,15 +18,12 @@ pub use alloy_sol_types::sol;
 pub use alloy;
 
 pub use revm;
-
 // Declare calculation module
-pub mod calculation;
-
+// pub mod calculation;
 // Declare additional modules to fix unresolved imports
 pub mod cache;
 pub mod swap;
 pub mod rgen;
-
 pub mod tx_sender;
 pub mod stream;
 pub mod simulator;

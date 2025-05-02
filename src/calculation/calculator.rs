@@ -6,14 +6,14 @@ use pool_sync::PoolType;
 use std::collections::HashSet;
 use std::sync::Arc;
 
-use mevworld::cache::Cache;
-use mevworld::market_state::MarketState;
-use mevworld::swap::{SwapPath, SwapStep};
-use mevworld::main::AMOUNT;
+use utils::cache::Cache;
+use utils::market_state::MarketState;
+use utils::swap::{SwapPath, SwapStep};
+use utils::main::AMOUNT;
 
-use mevworld::calculation::uniswap;
-use mevworld::calculation::balancer;
-use mevworld::calculation::aerodrome;
+use utils::calculation::uniswap;
+use utils::calculation::balancer;
+use utils::calculation::aerodrome;
 
 
 pub struct Calculator<N, P>

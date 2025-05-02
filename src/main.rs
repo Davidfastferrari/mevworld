@@ -4,9 +4,11 @@ use anyhow::Result;
 use once_cell::sync::Lazy;
 use pool_sync::{Chain, PoolSync, PoolType};
 use alloy::primitives::U256;
-use mevworld::ignition::start_workers;
+use utils::ignition::start_workers;
 use log::LevelFilter;
 
+
+mod utils;
 
 pub const AMOUNT: Lazy<RwLock<U256>> = Lazy::new(|| RwLock::new(U256::from(1_000_000_000_000_000_000u128)));
 

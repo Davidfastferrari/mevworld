@@ -4,8 +4,8 @@ use pool_sync::PoolType;
 use std::convert::From;
 use std::hash::Hash;
 
-use mevworld::rgen::{FlashQuoter, FlashSwap};
-use mevworld::constants::AMOUNT;
+use utils::rgen::{FlashQuoter, FlashSwap};
+use utils::constants::AMOUNT;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Point {
