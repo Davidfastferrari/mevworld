@@ -5,14 +5,13 @@ use alloy_sol_types::SolCall;
 use alloy::network::Ethereum;
 use alloy::primitives::{address, U256};
 use alloy::providers::RootProvider;
-use alloy_transport_http::Http;
+use alloy_transport_http::{Http, HttpClient};
 use anyhow::{anyhow, Result};
 use revm::{Evm, primitives::{ExecutionResult, TransactTo}};
 
 use crate::utils::rgen::FlashQuoter;
 use crate::utils::market_state::MarketState;
 use crate::utils::constants::AMOUNT;
-
 
 /// Quoter – runs an EVM simulation to quote arbitrage profitability.
 pub struct Quoter;
@@ -21,7 +20,7 @@ impl Quoter {
     /// Runs a simulated EVM call on the provided quote path.
     pub fn quote_path(
         quote_params: FlashQuoter::SwapParams,
-        market_state: Arc<MarketState<Ethereum, RootProvider<Http>>>,
+        market_state: Arc<MarketState<Ethereum, RootProvider<Http<HttpClient>>>>,
     ) -> Result<Vec<U256>> {
         let mut guard = market_state.db.write().unwrap();
 
@@ -70,7 +69,7 @@ impl Quoter {
     pub fn optimize_input(
         mut quote_path: FlashQuoter::SwapParams,
         initial_out: U256,
-        market_state: Arc<MarketState<Ethereum, RootProvider<Http>>>,
+        market_state: Arc<MarketState<Ethereum, RootProvider<Http<HttpClient>>>>,
     ) -> (U256, U256) {
         let mut best_input = *AMOUNT.read().unwrap();
         let mut best_output = initial_out;

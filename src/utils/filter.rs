@@ -180,13 +180,13 @@ async fn fetch_top_volume_tokens(num_results: usize, chain: Chain) -> Result<Vec
                 .json()
                 .await
                 .with_context(|| format!("Failed to decode Birdeye response at offset {}, limit {}", offset, limit))?;
-            addresses.extend(parsed.data.tokens.into_iter().map(|t| t.address));
+            addresses.extend(parsed.data.tokens.into_iter().map(|t| t.token_address.clone()));
         }
     }
 
-    Ok(addresses
-        .into_iter()
-        .filter_map(|addr| Address::from_str(&addr).ok())
+        Ok(addresses
+            .into_iter()
+            .filter_map(|addr| Address::from_str(addr.as_str()).ok())
         .collect())
 }
 
