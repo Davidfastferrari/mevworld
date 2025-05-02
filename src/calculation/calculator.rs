@@ -9,7 +9,7 @@ use std::sync::Arc;
 use crate::mod::cache::Cache;
 use crate::mod::market_state::MarketState;
 use crate::mod::swap::{SwapPath, SwapStep};
-use crate::mod::main::AMOUNT;
+use crate::utils::utils::constants::AMOUNT;
 use crate::mod::uniswap;
 use crate::mod::balancer;
 use crate::mod::aerodrome;
