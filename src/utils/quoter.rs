@@ -5,13 +5,13 @@ use alloy_sol_types::SolCall;
 use alloy::network::Ethereum;
 use alloy::primitives::{address, U256};
 use alloy::providers::RootProvider;
-use alloy_transport_http::{Http, HttpClient};
+use alloy_transport_http::Http;
 use anyhow::{anyhow, Result};
-use revm::{Evm, primitives::{ExecutionResult, TransactTo}};
+use reth::revm::{Evm, primitives::{ExecutionResult, TransactTo}};
 
-use crate::utils::rgen::FlashQuoter;
 use crate::utils::market_state::MarketState;
 use crate::utils::constants::AMOUNT;
+use crate::utils::rgen::FlashQuoter;
 
 /// Quoter – runs an EVM simulation to quote arbitrage profitability.
 pub struct Quoter;
@@ -20,7 +20,7 @@ impl Quoter {
     /// Runs a simulated EVM call on the provided quote path.
     pub fn quote_path(
         quote_params: FlashQuoter::SwapParams,
-        market_state: Arc<MarketState<Ethereum, RootProvider<Http<HttpClient>>>>,
+        market_state: Arc<MarketState<Ethereum, RootProvider<Http>>>,
     ) -> Result<Vec<U256>> {
         let mut guard = market_state.db.write().unwrap();
 
@@ -41,7 +41,7 @@ impl Quoter {
         // Run the transaction
         match evm.transact().map(|tx| tx.result) {
             Ok(ExecutionResult::Success { output, .. }) => {
-                match Vec::<U256>::abi_decode(output.data()) {
+                match Vec::<U256>::decode(output.data()) {
                     Ok(decoded) => Ok(decoded),
                     Err(e) => {
                         warn!("❌ ABI decode failed: {e:?}");
@@ -69,7 +69,7 @@ impl Quoter {
     pub fn optimize_input(
         mut quote_path: FlashQuoter::SwapParams,
         initial_out: U256,
-        market_state: Arc<MarketState<Ethereum, RootProvider<Http<HttpClient>>>>,
+        market_state: Arc<MarketState<Ethereum, RootProvider<Http>>>,
     ) -> (U256, U256) {
         let mut best_input = *AMOUNT.read().unwrap();
         let mut best_output = initial_out;
