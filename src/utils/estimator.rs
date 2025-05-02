@@ -78,13 +78,14 @@ where
         final_rate > (*RATE_SCALE_VALUE + min_profit_ratio)
     }
 
-fn scale_to_rate(&self, amount: U256, token_decimals: u32) -> U256 {
-    if token_decimals <= RATE_SCALE {
-        amount * U256::from(10u64).pow((RATE_SCALE - token_decimals) as usize)
-    } else {
-        amount / U256::from(10u64).pow((token_decimals - RATE_SCALE) as usize)
+    fn scale_to_rate(&self, amount: U256, token_decimals: u32) -> U256 {
+        let base = U256::from(10u64);
+        if token_decimals <= RATE_SCALE {
+            amount * base.pow(U256::from((RATE_SCALE - token_decimals) as u64))
+        } else {
+            amount / base.pow(U256::from((token_decimals - RATE_SCALE) as u64))
+        }
     }
-}
 
     fn calculate_rate(
         &self,
@@ -129,17 +130,17 @@ fn scale_to_rate(&self, amount: U256, token_decimals: u32) -> U256 {
         }
     }
 
-    fn process_eth_pool(
-        &mut self,
-        pool: &Pool,
-        weth: Address,
-        input: U256,
-        alt_tokens: &mut HashSet<Address>,
-        cnt_map: &mut HashMap<Address, u32>,
-    ) {
-        let (token0, token1) = (pool.token0_address(), pool.token1_address());
-        self.token_decimals.insert(token0, pool.token0_decimals().into());
-        self.token_decimals.insert(token1, pool.token1_decimals().into());
+fn process_eth_pool(
+    &mut self,
+    pool: &Pool,
+    weth: Address,
+    input: U256,
+    alt_tokens: &mut HashSet<Address>,
+    cnt_map: &mut HashMap<Address, u32>,
+) {
+    let (token0, token1) = (pool.token0_address(), pool.token1_address());
+    self.token_decimals.insert(token0, pool.token0_decimals().into());
+    self.token_decimals.insert(token1, pool.token1_decimals().into());
 
         let (eth_token, alt_token) = if token0 == weth { (token0, token1) } else { (token1, token0) };
         alt_tokens.insert(alt_token);

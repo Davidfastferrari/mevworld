@@ -19,8 +19,39 @@ pub struct SwapStep {
     pub pool_address: Address,
     pub token_in: Address,
     pub token_out: Address,
+    #[serde(with = "pool_type_serde")]
     pub protocol: PoolType,
     pub fee: u32,
+}
+
+// Custom serde module for PoolType
+mod pool_type_serde {
+    use super::PoolType;
+    use serde::{Deserializer, Serializer, Deserialize, Serialize};
+
+    pub fn serialize<S>(pt: &PoolType, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        serializer.serialize_str(&format!("{:?}", pt))
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<PoolType, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s = String::deserialize(deserializer)?;
+        match s.as_str() {
+            "UniswapV2" => Ok(PoolType::UniswapV2),
+            "SushiSwapV2" => Ok(PoolType::SushiSwapV2),
+            "PancakeSwapV2" => Ok(PoolType::PancakeSwapV2),
+            "UniswapV3" => Ok(PoolType::UniswapV3),
+            "SushiSwapV3" => Ok(PoolType::SushiSwapV3),
+            "Aerodrome" => Ok(PoolType::Aerodrome),
+            "Slipstream" => Ok(PoolType::Slipstream),
+            _ => Err(serde::de::Error::custom(format!("Unknown PoolType: {}", s))),
+        }
+    }
 }
 
 /// Full swap path that the bot will evaluate and potentially execute.

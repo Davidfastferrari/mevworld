@@ -1,8 +1,7 @@
 use tracing::{info, warn};
 use std::sync::Arc;
 
-use alloy::alloy_sol_types::SolCall;
-use alloy::alloy_sol_types::SolCall; // Add this import to bring trait into scope
+use alloy_sol_types::SolCall;
 use alloy::network::Ethereum;
 use alloy::primitives::{address, U256};
 use alloy::providers::RootProvider;
@@ -22,7 +21,7 @@ impl Quoter {
     /// Runs a simulated EVM call on the provided quote path.
     pub fn quote_path(
         quote_params: FlashQuoter::SwapParams,
-        market_state: Arc<MarketState<Ethereum, RootProvider<Http<Client>>>>,
+        market_state: Arc<MarketState<Ethereum, RootProvider<Http>>>,
     ) -> Result<Vec<U256>> {
         let mut guard = market_state.db.write().unwrap();
 
@@ -43,7 +42,7 @@ impl Quoter {
         // Run the transaction
         match evm.transact().map(|tx| tx.result) {
             Ok(ExecutionResult::Success { output, .. }) => {
-                match Vec::<U256>::abi_decode(output.data(), false) {
+                match Vec::<U256>::abi_decode(output.data()) {
                     Ok(decoded) => Ok(decoded),
                     Err(e) => {
                         warn!("❌ ABI decode failed: {e:?}");
@@ -71,13 +70,13 @@ impl Quoter {
     pub fn optimize_input(
         mut quote_path: FlashQuoter::SwapParams,
         initial_out: U256,
-        market_state: Arc<MarketState<Ethereum, RootProvider<Http<Client>>>>,
+        market_state: Arc<MarketState<Ethereum, RootProvider<Http>>>,
     ) -> (U256, U256) {
         let mut best_input = *AMOUNT.read().unwrap();
         let mut best_output = initial_out;
         let mut curr_input = *AMOUNT.read().unwrap();
 
-        let step = U256::from_str("200000000000000").unwrap(); // ✅ precise 2e14 step
+        let step = U256::from(200000000000000u128); // ✅ precise 2e14 step
 
         for _ in 0..50 {
             curr_input += step;

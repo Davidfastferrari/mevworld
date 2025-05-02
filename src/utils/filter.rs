@@ -295,7 +295,7 @@ fn simulate_swap(
 
 fn decode_swap_return(output: &Bytes, is_vec: bool) -> U256 {
     if is_vec {
-        let vec_out = match <Vec<U256>>::abi_decode(output, false) {
+        let vec_out = match <Vec<U256>>::abi_decode(output) {
            Ok(v) => v,
            Err(e) => {
            debug!("Vec decode failed: {:?}", e);
@@ -305,20 +305,20 @@ fn decode_swap_return(output: &Bytes, is_vec: bool) -> U256 {
 
         *vec_out.last().unwrap()
     } else {
-        <U256>::abi_decode(output, false).unwrap()
+        <U256>::abi_decode(output).unwrap()
     }
 }
 
 fn resolve_router_and_type(pt: PoolType) -> Option<(Address, SwapType)>{
     use PoolType::*;
     match pt {
-        UniswapV2 => Some((address!("4752..."), SwapType::V2Basic)),
-        SushiSwapV2 => Some((address!("6BDE..."), SwapType::V2Basic)),
-        PancakeSwapV2 => Some((address!("8cFe..."), SwapType::V2Basic)),
-        UniswapV3 => Some((address!("2626..."), SwapType::V3Basic)),
-        SushiSwapV3 => Some((address!("FB7e..."), SwapType::V3Deadline)),
-        Aerodrome => Some((address!("cF77..."), SwapType::V2Aerodrome)),
-        Slipstream => Some((address!("BE6D..."), SwapType::V3DeadlineTick)),
+        UniswapV2 => Some((address!("0x4752a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"), SwapType::V2Basic)),
+        SushiSwapV2 => Some((address!("0x6BDEa1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"), SwapType::V2Basic)),
+        PancakeSwapV2 => Some((address!("0x8cFea1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"), SwapType::V2Basic)),
+        UniswapV3 => Some((address!("0x2626a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"), SwapType::V3Basic)),
+        SushiSwapV3 => Some((address!("0xFB7ea1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"), SwapType::V3Deadline)),
+        Aerodrome => Some((address!("0xcF77a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"), SwapType::V2Aerodrome)),
+        Slipstream => Some((address!("0xBE6Da1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"), SwapType::V3DeadlineTick)),
        _ => None,
     }
 }
