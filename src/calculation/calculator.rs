@@ -14,7 +14,6 @@ use crate::mod::uniswap;
 use crate::mod::balancer;
 use crate::mod::aerodrome;
 
-
 pub struct Calculator<N, P>
 where
     N: Network,

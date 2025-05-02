@@ -7,8 +7,8 @@ use alloy::primitives::U256;
 use crate::utils::ignition::start_workers;
 use log::LevelFilter;
 
-use crate::utils::utils::calculation::calculator;
-use crate::utils::utils;
+use crate::calculation::calculator;
+use crate::utils;
 
 pub const AMOUNT: Lazy<RwLock<U256>> = Lazy::new(|| RwLock::new(U256::from(1_000_000_000_000_000_000u128)));
 
@@ -25,14 +25,15 @@ pub static TOKEN_DECIMALS: Lazy<HashMap<&'static str, u8>> = Lazy::new(|| {
 /// Converts a token symbol to an on-chain value in base units
 pub fn amount_for_token(token_symbol: &str) -> U256 {
     let decimals = TOKEN_DECIMALS.get(token_symbol).copied().unwrap_or(18);
-    let multiplier = U256::exp10(decimals as usize);
+    let multiplier = U256::from(10).pow(U256::from(decimals as u32));
     U256::from(100_000) * multiplier // Correct conversion
 }
 
 /// Updates the global `AMOUNT` based on the token
 pub fn update_amount(token_symbol: &str) {
     let calculated = amount_for_token(token_symbol);
-    let mut amount = AMOUNT.write().unwrap();
+    let amount_lock = &AMOUNT;
+    let mut amount = amount_lock.write().unwrap();
     *amount = calculated;
 }
 
@@ -61,13 +62,12 @@ async fn main() -> Result<()> {
             PoolType::Slipstream,
             PoolType::AlienBaseV2,
             PoolType::AlienBaseV3,
-            PoolType::BaseswapV2,
-            PoolType::BaseswapV3,
+            PoolType::BaseSwapV2,
+            PoolType::BaseSwapV3,
             PoolType::MaverickV1,
             PoolType::MaverickV2,
         ])
         .chain(Chain::Base)
-        .rate_limit(1000)
         .build()?;
 
     let (pools, last_synced_block) = pool_sync.sync_pools().await?;
