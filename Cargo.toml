@@ -67,7 +67,6 @@ reth-node-ethereum = { git = "https://github.com/paradigmxyz/reth", package = "r
 reth-chainspec = { git = "https://github.com/paradigmxyz/reth", package = "reth-chainspec", rev = "6f8e725" }
 reth-provider = { git = "https://github.com/paradigmxyz/reth", package = "reth-provider", rev = "6f8e725" }
 reth-evm = { git = "https://github.com/paradigmxyz/reth", package = "reth-evm", rev = "6f8e725" }
-reth-ethereum = { git = "https://github.com/paradigmxyz/reth", package = "reth-evm", rev = "6f8e725" }
 # Other utilities
 futures-util = "0.3"
 rayon = "1.10.0"
