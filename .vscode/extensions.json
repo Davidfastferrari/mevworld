@@ -1,6 +1,7 @@
 {
     "recommendations": [
         "sinassrc.ai-secure-fix",
-        "dsobotta.godot-rust-vscode"
+        "dsobotta.godot-rust-vscode",
+        "atakaboudi.stacker"
     ]
 }
