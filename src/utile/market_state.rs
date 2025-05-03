@@ -18,7 +18,7 @@ use tokio::sync::{
     RwLock,
     mpsc::{Receiver, Sender},
 };
-use tracing::{debug, info};
+use tracing::{debug, info, error};
 use alloy::sol_types::{SolCall, SolValue};
 use pool_sync::{Pool, PoolInfo};
 use reth::primitives::Bytecode;
@@ -85,13 +85,13 @@ where
         let quoter = address!("0000000000000000000000000000000000001000");
 
         let ten_units = U256::from(10_000_000_000_000_000_000u128);
-        let balance_slot = keccak256((account, U256::from(3)).abi_encode());
+        let balance_slot = Keccak256::hash(&(account, U256::from(3)).abi_encode());
 
         let quoter_bytecode = FlashQuoter::DEPLOYED_BYTECODE.clone();
         let quoter_info = AccountInfo {
             nonce: 0,
             balance: U256::ZERO,
-            code_hash: keccak256(&quoter_bytecode),
+            code_hash: Keccak256::hash(&quoter_bytecode),
             code: Some(Bytecode::new_raw(quoter_bytecode)),
         };
         db.insert_account_info(quoter, quoter_info, InsertionType::Custom);
@@ -127,7 +127,7 @@ where
             let quote_path = FlashQuoter::SwapParams {
                 pools: vec![pool.address()],
                 poolVersions: vec![if pool.is_v3() { 1 } else { 0 }],
-                amountIn: *AMOUNT,
+                amountIn: *AMOUNT.read().unwrap(),
             };
 
             let quote_call = FlashQuoter::quoteArbitrageCall { params: quote_path }.abi_encode();
@@ -201,7 +201,7 @@ where
 
     async fn update_state(
         &self,
-        provider: Arc<RootProvider<Http<Client>>>,
+        provider: Arc<Provider<Http<Client>>>,
         block_num: u64,
     ) -> HashSet<Address> {
         let mut updated_pools = HashSet::new();

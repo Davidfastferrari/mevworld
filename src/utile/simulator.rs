@@ -27,7 +27,7 @@ sol! {
 
 // pub use V2State::*;
 
-impl<N, P> Calculator<N, P>
+impl<N, P> calculator::Calculator<N, P>
 where
     N: Network,
     P: Provider<N>,
@@ -141,7 +141,7 @@ where
 
 // === Extra Utility Functions ===
 pub fn simulate_bundle_profit(
-    calculator: &Calculator,
+    calculator: &calculator::Calculator<impl Network, impl Provider>,
     aerodrome_pool_address: Address,
     uniswap_pool_address: Address,
 ) -> U256 {
@@ -155,7 +155,7 @@ pub fn simulate_bundle_profit(
     profit
 }
 /// Example usage to print best route
-pub fn ample_best_route(calculator: &Calculator, initial_amt: U256, weth: Address, usdc: Address) {
+pub fn ample_best_route(calculator: &calculator::Calculator<impl Network, impl Provider>, initial_amt: U256, weth: Address, usdc: Address) {
     let best_route = calculator.find_best_route(initial_amt, weth, usdc, 3);
     if let Some((path, amount_out)) = best_route {
         println!("Best route: {:?}, Amount out: {}", path, amount_out);

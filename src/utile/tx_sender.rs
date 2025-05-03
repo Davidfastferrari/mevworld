@@ -3,7 +3,7 @@ use alloy::{
     providers::{Provider, ProviderBuilder, RootProvider},
     signers::local::PrivateKeySigner,
 };
-use alloy::network::EthereumWallet;
+use alloy::network::{Network, EthereumWallet};
 use alloy::network::TransactionBuilder;
 use alloy::transport_http::Http;
 use alloy::hex;
@@ -36,7 +36,7 @@ pub struct TransactionSender<HttpClient> {
     gas_station: Arc<GasStation>,
     contract_address: Address,
     client: Arc<Client>,
-    provider: Arc<RootProvider<alloy_network::Ethereum>>,
+    provider: Arc<RootProvider<impl Network>>,
     nonce: u64,
 }
 
@@ -103,7 +103,7 @@ impl<HttpClient> TransactionSender<HttpClient> {
 
             let (max_fee, priority_fee) = self.gas_station.get_gas_fees(profit);
 
-            let tx = <dyn TransactionBuilder<alloy_network::Ethereum>>::default()
+            let tx = <dyn TransactionBuilder<_>>::default()
                 .with_to(self.contract_address)
                 .with_nonce(self.nonce)
                 .with_gas_limit(2_000_000)
@@ -149,7 +149,7 @@ impl<HttpClient> TransactionSender<HttpClient> {
     }
 
     pub async fn send_and_monitor(
-        provider: Arc<RootProvider<Http<HttpClient>>>,
+        provider: Arc<RootProvider<impl Network>>,
         tx_hash: FixedBytes<32>,
         block_number: u64,
     ) {

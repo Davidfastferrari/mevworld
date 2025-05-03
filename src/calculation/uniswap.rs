@@ -5,7 +5,9 @@ use anyhow::{Result, anyhow};
 use log::info;
 use uniswap_v3_math::swap_math;
 use uniswap_v3_math::tick_math::{MAX_SQRT_RATIO, MAX_TICK, MIN_SQRT_RATIO, MIN_TICK};
-use uniswap_v3_sdk::prelude::*;
+use uniswap_v3_math::full_math::{mul_div, mul_div_rounding_up};
+
+use super::Calculator;
 
 pub const U256_1: U256 = U256::from_limbs([1, 0, 0, 0]);
 
@@ -73,7 +75,7 @@ where
         numerator / denominator
     }
 
-    // calculate the amount out for a uniswapv3 swap
+    // calculate the amount out for a uniswapv3 swap using swap_math and full_math for precision
     #[inline]
     pub fn uniswap_v3_out(
         &self,
@@ -152,7 +154,7 @@ where
                 step.sqrt_price_next_x96
             };
 
-            // Compute swap step and update the current state using uniswap_v3_sdk swap math
+            // Compute swap step and update the current state using uniswap_v3_math swap math
             let (sqrt_price_next_x96, amount_in, amount_out, fee_amount) =
                 swap_math::compute_swap_step(
                     current_state.sqrt_price_x_96,
@@ -161,6 +163,9 @@ where
                     current_state.amount_specified_remaining,
                     fee,
                 )?;
+
+            // Use full_math mul_div for precise calculations here if needed
+            // Example: let precise_value = mul_div(amount_in, some_factor, denominator)?;
 
             // Update state using exact input logic from on-chain code
             current_state.amount_specified_remaining -=
@@ -207,75 +212,5 @@ where
         }
 
         Ok((-current_state.amount_calculated).into_raw())
-    }
-}
-impl MockDB {
-    pub fn build(liquidity: u128, tick: i32) -> Self {
-        let sqrt_price = TickMath::get_sqrt_ratio_at_tick(tick).unwrap_or(U256::from(1));
-        Self {
-            liquidity,
-            sqrt_price_x_96: sqrt_price,
-            tick,
-        }
-    }
-
-    pub fn simulate_v3_swap(&self, amount_in: U256, zero_to_one: bool, fee: u32) -> Result<U256> {
-        let tick_spacing = 60;
-        let price_limit = if zero_to_one {
-            U256::from(MIN_SQRT_RATIO) + U256::from(1u64)
-        } else {
-            MAX_SQRT_RATIO - U256::from(1u64)
-        };
-
-        let mut state = CurrentState {
-            sqrt_price_x_96: self.sqrt_price_x_96,
-            tick: self.tick,
-            liquidity: self.liquidity,
-            amount_specified_remaining: I256::from_raw(amount_in),
-            amount_calculated: I256::ZERO,
-        };
-
-        while state.amount_specified_remaining != I256::ZERO && state.sqrt_price_x_96 != price_limit
-        {
-            let mut step = StepComputations {
-                sqrt_price_start_x_96: state.sqrt_price_x_96,
-                ..Default::default()
-            };
-
-            let next_tick = if zero_to_one {
-                state.tick - tick_spacing
-            } else {
-                state.tick + tick_spacing
-            };
-
-            step.tick_next = next_tick.clamp(MIN_TICK, MAX_TICK);
-            step.sqrt_price_next_x96 = TickMath::get_sqrt_ratio_at_tick(step.tick_next)?;
-
-            let target = if zero_to_one {
-                step.sqrt_price_next_x96.min(price_limit)
-            } else {
-                step.sqrt_price_next_x96.max(price_limit)
-            };
-
-            let (sqrt_next, amt_in, amt_out, fee_amt) = swap_math::compute_swap_step(
-                state.sqrt_price_x_96,
-                target,
-                state.liquidity,
-                state.amount_specified_remaining,
-                fee,
-            )?;
-
-            state.amount_specified_remaining -= I256::from_raw(amt_in + fee_amt);
-            state.amount_calculated -= I256::from_raw(amt_out);
-            state.sqrt_price_x_96 = sqrt_next;
-            state.tick = step.tick_next;
-
-            info!(
-                "Simulate step: tick_next={}, sqrt_price_next_x96={}, amt_in={}, amt_out={}, fee_amt={}",
-                step.tick_next, step.sqrt_price_next_x96, amt_in, amt_out, fee_amt
-            );
-        }
-
-        Ok((-state.amount_calculated).into_raw())
     }
 }

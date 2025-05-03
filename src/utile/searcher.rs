@@ -23,7 +23,7 @@ where
     N: Network,
     P: Provider<N>,
 {
-    calculator: Calculator<N, P>,
+    calculator: calculator::Calculator<N, P>,
     estimator: Estimator<N, P>,
     path_index: HashMap<Address, Vec<usize>>,
     cycles: Vec<SwapPath>,
@@ -40,7 +40,7 @@ where
         market_state: Arc<MarketState<N, P>>,
         estimator: Estimator<N, P>,
     ) -> Self {
-        let calculator = Calculator::new(market_state);
+        let calculator = calculator::Calculator::new(market_state);
 
         // 🧠 Precompute pool index mapping
         let mut index: HashMap<Address, Vec<usize>> = HashMap::new();
@@ -51,7 +51,7 @@ where
         }
 
         // 💰 Minimum profit is loan repayment + 1% buffer
-        let initial_amount = *AMOUNT;
+        let initial_amount = *AMOUNT.read().unwrap();
         let flash_loan_fee = (initial_amount * U256::from(9)) / U256::from(10000);
         let repayment_amount = initial_amount + flash_loan_fee;
         let min_profit_percentage = (initial_amount * U256::from(1)) / U256::from(100);
@@ -72,7 +72,7 @@ where
         &mut self,
         mut paths_tx: Sender<Event>,
         mut address_rx: Receiver<Event>,
-    ) -> Result<(), E> {
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let _sim: bool = std::env::var("SIM")
             .ok()
             .and_then(|v| v.parse().ok())
@@ -114,7 +114,7 @@ where
             info!("💎 {} profitable paths found", profitable_paths.len());
 
             if let Some(best_path) = profitable_paths.iter().max_by_key(|(_, amt)| amt) {
-                let calculated_out = self.calculator.calculate_output(&best_path.0);
+                let calculated_out = self.calculator.compute_amount_out(&best_path.0);
 
                 if calculated_out >= self.min_profit {
                     info!("✅ Best estimated {}, real {}", best_path.1, calculated_out);
@@ -134,5 +134,6 @@ where
                 }
             }
         }
+        Ok(())
     }
 }

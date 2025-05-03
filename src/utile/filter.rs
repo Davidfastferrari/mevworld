@@ -8,7 +8,6 @@ use std::{
     path::Path,
     str::FromStr,
 };
-// Added explicit import to bring abi_encode and abi_decode into scope
 use super::constant::AMOUNT;
 use super::node_db::InsertionType::NodeInsertionType;
 use super::node_db::NodeDB;
@@ -22,15 +21,15 @@ use once_cell::sync::Lazy;
 use pool_sync::{Chain, Pool, PoolInfo, PoolType};
 use rayon::prelude::*;
 use reqwest::header::{HeaderMap, HeaderValue};
-use reth::chainspec::arbitrary::Result;
+use reth::chainspec::arbitrary::Result as RethResult;
 use reth::revm::revm::primitives::Bytes;
 use reth::revm::revm::primitives::*;
 use reth::builder::components::ExecutorBuilder::Executor;
 use reth::api::FullNodeComponents;
 use reth::revm::Database;
 use reth::revm::database;
-use reth::revm::revm::primitives::Address;
-use reth::revm::revm::primitives::U256;
+use reth::revm::revm::primitives::Address as RethAddress;
+use reth::revm::revm::primitives::U256 as RethU256;
 use serde::{Deserialize, Serialize};
 
 /// Represents the logical router + calldata type for different swap protocols
@@ -42,7 +41,6 @@ enum SwapType {
     V2Aerodrome,
     V3DeadlineTick,
 }
-//pub static AMOUNT: Lazy<RwLock<U256>> = Lazy::new(|| RwLock::new(U256::from(1_000_000_000_000_000_000u128)));
 
 // Blacklisted tokens we don’t want to consider (e.g. scams, malicious)
 lazy_static! {
@@ -80,7 +78,7 @@ struct Token {
     address: Option<String>,
 }
 
-pub async fn filter_pools(pools: Vec<Pool>, num_results: usize, chain: Chain) -> Vec<Pool> {
+pub async fn filter_pools(pools: Vec<Pool>, num_results: usize, chain: Chain) -> Result<Vec<Pool>> {
     info!("Initial pool count before filter: {}", pools.len());
 
     let top_volume_tokens = get_top_volume_tokens(chain, num_results)
@@ -161,7 +159,6 @@ async fn fetch_top_volume_tokens(num_results: usize, chain: Chain) -> Result<Vec
         HeaderValue::from_str(match chain {
             Chain::Ethereum => "ethereum",
             Chain::Base => "base",
-            // remove `_ => "unknown",` — it's unreachable!
         })
         .unwrap(),
     );
@@ -200,20 +197,15 @@ async fn fetch_top_volume_tokens(num_results: usize, chain: Chain) -> Result<Vec
                     offset, limit
                 )
             })?;
-            addresses.extend(
-                parsed
-                    .data
-                    .tokens
-                    .into_iter()
-                    .map(|t| t.token_address.clone()),
-            );
+            if let Some(tokens) = parsed.data.tokens {
+                addresses.extend(tokens.into_iter().filter_map(|t| {
+                    t.address.and_then(|addr_str| Address::from_str(&addr_str).ok())
+                }));
+            }
         }
     }
 
-    Ok(addresses
-        .into_iter()
-        .filter_map(|addr| Address::from_str(addr.as_str()).ok())
-        .collect())
+    Ok(addresses)
 }
 
 fn construct_slot_map(pools: &[Pool]) -> HashMap<Address, FixedBytes<32>> {
@@ -364,31 +356,31 @@ fn decode_swap_return(output: &Bytes, is_vec: bool) -> U256 {
 
 fn resolve_router_and_type(pt: PoolType) -> Option<(Address, SwapType)> {
     match pt {
-        uniswap_v2 => Some((
+        PoolType::UniswapV2 => Some((
             address!("0x4752a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"),
             SwapType::V2Basic,
         )),
-        sushi_swap_v2 => Some((
+        PoolType::SushiSwapV2 => Some((
             address!("0x6BDEa1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"),
             SwapType::V2Basic,
         )),
-        pancake_swap_v2 => Some((
+        PoolType::PancakeSwapV2 => Some((
             address!("0x8cFea1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"),
             SwapType::V2Basic,
         )),
-        uniswap_v3 => Some((
+        PoolType::UniswapV3 => Some((
             address!("0x2626a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"),
             SwapType::V3Basic,
         )),
-        sushi_swap_v3 => Some((
+        PoolType::SushiSwapV3 => Some((
             address!("0xFB7ea1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"),
             SwapType::V3Deadline,
         )),
-        aerodrome => Some((
+        PoolType::Aerodrome => Some((
             address!("0xcF77a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"),
             SwapType::V2Aerodrome,
         )),
-        slipstream => Some((
+        PoolType::Slipstream => Some((
             address!("0xBE6Da1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"),
             SwapType::V3DeadlineTick,
         )),
@@ -413,7 +405,7 @@ fn setup_router_calldata(
     swap_type: SwapType,
     zero_to_one: bool,
 ) -> (Vec<u8>, bool) {
-    use alloy_sol_types::SolCall; // Ensure trait is in scope for abi_encode
+    use alloy::sol_types::SolCall; // Ensure trait is in scope for abi_encode
 
     // Determine the correct token order
     let (token0, token1) = if zero_to_one {

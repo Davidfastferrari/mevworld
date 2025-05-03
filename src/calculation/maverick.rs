@@ -20,8 +20,6 @@ sol! {
     }
 }
 
-// pub use MaverickOut;
-
 impl<N, P> Calculator<N, P>
 where
     N: alloy::network::Network,

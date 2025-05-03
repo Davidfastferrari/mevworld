@@ -1,4 +1,3 @@
-
 use super::calculator;
 use super::constant::AMOUNT;
 use super::market_state::MarketState;
@@ -27,7 +26,7 @@ where
     rates: HashMap<Address, HashMap<Address, U256>>,
     weth_based: HashMap<Address, bool>,
     market_state: Arc<MarketState<N, P>>,
-    calculator: Calculator<N, P>,
+    calculator: calculator::Calculator<N, P>,
     aggregated_weth_rate: HashMap<Address, U256>,
     token_decimals: HashMap<Address, u32>,
 }
@@ -42,7 +41,7 @@ where
             rates: HashMap::new(),
             weth_based: HashMap::new(),
             market_state: Arc::clone(&market_state),
-            calculator: Calculator::new(market_state),
+            calculator: calculator::Calculator::new(market_state),
             aggregated_weth_rate: HashMap::new(),
             token_decimals: HashMap::new(),
         }

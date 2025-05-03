@@ -8,10 +8,7 @@ use std::sync::Arc;
 use super::aerodrome;
 use super::balancer;
 use super::uniswap;
-use crate::utile::AMOUNT;
-use crate::utile::Cache;
-use crate::utile::MarketState;
-use crate::utile::SwapPath;
+use crate::utile::{AMOUNT, Cache, MarketState, SwapPath};
 
 pub struct Calculator<N, P>
 where

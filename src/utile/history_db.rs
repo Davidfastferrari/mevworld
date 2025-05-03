@@ -67,7 +67,7 @@ impl Database for HistoryDB {
     fn code_by_hash(
         &mut self,
         _code_hash: B256,
-    ) -> std::result::Result<reth::revm::revm_bytecode::Bytecode, ErrReport> {
+    ) -> std::result::Result<reth::revm::revm_bytecode::Bytecode, eyre::ErrReport> {
         panic!("code_by_hash should never be called directly; code is preloaded via basic_ref")
     }
 
@@ -96,7 +96,7 @@ impl DatabaseRef for HistoryDB {
             Some(code) => AccountInfo::new(
                 account.balance,
                 account.nonce,
-                code.hash_slow(),
+                KECCAK_EMPTY,
                 Bytecode::new_raw(code.original_bytes()),
             ),
             None => AccountInfo::new(
@@ -113,7 +113,7 @@ impl DatabaseRef for HistoryDB {
     fn code_by_hash_ref(
         &self,
         _code_hash: B256,
-    ) -> std::result::Result<reth::revm::revm_bytecode::Bytecode, ErrReport> {
+    ) -> std::result::Result<reth::revm::revm_bytecode::Bytecode, eyre::ErrReport> {
         panic!("code_by_hash_ref should not be invoked directly; preloading expected")
     }
 

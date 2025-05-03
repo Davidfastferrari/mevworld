@@ -10,7 +10,7 @@ mod calculation;
 mod utile;
 mod state_db;
 
-use crate::utile:ignition::start_workers;
+use crate::utile::ignition::start_workers;
 
 pub const AMOUNT: Lazy<RwLock<U256>> =
     Lazy::new(|| RwLock::new(U256::from(1_000_000_000_000_000_000u128)));
