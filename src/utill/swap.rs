@@ -1,10 +1,10 @@
-use serde::{Deserialize, Serialize};
+use super::constant::AMOUNT;
+use super::rgen::{FlashQuoter, FlashSwap};
 use alloy::primitives::Address;
 use pool_sync::PoolType;
+use serde::{Deserialize, Serialize};
 use std::convert::From;
 use std::hash::Hash;
-use crate::utill_rgen::{FlashQuoter, FlashSwap};
-use crate::utill_constant::AMOUNT;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Point {
@@ -26,7 +26,7 @@ pub struct SwapStep {
 // Custom serde module for PoolType
 mod pool_type_serde {
     use super::PoolType;
-    use serde::{Deserializer, Serializer, Deserialize};
+    use serde::{Deserialize, Deserializer, Serializer};
 
     pub fn serialize<S>(pt: &PoolType, serializer: S) -> Result<S::Ok, S::Error>
     where

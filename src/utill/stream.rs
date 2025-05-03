@@ -1,9 +1,8 @@
-use alloy::providers::{Provider, ProviderBuilder, Ipc};
+use super::events::Event;
+use alloy::providers::{IpcConnect, Provider, ProviderBuilder};
 use futures::StreamExt;
 use log::{debug, warn};
 use tokio::sync::broadcast::Sender;
-use crate::utill_events::Event;
-
 
 /// Subscribes to new block headers over IPC and broadcasts them via a channel.
 pub async fn stream_new_blocks(block_sender: Sender<Event>) {

@@ -1,22 +1,33 @@
-use tracing::info;
-use serde::{Serialize, Deserialize};
-use serde_json::json;
-use alloy::primitives::{Address, Bytes as AlloyBytes, FixedBytes};
-use alloy::providers::{Provider, ProviderBuilder, RootProvider};
-use reth::rpc::types::TransactionRequest;
+use alloy::{
+    primitives::{
+        Address, Bytes, U256, address,
+        utils::{Unit, format_ether},
+    },
+    providers::{Provider, ProviderBuilder, RootProvider},
+    signers::local::PrivateKeySigner,
+    sol,
+};
 use alloy_network::EthereumWallet;
 use alloy_network::TransactionBuilder;
 use alloy_transport_http::Http;
-use tokio::sync::mpsc::Receiver;
-use std::{sync::Arc, str::FromStr, time::{Duration, Instant}};
-use reqwest::Client;
-use serde_json::Value;
 use hex;
 use k256::ecdsa::SigningKey as SecretKey;
+use reqwest::Client;
+use serde::{Deserialize, Serialize};
+use serde_json::Value;
+use serde_json::json;
+use std::error::Error;
+use std::{
+    str::FromStr,
+    sync::Arc,
+    time::{Duration, Instant},
+};
+use tokio::sync::mpsc::Receiver;
+use tracing::info;
 
-use crate::utill_events::Event;
-use crate::utill_gas_station::GasStation;
-use crate::utill_rgen::FlashSwap;
+use super::events::Event;
+use super::gas_station::GasStation;
+use super::rgen::FlashSwap;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Point {
@@ -84,8 +95,10 @@ impl<HttpClient> TransactionSender<HttpClient> {
         }
     }
 
-    pub async fn send_transactions(&mut self, mut tx_receiver: Receiver<Event>){
-        while let Some(Event::ValidPath((arb_path, profit, block_number))) = tx_receiver.recv().await{
+    pub async fn send_transactions(&mut self, mut tx_receiver: Receiver<Event>) {
+        while let Some(Event::ValidPath((arb_path, profit, block_number))) =
+            tx_receiver.recv().await
+        {
             info!("Sending path...");
 
             let converted_path: FlashSwap::SwapParams = arb_path.clone().into();
@@ -131,8 +144,8 @@ impl<HttpClient> TransactionSender<HttpClient> {
                 .unwrap();
             let req_response: Value = req.json().await.unwrap();
             info!("Took {:?} to send tx and receive response", start.elapsed());
-            let tx_hash = FixedBytes::<32>::from_str(req_response["result"].as_str().unwrap())
-                .unwrap();
+            let tx_hash =
+                FixedBytes::<32>::from_str(req_response["result"].as_str().unwrap()).unwrap();
 
             let provider = self.provider.clone();
             tokio::spawn(async move {

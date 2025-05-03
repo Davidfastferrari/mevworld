@@ -5,9 +5,8 @@ use alloy::providers::Provider;
 use anyhow::Result;
 use log::trace;
 use pool_sync::{Pool, PoolInfo};
-
-use crate::modl::BlockStateDB;
-use crate::modl::state_db::blockstate_db::{InsertionType, BlockStateDBSlot};
+use super::BlockStateDB;
+use super::state_db::blockstate_db::{InsertionType, BlockStateDBSlot};
 
 // === Bitmasks used for packing slot0 ===
 lazy_static! {
@@ -18,7 +17,6 @@ lazy_static! {
     static ref BITS8MASK: U256 = U256::from(1).shl(8) - U256::from(1);
     static ref BITS1MASK: U256 = U256::from(1);
 }
-
 // === Contract Slot0 Signature ===
 sol!(
     #[derive(Debug)]

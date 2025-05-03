@@ -1,24 +1,18 @@
-use std::collections::HashSet;
-
+use super::rgen::FlashQuoter::SwapParams;
+use super::swap::SwapPath;
 use alloy::primitives::{Address, U256};
 use alloy::rpc::types::Header;
-
-use crate::utill_rgen::FlashQuoter::SwapParams;
-use crate::utill_swap::SwapPath;
-
+use std::collections::HashSet;
 
 /// Represents messages passed across the bot's internal event pipeline
 #[derive(Debug, Clone)]
 pub enum Event {
     /// Arbitrage path found (SwapPath, estimated profit, block number)
     ArbPath((SwapPath, U256, u64)),
-
     /// A path validated by quoting engine (params, expected output, block number)
     ValidPath((SwapParams, U256, u64)),
-
     /// Set of pools involved in a previous swap or touched in state update (with block number)
     PoolsTouched(HashSet<Address>, u64),
-
     /// New block received (raw header)
     NewBlock(Header),
 }

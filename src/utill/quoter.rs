@@ -1,10 +1,12 @@
-use tracing::{info, warn};
 use std::sync::Arc;
+use tracing::{info, warn};
 
-use alloy_sol_types::SolCall;
+use super::rgen::{FlashQuoter, FlashSwap};
+use super::swap::{SwapPath, SwapStep};
 use alloy::network::Ethereum;
-use alloy::primitives::{address, U256};
+use alloy::primitives::{U256, address};
 use alloy::providers::RootProvider;
+use alloy_sol_types::SolCall;
 
 /// Quoter – runs an EVM simulation to quote arbitrage profitability.
 pub struct Quoter;
@@ -17,9 +19,7 @@ impl Quoter {
     ) -> Result<Vec<U256>> {
         let mut guard = market_state.db.write().unwrap();
 
-        let mut evm = Evm::builder()
-            .with_db(&mut *guard)
-            .build();
+        let mut evm = Evm::builder().with_db(&mut *guard).build();
 
         evm.tx_mut().caller = address!("d8da6bf26964af9d7eed9e03e53415d37aa96045");
         evm.tx_mut().transact_to =
@@ -27,7 +27,8 @@ impl Quoter {
 
         let calldata = FlashQuoter::quoteArbitrageCall {
             params: quote_params,
-        }.abi_encode();
+        }
+        .abi_encode();
 
         evm.tx_mut().data = calldata.into();
 

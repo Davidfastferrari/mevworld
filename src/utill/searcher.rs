@@ -1,23 +1,21 @@
-use tracing::{info, debug};
+use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
+use std::str::FromStr;
 use std::sync::Arc;
 use std::time::Instant;
-use tokio::sync::mpsc::{Sender, Receiver};
-use rayon::prelude::*;
-use std::str::FromStr;
+use tokio::sync::mpsc::{Receiver, Sender};
+use tracing::{debug, info};
 
+use super::calculator;
+use super::constant::AMOUNT;
+use super::estimator::Estimator;
+use super::events::Event;
+use super::market_state::MarketState;
+use super::swap::SwapPath;
 use alloy::network::Network;
 use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
-use alloy_sol_types::SolCall;
-
-use crate::utill_estimator::Estimator;
-use crate::utill_events::Event;
-use crate::utill_market_state::MarketState;
-use crate::utill_swap::SwapPath;
-use crate::utill_constant::AMOUNT;
-use crate::calculation_calculator as calculator;
-//use crate::utills::calculation::calculator;
+//use super::utills::calculation::calculator;
 
 /// Top-level search engine for arbitrage cycles
 pub struct Searchoor<N, P>
@@ -70,12 +68,15 @@ where
 
     /// Search for profitable paths whenever a new block update is received
 
- pub async fn search_paths(
-    &mut self,
-    mut paths_tx: Sender<Event>,
-    mut address_rx: Receiver<Event>,
-   ) -> Result<(), E> {
-        let _sim: bool = std::env::var("SIM").ok().and_then(|v| v.parse().ok()).unwrap_or(false);
+    pub async fn search_paths(
+        &mut self,
+        mut paths_tx: Sender<Event>,
+        mut address_rx: Receiver<Event>,
+    ) -> Result<(), E> {
+        let _sim: bool = std::env::var("SIM")
+            .ok()
+            .and_then(|v| v.parse().ok())
+            .unwrap_or(false);
 
         while let Some(Event::PoolsTouched(pools, block_number)) = address_rx.recv().await {
             info!("🧠 Searching block {}...", block_number);
@@ -99,7 +100,9 @@ where
                 .par_iter()
                 .filter_map(|path| {
                     let output_est = self.estimator.estimate_output_amount(path);
-                    if output_est >= self.min_profit && output_est < U256::from_str("1000000000000000000").unwrap() {
+                    if output_est >= self.min_profit
+                        && output_est < U256::from_str("1000000000000000000").unwrap()
+                    {
                         Some(((*path).clone(), output_est))
                     } else {
                         None
@@ -116,11 +119,14 @@ where
                 if calculated_out >= self.min_profit {
                     info!("✅ Best estimated {}, real {}", best_path.1, calculated_out);
 
-                    if let Err(e) = paths_tx.send(Event::ArbPath((
-                        best_path.0.clone(),
-                        calculated_out,
-                        block_number,
-                    ))).await {
+                    if let Err(e) = paths_tx
+                        .send(Event::ArbPath((
+                            best_path.0.clone(),
+                            calculated_out,
+                            block_number,
+                        )))
+                        .await
+                    {
                         debug!("⚠️ Failed to send path: {:?}", e);
                     } else {
                         debug!("📤 Sent profitable path");

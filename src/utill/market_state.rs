@@ -1,36 +1,44 @@
 use std::{
     collections::HashSet,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     },
     time::Instant,
 };
 
-use tracing::{info, debug};
-use anyhow::{Context, Result};
-use tokio::sync::{mpsc::{Sender, Receiver}, RwLock};
-use alloy_primitives::keccak256;
 use alloy::network::Network;
-use alloy::primitives::{address, Address, U256};
+use alloy::primitives::{Address, U256, address};
 use alloy::providers::{Provider, ProviderBuilder};
-use alloy_rpc_types::BlockNumberOrTag;
+use alloy_primitives::keccak256;
 use alloy_transport_http::{Client, Http};
+use anyhow::{Context, Result};
+use tokio::sync::{
+    RwLock,
+    mpsc::{Receiver, Sender},
+};
+use tracing::{debug, info};
 
 use alloy_sol_types::{SolCall, SolValue};
-
-use revm::{Evm, primitives::{AccountInfo, Bytecode, ExecutionResult, TransactTo}};
-
 use pool_sync::{Pool, PoolInfo};
+use reth::primitives::Bytecode;
+use reth::revm::revm::context::Evm;
+use reth::revm::revm::context::TransactTo;
+use reth::revm::revm::state::AccountInfo;
+use reth::rpc::types::BlockNumberOrTag;
 
-use crate::utill_events::Event;
-use crate::utill_rgen::{ERC20Token, FlashQuoter};
-use crate::state_db::{BlockStateDB, InsertionType};
-use crate::tracing::debug_trace_block;
-use crate::constant::AMOUNT;
+use super::constant::AMOUNT;
+use super::events::Event;
+use super::rgen::{ERC20Token, FlashQuoter};
+use super::state_db::blockstate_db::{BlockStateDB, InsertionType};
+use tracing::debug_trace_block;
+
+pub struct NamedAccountInfo {
+    pub name: String,
+}
 
 // State manager for live blockchain pool information
-pub struct MarketState< N, P>
+pub struct MarketState<N, P>
 where
     N: Network,
     P: Provider<N>,
@@ -45,8 +53,8 @@ where
 {
     pub async fn init_state_and_start_stream(
         pools: Vec<Pool>,
-        block_rx: Receiver<Event>,   // ✅ Must match tokio::sync::mpsc
-        address_tx: Sender<Event>,  // <-- must be tokio::mpsc::Sender
+        block_rx: Receiver<Event>, // ✅ Must match tokio::sync::mpsc
+        address_tx: Sender<Event>, // <-- must be tokio::mpsc::Sender
         last_synced_block: u64,
         provider: P,
         caught_up: Arc<AtomicBool>,
@@ -72,7 +80,7 @@ where
         Ok(market_state)
     }
 
-fn warm_up_database(pools: &[Pool], db: &mut BlockStateDB<N, P>) {
+    fn warm_up_database(pools: &[Pool], db: &mut BlockStateDB<N, P>) {
         let account = address!("d8da6bf26964af9d7eed9e03e53415d37aa96045");
         let quoter = address!("0000000000000000000000000000000000001000");
 
@@ -94,12 +102,14 @@ fn warm_up_database(pools: &[Pool], db: &mut BlockStateDB<N, P>) {
                 balance_slot.into(),
                 ten_units,
                 InsertionType::OnChain,
-            ).unwrap();
+            )
+            .unwrap();
 
             let approve = ERC20Token::approveCall {
                 spender: quoter,
                 amount: U256::from(1e18),
-            }.abi_encode();
+            }
+            .abi_encode();
 
             let mut evm = Evm::builder()
                 .with_db(&mut *db)
@@ -118,9 +128,7 @@ fn warm_up_database(pools: &[Pool], db: &mut BlockStateDB<N, P>) {
                 amountIn: *AMOUNT,
             };
 
-            let quote_call = FlashQuoter::quoteArbitrageCall {
-                params: quote_path,
-            }.abi_encode();
+            let quote_call = FlashQuoter::quoteArbitrageCall { params: quote_path }.abi_encode();
 
             evm.tx_mut().data = quote_call.into();
             evm.tx_mut().transact_to = TransactTo::Call(quoter);
@@ -129,7 +137,7 @@ fn warm_up_database(pools: &[Pool], db: &mut BlockStateDB<N, P>) {
         }
     }
 
- async fn state_updater(
+    async fn state_updater(
         self: Arc<Self>,
         mut block_rx: Receiver<Event>,
         address_tx: Sender<Event>,
@@ -142,14 +150,17 @@ fn warm_up_database(pools: &[Pool], db: &mut BlockStateDB<N, P>) {
         let mut current_block = http.get_block_number().await.unwrap();
 
         while last_synced_block < current_block {
-            debug!("Catching up from {} to {}", last_synced_block, current_block);
+            debug!(
+                "Catching up from {} to {}",
+                last_synced_block, current_block
+            );
             for block_num in (last_synced_block + 1)..=current_block {
                 let _ = self.update_state(http.clone(), block_num).await;
             }
             last_synced_block = current_block;
             current_block = http.get_block_number().await.unwrap();
         }
-        
+
         caught_up.store(true, Ordering::Relaxed);
         while let Some(Event::NewBlock(block_header)) = block_rx.recv().await {
             let start = Instant::now();
@@ -163,7 +174,10 @@ fn warm_up_database(pools: &[Pool], db: &mut BlockStateDB<N, P>) {
             info!("New block received: {}", block_number);
             let updated = self.update_state(http.clone(), block_number).await;
 
-             if let Err(e) = address_tx.send(Event::PoolsTouched(updated.clone(), block_number)).await {
+            if let Err(e) = address_tx
+                .send(Event::PoolsTouched(updated.clone(), block_number))
+                .await
+            {
                 error!("Error sending updates: {}", e);
             } else {
                 info!("Block {} processed in {:?}", block_number, start.elapsed());
@@ -173,7 +187,7 @@ fn warm_up_database(pools: &[Pool], db: &mut BlockStateDB<N, P>) {
         }
     }
 
-  fn populate_db_with_pools(pools: Vec<Pool>, db: &mut BlockStateDB<N, P>) {
+    fn populate_db_with_pools(pools: Vec<Pool>, db: &mut BlockStateDB<N, P>) {
         for pool in pools {
             if pool.is_v2() {
                 db.insert_v2(pool);
@@ -182,7 +196,6 @@ fn warm_up_database(pools: &[Pool], db: &mut BlockStateDB<N, P>) {
             }
         }
     }
-
 
     async fn update_state(
         &self,
@@ -202,7 +215,4 @@ fn warm_up_database(pools: &[Pool], db: &mut BlockStateDB<N, P>) {
 
         updated_pools
     }
-
-
-
 }

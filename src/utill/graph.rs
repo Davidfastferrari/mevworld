@@ -1,5 +1,5 @@
 use std::collections::HashSet;
-use std::hash::{Hash, Hasher, DefaultHasher};
+use std::hash::{DefaultHasher, Hash, Hasher};
 
 use alloy::primitives::Address;
 use alloy_sol_types::SolCall;
@@ -8,12 +8,11 @@ use petgraph::prelude::*;
 
 use pool_sync::{BalancerV2Pool, CurveTriCryptoPool, Pool, PoolInfo};
 
-use crate::utill_swap::{SwapPath, SwapStep};
+use super::swap::{SwapPath, SwapStep};
 
-  // Added to bring token0_address and token1_address into scope
+// Added to bring token0_address and token1_address into scope
 
 pub struct ArbGraph;
-
 
 impl ArbGraph {
     /// Generate arbitrage cycles using known pools

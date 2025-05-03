@@ -8,8 +8,13 @@ use std::sync::Arc;
 use alloy::providers::Network;
 use tracing::{trace, warn, error};
 use reth_node_ethereum::DebugApi;
-use reth::revm::{db::AccountState, primitives::{AccountInfo, Bytecode, KECCAK_EMPTY}}; 
-use reth::tracing::{with_tracer, with_prestate_config, GethDebugTracerType, GethDebugBuiltInTracerType, GethDefaultTracingOptions, PreStateConfig, GethTrace, PreStateFrame};
+use reth_ethereum::evm::revm::revm::bytecode::Bytecode;
+use reth::revm::revm::state::AccountInfo;
+use alloy_consensus::constants::KECCAK_EMPTY;
+use reth_ethereum::evm::revm::db::AccountState;
+use reth_ethereum::rpc::DebugApi::debug_trace_block;
+use reth_tracing::RethTracer;
+use reth_config::config::PruneStageConfig;
 
 /// Vector of address-to-account-state maps representing post-trace changes.
 pub async fn debug_trace_block<N>(
@@ -20,37 +25,20 @@ pub async fn debug_trace_block<N>(
 where
     N: Network,
 {
-    // Set up the tracer with optional diff mode
-    let tracer_opts = GethDebugTracingOptions {
-        config: GethDefaultTracingOptions::default(),
-        ..Default::default()
-    };
-    with_tracer(GethDebugTracerType::BuiltInTracer(
-        GethDebugBuiltInTracerType::PreStateTracer,
-    ));
-    with_prestate_config(PreStateConfig {
-        diff_mode: Some(diff_mode),
-        disable_code: Some(false),
-        disable_storage: Some(false),
-    });
+    // Create a tracer instance
+    let tracer = RethTracer::default();
 
-    // Execute the debug trace block call
-    let results = client.debug_trace_block_by_number(block_tag, tracer_opts)
-    .await
-    .expect("Failed to trace block");
+    // Call debug_trace_block on the client with the tracer and options
+    let results = client
+        .debug_trace_block(block_tag, tracer, PruneStageConfig::default())
+        .await
+        .expect("Failed to trace block");
 
-    // Collect diff-mode frames from GethTrace responses
+    // Process results to extract post-trace changes
     let mut post: Vec<BTreeMap<Address, AccountState>> = Vec::new();
 
     for trace_result in results.into_iter() {
-        if let TraceResult::Success { result, .. } = trace_result {
-            match result {
-                GethTrace::PreStateTracer(PreStateFrame::Diff(diff_frame)) => {
-                    post.push(diff_frame.post);
-                }
-                _ => warn!("Received non-diff PreStateFrame from tracer"),
-            }
-        };
+        post.push(trace_result);
     }
 
     post

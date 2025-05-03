@@ -1,4 +1,3 @@
-use alloy_sol_types::sol;
 use alloy::network::Network;
 use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
@@ -6,15 +5,13 @@ use pool_sync::PoolType;
 use std::collections::HashSet;
 use std::sync::Arc;
 
-mod utill;
-
-use crate::utill_modcal_cache::Cache;
-use crate::utill_modcal_market_state::MarketState;
-use crate::utill_modcal_swap::{SwapPath, SwapStep};
-use crate::utill_constant::AMOUNT;
-use crate::calculation_uniswap as uniswap;
-use crate::calculation_balancer as balancer;
-use crate::calculation_aerodrome as aerodrome;
+use super::aerodrome;
+use super::balancer;
+use super::uniswap;
+use crate::utill::AMOUNT;
+use crate::utill::Cache;
+use crate::utill::MarketState;
+use crate::utill::{SwapPath, SwapStep};
 
 pub struct Calculator<N, P>
 where
@@ -84,14 +81,30 @@ where
     ) -> U256 {
         match pool_type {
             PoolType::UniswapV2 | PoolType::SushiSwapV2 | PoolType::SwapBasedV2 => {
-                uniswap::uniswap_v2_out(self, input_amount, &pool_address, &token_in, U256::from(9970))
+                uniswap::uniswap_v2_out(
+                    self,
+                    input_amount,
+                    &pool_address,
+                    &token_in,
+                    U256::from(9970),
+                )
             }
             PoolType::PancakeSwapV2 | PoolType::BaseSwapV2 | PoolType::DackieSwapV2 => {
-                uniswap::uniswap_v2_out(self, input_amount, &pool_address, &token_in, U256::from(9975))
+                uniswap::uniswap_v2_out(
+                    self,
+                    input_amount,
+                    &pool_address,
+                    &token_in,
+                    U256::from(9975),
+                )
             }
-            PoolType::AlienBaseV2 => {
-                uniswap::uniswap_v2_out(self, input_amount, &pool_address, &token_in, U256::from(9984))
-            }
+            PoolType::AlienBaseV2 => uniswap::uniswap_v2_out(
+                self,
+                input_amount,
+                &pool_address,
+                &token_in,
+                U256::from(9984),
+            ),
             PoolType::UniswapV3
             | PoolType::SushiSwapV3
             | PoolType::BaseSwapV3
@@ -103,8 +116,12 @@ where
                 uniswap::uniswap_v3_out(self, input_amount, &pool_address, &token_in, fee)
                     .expect("Uniswap V3 computation failed")
             }
-            PoolType::Aerodrome => aerodrome::aerodrome_out(self, input_amount, token_in, pool_address),
-            PoolType::BalancerV2 => balancer::balancer_v2_out(self, input_amount, token_in, token_in, pool_address),
+            PoolType::Aerodrome => {
+                aerodrome::aerodrome_out(self, input_amount, token_in, pool_address)
+            }
+            PoolType::BalancerV2 => {
+                balancer::balancer_v2_out(self, input_amount, token_in, token_in, pool_address)
+            }
             PoolType::MaverickV1 | PoolType::MaverickV2 => {
                 tracing::warn!("Maverick pool logic not implemented");
                 U256::ZERO

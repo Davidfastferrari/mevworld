@@ -1,17 +1,20 @@
-use alloy::sol;
-use alloy::sol_types::SolCall;
-use alloy_contract::SolCallBuilder;
 use alloy::network::Network;
-use alloy::primitives::{Address, U256};
+use alloy::primitives::Address;
 use alloy::providers::Provider;
+use alloy::{
+    primitives::{I256, U256, Uint},
+    sol,
+    sol_types::SolCall,
+};
+use eyre::Result;
 use once_cell::sync::Lazy;
 use std::str::FromStr;
 
-use crate::modcal::calculator;
-
 pub static INITIAL_AMT: Lazy<U256> = Lazy::new(|| U256::from_str("1000000000000000000").unwrap());
-pub static WETH: Lazy<Address> = Lazy::new(|| Address::from_str("0x4200000000000000000000000000000000000006").unwrap());
-pub static USDC: Lazy<Address> = Lazy::new(|| Address::from_str("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913").unwrap());
+pub static WETH: Lazy<Address> =
+    Lazy::new(|| Address::from_str("0x4200000000000000000000000000000000000006").unwrap());
+pub static USDC: Lazy<Address> =
+    Lazy::new(|| Address::from_str("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913").unwrap());
 
 // --- Aerodrome V2State contract
 sol! {
@@ -30,13 +33,7 @@ where
     N: Network,
     P: Provider<N>,
 {
-   
-    pub fn aerodrome_out<N: Network, P: Provider<N>>(
-        calculator: &Calculator<N, P>,
-        amount_in: U256,
-        token_in: Address,
-        pool_address: Address,
-    ) -> U256 {
+    pub fn aerodrome_out(&self, amount_in: U256, token_in: Address, pool_address: Address) -> U256 {
         let db = self.market_state.db.read().expect("DB read poisoned");
 
         let (reserve0, reserve1) = db.get_reserves(&pool_address);
@@ -57,7 +54,11 @@ where
             res0 = (res0 * U256::from(1e18 as u128)) / token0_decimals;
             res1 = (res1 * U256::from(1e18 as u128)) / token1_decimals;
 
-            let (res_a, res_b) = if token_in == token0 { (res0, res1) } else { (res1, res0) };
+            let (res_a, res_b) = if token_in == token0 {
+                (res0, res1)
+            } else {
+                (res1, res0)
+            };
             amount_in = if token_in == token0 {
                 (amount_in * U256::from(1e18 as u128)) / token0_decimals
             } else {
@@ -73,7 +74,11 @@ where
                 (y * token0_decimals) / U256::from(1e18 as u128)
             }
         } else {
-            let (res_a, res_b) = if token_in == token0 { (res0, res1) } else { (res1, res0) };
+            let (res_a, res_b) = if token_in == token0 {
+                (res0, res1)
+            } else {
+                (res1, res0)
+            };
             (amount_in * res_b) / (res_a + amount_in)
         }
     }
@@ -96,7 +101,14 @@ where
             if k < xy {
                 let mut dy = ((xy - k) * U256::from(1e18 as u128)) / d;
                 if dy.is_zero() {
-                    if k == xy || Self::_k(x0, y + U256::from(1), U256::from(1e18 as u128), U256::from(1e18 as u128)) > xy {
+                    if k == xy
+                        || Self::_k(
+                            x0,
+                            y + U256::from(1),
+                            U256::from(1e18 as u128),
+                            U256::from(1e18 as u128),
+                        ) > xy
+                    {
                         return y + U256::from(1);
                     }
                     dy = U256::from(1);

@@ -1,8 +1,7 @@
-use std::hash::{BuildHasherDefault, Hash, Hasher};
 use alloy::primitives::{Address, U256};
 use dashmap::DashMap;
 use rustc_hash::FxHasher;
-
+use std::hash::{BuildHasherDefault, Hash, Hasher};
 /// Custom hasher based on `FxHasher` (fast non-cryptographic hashing)
 #[derive(Default)]
 struct CacheHasher(FxHasher);
@@ -56,7 +55,10 @@ impl Cache {
             pool_address,
             amount_in,
         };
-        self.entries.get(&key).map(|entry| entry.output_amount)
+        match self.entries.get(&key) {
+            Some(entry) => Some(entry.output_amount),
+            None => None,
+        }
     }
 
     /// Stores a new output amount in the cache
@@ -72,7 +74,8 @@ impl Cache {
     /// Invalidate all cache entries for a given pool
     #[inline]
     pub fn invalidate(&self, pool_address: Address) {
-        self.entries.retain(|key, _| key.pool_address != pool_address);
+        self.entries
+            .retain(|key, _| key.pool_address != pool_address);
     }
 
     /// Clears all entries in the cache

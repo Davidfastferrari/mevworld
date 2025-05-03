@@ -1,16 +1,18 @@
-use std::collections::{HashMap, HashSet};
-use std::sync::Arc;
-
+use super::calculator;
+use super::calculator::Calculator;
+use super::constant;
+use super::constant::AMOUNT;
+use super::market_state;
+use super::market_state::MarketState;
+use super::rgen::FlashQuoter;
+use super::swap::SwapPath;
 use alloy::network::Network;
 use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
 use once_cell::sync::Lazy;
-
 use pool_sync::{Pool, PoolInfo};
-use crate::calculation_calculator as calculator;
-use crate::utill_market_state as market_state;
-use crate::utill_swap as swap;
-use crate::utill_constant as constant;
+use std::collections::{HashMap, HashSet};
+use std::sync::Arc;
 
 // Constants
 const RATE_SCALE: u32 = 18;
@@ -26,7 +28,7 @@ where
 {
     rates: HashMap<Address, HashMap<Address, U256>>,
     weth_based: HashMap<Address, bool>,
-    market_state: Arc<MarketState< N, P>>,
+    market_state: Arc<MarketState<N, P>>,
     calculator: Calculator<N, P>,
     aggregated_weth_rate: HashMap<Address, U256>,
     token_decimals: HashMap<Address, u32>,
@@ -50,7 +52,11 @@ where
 
     pub fn update_rates(&mut self, pool_addrs: &HashSet<Address>) {
         let db = self.market_state.db.read().unwrap();
-        let pools: Vec<Pool> = pool_addrs.iter().filter_map(|p| db.get_pool(p)).cloned().collect();
+        let pools: Vec<Pool> = pool_addrs
+            .iter()
+            .filter_map(|p| db.get_pool(p))
+            .cloned()
+            .collect();
         drop(db);
         self.process_pools(pools);
     }
@@ -130,19 +136,25 @@ where
         }
     }
 
-fn process_eth_pool(
-    &mut self,
-    pool: &Pool,
-    weth: Address,
-    input: U256,
-    alt_tokens: &mut HashSet<Address>,
-    cnt_map: &mut HashMap<Address, u32>,
-) {
-    let (token0, token1) = (pool.token0_address(), pool.token1_address());
-    self.token_decimals.insert(token0, pool.token0_decimals().into());
-    self.token_decimals.insert(token1, pool.token1_decimals().into());
+    fn process_eth_pool(
+        &mut self,
+        pool: &Pool,
+        weth: Address,
+        input: U256,
+        alt_tokens: &mut HashSet<Address>,
+        cnt_map: &mut HashMap<Address, u32>,
+    ) {
+        let (token0, token1) = (pool.token0_address(), pool.token1_address());
+        self.token_decimals
+            .insert(token0, pool.token0_decimals().into());
+        self.token_decimals
+            .insert(token1, pool.token1_decimals().into());
 
-        let (eth_token, alt_token) = if token0 == weth { (token0, token1) } else { (token1, token0) };
+        let (eth_token, alt_token) = if token0 == weth {
+            (token0, token1)
+        } else {
+            (token1, token0)
+        };
         alt_tokens.insert(alt_token);
 
         let output = self.calculator.compute_pool_output(
@@ -167,10 +179,19 @@ fn process_eth_pool(
         let rate_eth_to_alt = self.calculate_rate(input, output, in_dec, out_dec);
         let rate_alt_to_eth = self.calculate_rate(output, back_output, out_dec, in_dec);
 
-        self.rates.entry(pool.address()).or_default().insert(eth_token, rate_eth_to_alt);
-        self.rates.entry(pool.address()).or_default().insert(alt_token, rate_alt_to_eth);
+        self.rates
+            .entry(pool.address())
+            .or_default()
+            .insert(eth_token, rate_eth_to_alt);
+        self.rates
+            .entry(pool.address())
+            .or_default()
+            .insert(alt_token, rate_alt_to_eth);
 
-        *self.aggregated_weth_rate.entry(alt_token).or_insert(U256::ZERO) += rate_eth_to_alt;
+        *self
+            .aggregated_weth_rate
+            .entry(alt_token)
+            .or_insert(U256::ZERO) += rate_eth_to_alt;
         *cnt_map.entry(alt_token).or_insert(0) += 1;
     }
 
@@ -180,14 +201,32 @@ fn process_eth_pool(
         let decimals1 = *self.token_decimals.get(&token1).unwrap_or(&18);
 
         if let Some(&input_rate) = self.aggregated_weth_rate.get(&token0) {
-            let output = self.calculator.compute_pool_output(pool.address(), token0, pool.pool_type(), pool.fee(), input_rate);
-            let back = self.calculator.compute_pool_output(pool.address(), token1, pool.pool_type(), pool.fee(), output);
+            let output = self.calculator.compute_pool_output(
+                pool.address(),
+                token0,
+                pool.pool_type(),
+                pool.fee(),
+                input_rate,
+            );
+            let back = self.calculator.compute_pool_output(
+                pool.address(),
+                token1,
+                pool.pool_type(),
+                pool.fee(),
+                output,
+            );
 
             let rate0 = self.calculate_rate(input_rate, output, decimals0, decimals1);
             let rate1 = self.calculate_rate(output, back, decimals1, decimals0);
 
-            self.rates.entry(pool.address()).or_default().insert(token0, rate0);
-            self.rates.entry(pool.address()).or_default().insert(token1, rate1);
+            self.rates
+                .entry(pool.address())
+                .or_default()
+                .insert(token0, rate0);
+            self.rates
+                .entry(pool.address())
+                .or_default()
+                .insert(token1, rate1);
         }
     }
 }

@@ -1,27 +1,23 @@
 use std::{
     sync::{
-        atomic::{AtomicBool, Ordering::Relaxed},
         Arc,
+        atomic::{AtomicBool, Ordering::Relaxed},
     },
     time::Duration,
 };
 // Removed unstable std mpmc channel import
 // use std::sync::mpmc::channel;
-use tokio::sync::{broadcast, mpsc::{Sender, Receiver, channel}};
+use super::{
+    estimator::Estimator, events::Event, filter::filter_pools, gas_station::GasStation,
+    graph::ArbGraph, market_state::MarketState, searcher::Searchoor, simulator::simulate_paths,
+    stream::stream_new_blocks, tx_sender::TransactionSender,
+};
 use alloy::providers::ProviderBuilder;
-use log::{info, error};
+use log::{error, info};
 use pool_sync::{Chain, Pool};
-use crate::{
-    utill_events::Event,
-    utill_estimator::Estimator,
-    utill_filter::filter_pools,
-    utill_gas_station::GasStation,
-    utill_graph::ArbGraph,
-    utill_market_state::MarketState,
-    utill_searcher::Searchoor,
-    utill_simulator::simulate_paths,
-    utill_stream::stream_new_blocks,
-    utill_tx_sender::TransactionSender,
+use tokio::sync::{
+    broadcast,
+    mpsc::{Receiver, Sender, channel},
 };
 
 /// Bootstraps the entire system: syncing, simulation, and arbitrage search
@@ -62,7 +58,7 @@ pub async fn start_workers(pools: Vec<Pool>, last_synced_block: u64) {
         let gas_station = Arc::clone(&gas_station);
         let mut block_gas_sub = block_sender.subscribe();
         tokio::spawn(async move {
-              gas_station.update_gas(block_gas_sub).await;
+            gas_station.update_gas(block_gas_sub).await;
         });
     }
 

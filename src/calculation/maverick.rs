@@ -1,11 +1,9 @@
-use tracing::{info, debug, warn};
-use alloy_sol_types::sol;
-use alloy::primitives::{address, Address, U256};
-use reth_primitives::{ExecutionResult, Transaction as TransactTo};
-use revm::Evm;
-use crate::modcal::curve;
-
-use super::calculator;
+use alloy::primitives::{Address, address};
+use alloy::{primitives::U256, sol, sol_types::SolCall};
+use reth::revm::revm::context::Evm;
+use reth::revm::revm::context::TransactTo;
+use reth::revm::revm::context::result::ExecutionResult;
+use tracing::{debug, info, warn};
 
 sol! {
     #[sol(rpc)]
@@ -48,19 +46,15 @@ where
             .iter()
             .map(|&pool| {
                 let tick_limit = self.optimize_tick_limit(pool, amount_in, zero_for_one);
-                let (_, out, _) = self._simulate_maverick(amount_in, pool, zero_for_one, tick_limit);
+                let (_, out, _) =
+                    self._simulate_maverick(amount_in, pool, zero_for_one, tick_limit);
                 (pool, out)
             })
             .collect()
     }
 
     /// 🧠 Dynamically optimize tickLimit for max output
-    pub fn optimize_tick_limit(
-        &self,
-        pool: Address,
-        amount_in: U256,
-        zero_for_one: bool,
-    ) -> i32 {
+    pub fn optimize_tick_limit(&self, pool: Address, amount_in: U256, zero_for_one: bool) -> i32 {
         let mut best_tick = 0;
         let mut best_output = U256::ZERO;
 

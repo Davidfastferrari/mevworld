@@ -1,38 +1,39 @@
+use alloy::primitives::{Address, U160, U256, address};
+use alloy_sol_types::{SolCall, SolValue};
 use std::{
     collections::HashMap,
-    fs::{create_dir_all, File},
+    fs::{File, create_dir_all},
     io::{BufReader, BufWriter},
     path::Path,
     str::FromStr,
 };
-use alloy::primitives::{address, Address, U160, U256};
-use alloy_sol_types::{SolCall, SolValue};
-  // Added explicit import to bring abi_encode and abi_decode into scope
+// Added explicit import to bring abi_encode and abi_decode into scope
+use super::constant::AMOUNT;
+use super::node_db::InsertionType::NodeInsertionType;
+use super::node_db::NodeDB;
+use super::rgen::ERC20Token::approveCall;
+use super::rgen::{V2Aerodrome, V2Swap, V3Swap, V3SwapDeadline, V3SwapDeadlineTick};
+use super::state_db::blockstate_db::InsertionType::StateInsertionType;
+use anyhow::{Context, Result};
 use lazy_static::lazy_static;
+use log::{debug, info};
 use once_cell::sync::Lazy;
-use log::{info, debug};
+use pool_sync::{Chain, Pool, PoolInfo, PoolType};
 use rayon::prelude::*;
 use reqwest::header::{HeaderMap, HeaderValue};
-
-use revm::{
-    Config,
-    EVM,
-    EVMError,
-    Result,
-    executor::create_executor,
-    primitives::{U256, Address},
-    Database
-};
-use revm_primitives::BlockEnv;
-use anyhow::{Result, Context};
-use serde::{Serialize, Deserialize};
-use pool_sync::{Chain, Pool, PoolInfo, PoolType};
-use crate::utill_node_db::InsertionType as NodeInsertionType;
-use crate::utill_state_db::InsertionType as StateInsertionType;
-use crate::utill_rgen::ERC20Token::{approveCall};
-use crate::utill_rgen::{V2Aerodrome, V2Swap, V3Swap, V3SwapDeadline, V3SwapDeadlineTick};
-use crate::utill_constant::AMOUNT;
-use crate::utill_node_db::NodeDB;
+use reth::chainspec::arbitrary::Result;
+use reth::revm;
+use reth::revm::revm::context::BlockEnv;
+use reth::revm::revm::context::Evm;
+use reth::revm::revm::primitives::*;
+use reth::revm::revm::state::AccountInfo;
+use reth_ethereum::evm::primitives::execute::Executor;
+use reth_ethereum::evm::revm::Database;
+use reth_ethereum::evm::revm::revm::bytecode::Bytecode;
+use reth_ethereum::evm::revm::revm::primitives::{Address, U256};
+use reth_ethereum::provider::db::mdbx::Database;
+use reth_node_ethereum::EthereumNode;
+use serde::{Deserialize, Serialize};
 
 /// Represents the logical router + calldata type for different swap protocols
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -57,7 +58,8 @@ const SIMULATED_ACCOUNT: Address = address!("00000000000000000000000000000000000
 const MIN_OUTPUT_RATIO: u64 = 95;
 const SIMULATED_GAS_LIMIT: u64 = 500_000;
 
-pub static FAKE_TOKEN_AMOUNT: Lazy<U256> = Lazy::new(|| { U256::from_str("10000000000000000000000000000000000000000").unwrap()});
+pub static FAKE_TOKEN_AMOUNT: Lazy<U256> =
+    Lazy::new(|| U256::from_str("10000000000000000000000000000000000000000").unwrap());
 
 /// Filter and validate pools based on volume and simulated liquidity
 #[derive(Serialize, Deserialize)]
@@ -99,7 +101,10 @@ pub async fn filter_pools(pools: Vec<Pool>, num_results: usize, chain: Chain) ->
         })
         .collect();
 
-    info!("Pool count after token match filter: {}", filtered_by_token.len());
+    info!(
+        "Pool count after token match filter: {}",
+        filtered_by_token.len()
+    );
 
     let slot_map = construct_slot_map(&filtered_by_token);
     let pools_result = filter_by_swap(filtered_by_token, slot_map).await;
@@ -112,7 +117,6 @@ pub async fn filter_pools(pools: Vec<Pool>, num_results: usize, chain: Chain) ->
     pools_result.expect("filter_by_swap failed")
 }
 
-
 /// Get top volume tokens from Birdeye or cache
 async fn get_top_volume_tokens(chain: Chain, num_results: usize) -> Result<Vec<Address>> {
     let cache_file = format!("cache/top_volume_tokens_{}.json", chain);
@@ -122,10 +126,10 @@ async fn get_top_volume_tokens(chain: Chain, num_results: usize) -> Result<Vec<A
             .context("Failed to read cached volume tokens");
     }
 
-      let tokens = fetch_top_volume_tokens(num_results, chain).await?;
-     create_dir_all("cache")?;
-     write_addresses_to_file(&tokens, &cache_file)?;
-     Ok(tokens)
+    let tokens = fetch_top_volume_tokens(num_results, chain).await?;
+    create_dir_all("cache")?;
+    write_addresses_to_file(&tokens, &cache_file)?;
+    Ok(tokens)
 }
 
 fn write_addresses_to_file(addresses: &[Address], filename: &str) -> std::io::Result<()> {
@@ -154,11 +158,15 @@ async fn fetch_top_volume_tokens(num_results: usize, chain: Chain) -> Result<Vec
 
     headers.insert("X-API-KEY", HeaderValue::from_str(&api_key).unwrap());
 
-    headers.insert("x-chain", HeaderValue::from_str(match chain {
-       Chain::Ethereum => "ethereum",
-       Chain::Base => "base",
-       // remove `_ => "unknown",` — it's unreachable!
-    }).unwrap());
+    headers.insert(
+        "x-chain",
+        HeaderValue::from_str(match chain {
+            Chain::Ethereum => "ethereum",
+            Chain::Base => "base",
+            // remove `_ => "unknown",` — it's unreachable!
+        })
+        .unwrap(),
+    );
 
     let mut query_params = vec![];
     for offset in (0..num_results).step_by(DEFAULT_PRIORITY_DIVISOR) {
@@ -180,20 +188,33 @@ async fn fetch_top_volume_tokens(num_results: usize, chain: Chain) -> Result<Vec
             ])
             .send()
             .await
-            .with_context(|| format!("Failed to send Birdeye request at offset {}, limit {}", offset, limit))?;
+            .with_context(|| {
+                format!(
+                    "Failed to send Birdeye request at offset {}, limit {}",
+                    offset, limit
+                )
+            })?;
 
         if response.status().is_success() {
-            let parsed: BirdeyeResponse = response
-                .json()
-                .await
-                .with_context(|| format!("Failed to decode Birdeye response at offset {}, limit {}", offset, limit))?;
-            addresses.extend(parsed.data.tokens.into_iter().map(|t| t.token_address.clone()));
+            let parsed: BirdeyeResponse = response.json().await.with_context(|| {
+                format!(
+                    "Failed to decode Birdeye response at offset {}, limit {}",
+                    offset, limit
+                )
+            })?;
+            addresses.extend(
+                parsed
+                    .data
+                    .tokens
+                    .into_iter()
+                    .map(|t| t.token_address.clone()),
+            );
         }
     }
 
-        Ok(addresses
-            .into_iter()
-            .filter_map(|addr| Address::from_str(addr.as_str()).ok())
+    Ok(addresses
+        .into_iter()
+        .filter_map(|addr| Address::from_str(addr.as_str()).ok())
         .collect())
 }
 
@@ -219,7 +240,7 @@ async fn filter_by_swap(
 ) -> Result<Vec<Pool>> {
     let mut filtered = Vec::with_capacity(pools.len());
 
-     let nodedb = NodeDB::open("./node_db.rs")?;
+    let nodedb = NodeDB::open("./node_db.rs")?;
 
     for pool in pools {
         let (router, swap_type) = match resolve_router_and_type(pool.pool_type()) {
@@ -229,17 +250,26 @@ async fn filter_by_swap(
 
         let zero_to_one = determine_swap_direction(&pool);
 
-        let slot0 = slot_map.get(&pool.token0_address()).copied().ok_or_else(|| anyhow::anyhow!("Missing slot0"))?;
-        let slot1 = slot_map.get(&pool.token1_address()).copied().ok_or_else(|| anyhow::anyhow!("Missing slot1"))?;
+        let slot0 = slot_map
+            .get(&pool.token0_address())
+            .copied()
+            .ok_or_else(|| anyhow::anyhow!("Missing slot0"))?;
+        let slot1 = slot_map
+            .get(&pool.token1_address())
+            .copied()
+            .ok_or_else(|| anyhow::anyhow!("Missing slot1"))?;
 
         // Insert fake balances
-        for (token, slot) in [(pool.token0_address(), slot0), (pool.token1_address(), slot1)] {
+        for (token, slot) in [
+            (pool.token0_address(), slot0),
+            (pool.token1_address(), slot1),
+        ] {
             // nodedb.insert_account_storage(token, slot.into(), *FAKE_TOKEN_AMOUNT, InsertionType::OnChain)
             //     .map_err(|e| anyhow::anyhow!("Failed to insert account storage: {}", e))?;
         }
 
         let mut evm = EVM::builder()
-            .with_db(& nodedb)
+            .with_db(&nodedb)
             .modify_tx_env(|tx| {
                 tx.caller = SIMULATED_ACCOUNT;
                 tx.value = U256::ZERO;
@@ -256,17 +286,34 @@ async fn filter_by_swap(
             .into();
 
             evm.tx_mut().transact_to = TransactTo::Call(token);
-            evm.transact_commit().ok_or_else(|| anyhow::anyhow!("Approval failed"))?;
+            evm.transact_commit()
+                .ok_or_else(|| anyhow::anyhow!("Approval failed"))?;
         }
 
         let amt_val = *AMOUNT.read().expect("Failed to read amount");
         let min_expected = amt_val * U256::from(MIN_OUTPUT_RATIO) / U256::from(100);
 
-        let forward = simulate_swap(&mut evm, &pool, swap_type, router, SIMULATED_ACCOUNT, amt_val, zero_to_one)
-            .ok_or_else(|| anyhow::anyhow!("Forward swap simulation failed"))?;
+        let forward = simulate_swap(
+            &mut evm,
+            &pool,
+            swap_type,
+            router,
+            SIMULATED_ACCOUNT,
+            amt_val,
+            zero_to_one,
+        )
+        .ok_or_else(|| anyhow::anyhow!("Forward swap simulation failed"))?;
 
-        let backward = simulate_swap(&mut evm, &pool, swap_type, router, SIMULATED_ACCOUNT, forward, !zero_to_one)
-            .ok_or_else(|| anyhow::anyhow!("Backward swap simulation failed"))?;
+        let backward = simulate_swap(
+            &mut evm,
+            &pool,
+            swap_type,
+            router,
+            SIMULATED_ACCOUNT,
+            forward,
+            !zero_to_one,
+        )
+        .ok_or_else(|| anyhow::anyhow!("Backward swap simulation failed"))?;
 
         if backward >= min_expected {
             filtered.push(pool.clone());
@@ -285,7 +332,8 @@ fn simulate_swap(
     amount: U256,
     zero_to_one: bool,
 ) -> Option<U256> {
-    let (calldata, is_vec) = setup_router_calldata(pool.clone(), account, amount, swap_type, zero_to_one);
+    let (calldata, is_vec) =
+        setup_router_calldata(pool.clone(), account, amount, swap_type, zero_to_one);
     evm.tx_mut().transact_to = TransactTo::Call(router);
     evm.tx_mut().data = calldata.into();
 
@@ -303,12 +351,12 @@ fn simulate_swap(
 fn decode_swap_return(output: &Bytes, is_vec: bool) -> U256 {
     if is_vec {
         let vec_out = match <Vec<U256>>::abi_decode(output) {
-           Ok(v) => v,
-           Err(e) => {
-           debug!("Vec decode failed: {:?}", e);
-        return U256::ZERO;
-        }
-      };
+            Ok(v) => v,
+            Err(e) => {
+                debug!("Vec decode failed: {:?}", e);
+                return U256::ZERO;
+            }
+        };
 
         *vec_out.last().unwrap()
     } else {
@@ -316,17 +364,38 @@ fn decode_swap_return(output: &Bytes, is_vec: bool) -> U256 {
     }
 }
 
-fn resolve_router_and_type(pt: PoolType) -> Option<(Address, SwapType)>{
+fn resolve_router_and_type(pt: PoolType) -> Option<(Address, SwapType)> {
     use PoolType::*;
     match pt {
-        UniswapV2 => Some((address!("0x4752a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"), SwapType::V2Basic)),
-        SushiSwapV2 => Some((address!("0x6BDEa1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"), SwapType::V2Basic)),
-        PancakeSwapV2 => Some((address!("0x8cFea1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"), SwapType::V2Basic)),
-        UniswapV3 => Some((address!("0x2626a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"), SwapType::V3Basic)),
-        SushiSwapV3 => Some((address!("0xFB7ea1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"), SwapType::V3Deadline)),
-        Aerodrome => Some((address!("0xcF77a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"), SwapType::V2Aerodrome)),
-        Slipstream => Some((address!("0xBE6Da1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"), SwapType::V3DeadlineTick)),
-       _ => None,
+        uniswap_v2 => Some((
+            address!("0x4752a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"),
+            SwapType::V2Basic,
+        )),
+        sushi_swap_v2 => Some((
+            address!("0x6BDEa1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"),
+            SwapType::V2Basic,
+        )),
+        pancake_swap_v2 => Some((
+            address!("0x8cFea1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"),
+            SwapType::V2Basic,
+        )),
+        uniswap_v3 => Some((
+            address!("0x2626a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"),
+            SwapType::V3Basic,
+        )),
+        sushi_swap_v3 => Some((
+            address!("0xFB7ea1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"),
+            SwapType::V3Deadline,
+        )),
+        aerodrome => Some((
+            address!("0xcF77a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"),
+            SwapType::V2Aerodrome,
+        )),
+        slipstream => Some((
+            address!("0xBE6Da1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"),
+            SwapType::V3DeadlineTick,
+        )),
+        _ => None,
     }
 }
 
@@ -382,7 +451,10 @@ fn setup_router_calldata(
             (V3Swap::exactInputSingleCall { params }.abi_encode(), false)
         }
         SwapType::V3Deadline => {
-            let swap_fee = pool.get_v3().expect("Missing pool details for V3Deadline").fee;
+            let swap_fee = pool
+                .get_v3()
+                .expect("Missing pool details for V3Deadline")
+                .fee;
             let params = V3SwapDeadline::ExactInputSingleParams {
                 tokenIn: token0,
                 tokenOut: token1,

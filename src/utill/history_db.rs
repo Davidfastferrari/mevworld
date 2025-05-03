@@ -1,25 +1,21 @@
-use std::{
-    path::Path,
-    sync::Arc,
-};
 use alloy::primitives::{Address, B256, StorageKey, U256};
+use alloy_consensus::constants::KECCAK_EMPTY;
 use eyre::{Context, Result};
-use revm::revm_state::AccountInfo;
-use revm::revm_bytecode::Bytecode;
-use alloy_consensus::constant::KECCAK_EMPTY;
 use reth::api::NodeTypesWithDBAdapter;
+use reth::primitives::Bytecode;
 use reth::providers::{
-    providers::StaticFileProvider,
     AccountReader, ProviderFactory, StateProviderBox, StateProviderFactory,
+    providers::StaticFileProvider,
 };
+use reth::revm::db::DBErrorMarker;
+use reth::revm::db::{AccountState, Database, DatabaseCommit, DatabaseRef};
+use reth::revm::revm::context::Evm;
+use reth::revm::revm::state::AccountInfo;
 use reth::utils::open_db_read_only;
 use reth_chainspec::ChainSpecBuilder;
-use reth_db::{mdbx::DatabaseArguments, ClientVersion, DatabaseEnv};
+use reth_db::{ClientVersion, DatabaseEnv, mdbx::DatabaseArguments};
 use reth_node_ethereum::EthereumNode;
-use reth::revm::{db::{AccountState, Database, DatabaseCommit, DatabaseRef},};
-use eyre::ErrReport;
-use std::error::Error as StdError;
-use revm::revm_database::DBErrorMarker;
+use std::{path::Path, sync::Arc};
 
 /// Core struct that provides access to historical state from Reth database.
 pub struct HistoryDB {
@@ -33,10 +29,13 @@ impl HistoryDB {
         let db_path = Path::new(&db_path);
 
         // Open the database in read-only mode
-        let db = Arc::new(open_db_read_only(
-            db_path.join("db"),
-            DatabaseArguments::new(ClientVersion::default()),
-        ).wrap_err("Failed to open DB in read-only mode")?);
+        let db = Arc::new(
+            open_db_read_only(
+                db_path.join("db"),
+                DatabaseArguments::new(ClientVersion::default()),
+            )
+            .wrap_err("Failed to open DB in read-only mode")?,
+        );
 
         // Construct the mainnet ChainSpec
         let spec = Arc::new(ChainSpecBuilder::mainnet().build());
@@ -48,7 +47,8 @@ impl HistoryDB {
         // Construct ProviderFactory for state access
         let factory = ProviderFactory::new(db.clone(), spec.clone(), static_provider);
 
-        let provider = factory.history_by_block_number(block)
+        let provider = factory
+            .history_by_block_number(block)
             .wrap_err_with(|| format!("Failed to load historical state at block {}", block))?;
 
         Ok(Self {
@@ -98,7 +98,12 @@ impl DatabaseRef for HistoryDB {
                 code.hash_slow(),
                 Bytecode::new_raw(code.original_bytes()),
             ),
-            None => AccountInfo::new(account.balance, account.nonce, KECCAK_EMPTY, Bytecode::new()),
+            None => AccountInfo::new(
+                account.balance,
+                account.nonce,
+                KECCAK_EMPTY,
+                Bytecode::new(),
+            ),
         };
 
         Ok(Some(account_info))

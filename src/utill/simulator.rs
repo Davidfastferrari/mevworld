@@ -1,14 +1,15 @@
-use alloy::alloy_sol_types::SolCall;
-use crate::calculation_modcal_calculator as calculator;
+use super::calculator;
 use alloy::network::Network;
 use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
+use alloy::sol;
 use once_cell::sync::Lazy;
 use std::str::FromStr;
 
-
-pub static WETH: Lazy<Address> = Lazy::new(|| Address::from_str("0x4200000000000000000000000000000000000006").unwrap());
-pub static USDC: Lazy<Address> = Lazy::new(|| Address::from_str("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913").unwrap());
+pub static WETH: Lazy<Address> =
+    Lazy::new(|| Address::from_str("0x4200000000000000000000000000000000000006").unwrap());
+pub static USDC: Lazy<Address> =
+    Lazy::new(|| Address::from_str("0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913").unwrap());
 pub static INITIAL_AMT: Lazy<U256> = Lazy::new(|| U256::from_str("1000000000000000000").unwrap()); // 1 ETH
 
 // --- Aerodrome V2State contract
@@ -49,7 +50,11 @@ where
             res0 = (res0 * U256::from(1e18 as u128)) / token0_decimals;
             res1 = (res1 * U256::from(1e18 as u128)) / token1_decimals;
 
-            let (res_a, res_b) = if token_in == token0 { (res0, res1) } else { (res1, res0) };
+            let (res_a, res_b) = if token_in == token0 {
+                (res0, res1)
+            } else {
+                (res1, res0)
+            };
             amount_in = if token_in == token0 {
                 (amount_in * U256::from(1e18 as u128)) / token0_decimals
             } else {
@@ -65,7 +70,11 @@ where
                 (y * token0_decimals) / U256::from(1e18 as u128)
             }
         } else {
-            let (res_a, res_b) = if token_in == token0 { (res0, res1) } else { (res1, res0) };
+            let (res_a, res_b) = if token_in == token0 {
+                (res0, res1)
+            } else {
+                (res1, res0)
+            };
             (amount_in * res_b) / (res_a + amount_in)
         }
     }
@@ -88,7 +97,14 @@ where
             if k < xy {
                 let mut dy = ((xy - k) * U256::from(1e18 as u128)) / d;
                 if dy.is_zero() {
-                    if k == xy || Self::_k(x0, y + U256::from(1), U256::from(1e18 as u128), U256::from(1e18 as u128)) > xy {
+                    if k == xy
+                        || Self::_k(
+                            x0,
+                            y + U256::from(1),
+                            U256::from(1e18 as u128),
+                            U256::from(1e18 as u128),
+                        ) > xy
+                    {
                         return y + U256::from(1);
                     }
                     dy = U256::from(1);
@@ -136,12 +152,7 @@ pub fn simulate_bundle_profit(
     profit
 }
 /// Example usage to print best route
-pub fn ample_best_route(
-    calculator: &Calculator,
-    initial_amt: U256,
-    weth: Address,
-    usdc: Address,
-) {
+pub fn ample_best_route(calculator: &Calculator, initial_amt: U256, weth: Address, usdc: Address) {
     let best_route = calculator.find_best_route(initial_amt, weth, usdc, 3);
     if let Some((path, amount_out)) = best_route {
         println!("Best route: {:?}, Amount out: {}", path, amount_out);

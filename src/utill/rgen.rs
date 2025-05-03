@@ -1,19 +1,20 @@
-use alloy::alloy_sol_types::SolCall;
+use alloy::{primitives::address, providers::ProviderBuilder, sol};
+use std::error::Error;
 
 // define our flash swap contract {FlashQuoter, FlashSwap};     // #[derive(Debug)]   // #[derive(Debug)]
-use alloy_sol_types::sol;
 
 sol!(
     #[sol(rpc)]
-    FlashSwap,
-    "./abi/FlashSwap.json"
+    FlashSwap, ("./abi/FlashSwap.json");
 );
 
 sol!(
     #[sol(rpc)]
-    FlashQuoter,
-    "./abi/FlashQuoter.json"
+    FlashQuoter, ("./abi/FlashQuoter.json");
 );
+
+pub use FlashQuoter::*;
+pub use FlashSwap::*;
 
 // Abi Generation an ERC20 token
 sol!(

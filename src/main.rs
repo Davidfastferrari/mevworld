@@ -1,20 +1,18 @@
-use std::{collections::HashMap, sync::RwLock, time::Duration};
-use tracing::info;
+use alloy::primitives::U256;
 use anyhow::Result;
+use log::LevelFilter;
 use once_cell::sync::Lazy;
 use pool_sync::{Chain, PoolSync, PoolType};
-use alloy::primitives::U256;
-use log::LevelFilter;
+use std::{collections::HashMap, sync::RwLock, time::Duration};
+use tracing::info;
 
-mod utill;
 mod calculation;
+mod utill;
 
 use crate::utill::ignition::start_workers;
 
-use crate::calculation::calculator as calculator;
- 
-
-pub const AMOUNT: Lazy<RwLock<U256>> = Lazy::new(|| RwLock::new(U256::from(1_000_000_000_000_000_000u128)));
+pub const AMOUNT: Lazy<RwLock<U256>> =
+    Lazy::new(|| RwLock::new(U256::from(1_000_000_000_000_000_000u128)));
 
 // Token decimals map to convert $100k into base units
 pub static TOKEN_DECIMALS: Lazy<HashMap<&'static str, u8>> = Lazy::new(|| {
@@ -54,23 +52,26 @@ async fn main() -> Result<()> {
 
     // Initialize pool sync across all supported AMM protocols
     let pool_sync = PoolSync::builder()
-        .add_pools([
-            PoolType::UniswapV2,
-            PoolType::PancakeSwapV2,
-            PoolType::SushiSwapV2,
-            PoolType::UniswapV3,
-            PoolType::SushiSwapV3,
-            PoolType::BaseSwapV2,
-            PoolType::BaseSwapV3,
-            PoolType::Aerodrome,
-            PoolType::Slipstream,
-            PoolType::AlienBaseV2,
-            PoolType::AlienBaseV3,
-            PoolType::BaseSwapV2,
-            PoolType::BaseSwapV3,
-            PoolType::MaverickV1,
-            PoolType::MaverickV2,
-        ].into_iter())
+        .add_pools(
+            [
+                PoolType::UniswapV2,
+                PoolType::PancakeSwapV2,
+                PoolType::SushiSwapV2,
+                PoolType::UniswapV3,
+                PoolType::SushiSwapV3,
+                PoolType::BaseSwapV2,
+                PoolType::BaseSwapV3,
+                PoolType::Aerodrome,
+                PoolType::Slipstream,
+                PoolType::AlienBaseV2,
+                PoolType::AlienBaseV3,
+                PoolType::BaseSwapV2,
+                PoolType::BaseSwapV3,
+                PoolType::MaverickV1,
+                PoolType::MaverickV2,
+            ]
+            .into_iter(),
+        )
         .chain(Chain::Base)
         .build()?;
 
