@@ -7,9 +7,7 @@ use reth::providers::{
     AccountReader, ProviderFactory, StateProviderBox, StateProviderFactory,
     providers::StaticFileProvider,
 };
-use reth::revm::db::DBErrorMarker;
-use reth::revm::db::{AccountState, Database, DatabaseCommit, DatabaseRef};
-use reth::revm::revm::context::Evm;
+use reth::revm::db::{Database, DatabaseRef};
 use reth::revm::revm::state::AccountInfo;
 use reth::utils::open_db_read_only;
 use reth_chainspec::ChainSpecBuilder;
@@ -66,7 +64,10 @@ impl Database for HistoryDB {
         DatabaseRef::basic_ref(self, address)
     }
 
-    fn code_by_hash(&mut self, _code_hash: B256) -> std::result::Result<Bytecode, Self::Error> {
+    fn code_by_hash(
+        &mut self,
+        _code_hash: B256,
+    ) -> std::result::Result<reth::revm::revm_bytecode::Bytecode, ErrReport> {
         panic!("code_by_hash should never be called directly; code is preloaded via basic_ref")
     }
 
@@ -109,7 +110,10 @@ impl DatabaseRef for HistoryDB {
         Ok(Some(account_info))
     }
 
-    fn code_by_hash_ref(&self, _code_hash: B256) -> std::result::Result<Bytecode, Self::Error> {
+    fn code_by_hash_ref(
+        &self,
+        _code_hash: B256,
+    ) -> std::result::Result<reth::revm::revm_bytecode::Bytecode, ErrReport> {
         panic!("code_by_hash_ref should not be invoked directly; preloading expected")
     }
 

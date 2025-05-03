@@ -11,7 +11,7 @@ use super::uniswap;
 use crate::utill::AMOUNT;
 use crate::utill::Cache;
 use crate::utill::MarketState;
-use crate::utill::{SwapPath, SwapStep};
+use crate::utill::SwapPath;
 
 pub struct Calculator<N, P>
 where

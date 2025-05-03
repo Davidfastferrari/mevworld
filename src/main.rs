@@ -7,9 +7,9 @@ use std::{collections::HashMap, sync::RwLock, time::Duration};
 use tracing::info;
 
 mod calculation;
-mod utill;
+mod utile;
 
-use crate::utill::ignition::start_workers;
+use crate::utile:ignition::start_workers;
 
 pub const AMOUNT: Lazy<RwLock<U256>> =
     Lazy::new(|| RwLock::new(U256::from(1_000_000_000_000_000_000u128)));

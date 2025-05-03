@@ -1,14 +1,7 @@
 //! Library root for mevworld crate.
 
-#[macro_use]
-pub use log;
-
 // Import tracing macros
-#[macro_use]
-pub use tracing;
 // Import lazy_static macro
-#[macro_use]
-pub use lazy_static;
 
 pub mod bytecode;
 pub mod cache;
@@ -29,10 +22,10 @@ pub mod stream;
 pub mod swap;
 pub mod tx_sender;
 
-pub use constant::AMOUNT;
 pub use cache::Cache;
+pub use constant::AMOUNT;
 pub use market_state::MarketState;
-pub use swap::{SwapPath, SwapStep};
+pub use swap::SwapPath;
 
 pub mod calculation {
     #[doc(inline)]

@@ -1,6 +1,6 @@
 use alloy::primitives::{Address, U256};
 use dashmap::DashMap;
-use rustc_hash::FxHasher;
+use rust_hash::FxHasher;
 use std::hash::{BuildHasherDefault, Hash, Hasher};
 /// Custom hasher based on `FxHasher` (fast non-cryptographic hashing)
 #[derive(Default)]

@@ -1,6 +1,6 @@
 use alloy::primitives::{Address, U160, U256, address};
-use alloy_sol_types::{SolCall, SolValue};
 use alloy_primitives::abi::AbiDecode;
+use alloy_sol_types::{SolCall, SolValue};
 use std::{
     collections::HashMap,
     fs::{File, create_dir_all},
@@ -23,18 +23,12 @@ use pool_sync::{Chain, Pool, PoolInfo, PoolType};
 use rayon::prelude::*;
 use reqwest::header::{HeaderMap, HeaderValue};
 use reth::chainspec::arbitrary::Result;
-use reth::core::primitives::Bytecode;
-use reth::revm;
-use reth::revm::revm::context::BlockEnv;
-use reth::revm::revm::context::Evm;
 use reth::revm::revm::primitives::Bytes;
 use reth::revm::revm::primitives::*;
-use reth::revm::revm::state::AccountInfo;
 use reth_ethereum::evm::primitives::execute::Executor;
 use reth_ethereum::evm::revm::Database;
 use reth_ethereum::evm::revm::revm::primitives::{Address, U256};
 use reth_ethereum::provider::db::mdbx::Database;
-use reth_node_ethereum::EthereumNode;
 use serde::{Deserialize, Serialize};
 
 /// Represents the logical router + calldata type for different swap protocols
@@ -367,7 +361,6 @@ fn decode_swap_return(output: &Bytes, is_vec: bool) -> U256 {
 }
 
 fn resolve_router_and_type(pt: PoolType) -> Option<(Address, SwapType)> {
-    use PoolType::*;
     match pt {
         uniswap_v2 => Some((
             address!("0x4752a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0a1a0"),

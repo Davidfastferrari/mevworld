@@ -2,7 +2,6 @@ use std::sync::Arc;
 use tracing::{info, warn};
 
 use super::rgen::{FlashQuoter, FlashSwap};
-use super::swap::{SwapPath, SwapStep};
 use alloy::network::Ethereum;
 use alloy::primitives::{U256, address};
 use alloy::providers::RootProvider;

@@ -1,8 +1,6 @@
 use super::calculator;
 use super::calculator::Calculator;
-use super::constant;
 use super::constant::AMOUNT;
-use super::market_state;
 use super::market_state::MarketState;
 use super::rgen::FlashQuoter;
 use super::swap::SwapPath;

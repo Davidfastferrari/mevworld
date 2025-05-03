@@ -1,12 +1,8 @@
-use super::calculator;
 use alloy::network::Network;
 use alloy::primitives::{Address, I256, U256};
 use alloy::providers::Provider;
-use alloy_sol_types::sol;
 use anyhow::{Result, anyhow};
 use log::info;
-use proptest::prelude::*;
-use std::collections::HashMap;
 use uniswap_v3_math::swap_math;
 use uniswap_v3_math::tick_math::{MAX_SQRT_RATIO, MAX_TICK, MIN_SQRT_RATIO, MIN_TICK};
 use uniswap_v3_sdk::prelude::*;
@@ -117,7 +113,7 @@ where
 
         // Prepare tick data provider from uniswap_v3_sdk extensions
         let mut tick_data_provider =
-            TickDataProvider::new(db_read.clone(), *pool_address, tick_spacing);
+            <dyn TickDataProvider>::new(db_read.clone(), *pool_address, tick_spacing);
 
         while current_state.amount_specified_remaining != I256::ZERO
             && current_state.sqrt_price_x_96 != sqrt_price_limit_x_96

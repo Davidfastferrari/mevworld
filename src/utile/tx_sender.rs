@@ -1,11 +1,7 @@
 use alloy::{
-    primitives::{
-        Address, Bytes, U256, address,
-        utils::{Unit, format_ether},
-    },
+    primitives::Address,
     providers::{Provider, ProviderBuilder, RootProvider},
     signers::local::PrivateKeySigner,
-    sol,
 };
 use alloy_network::EthereumWallet;
 use alloy_network::TransactionBuilder;
@@ -16,9 +12,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_json::json;
-use std::error::Error;
 use std::{
-    str::FromStr,
     sync::Arc,
     time::{Duration, Instant},
 };

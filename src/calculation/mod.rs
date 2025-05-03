@@ -1,28 +1,28 @@
-//pub use balancer;
+//pub mod balancer;
 pub mod aerodrome;
 pub mod balancer;
 pub mod calculator;
 pub mod curve;
 pub mod maverick;
 pub mod uniswap;
-pub mod util {
-    pub use bytecode;
+pub mod utile{
+    pub mod bytecode;
     #[doc(inline)]
-    pub use cache;
-    pub use constant;
-    pub use estimator;
-    pub use events;
-    pub use filter;
-    pub use gas_station;
-    pub use graph;
-    pub use history_db;
-    pub use ignition;
-    pub use market_state;
-    pub use quoter;
-    pub use rgen;
-    pub use searcher;
-    pub use simulator;
-    pub use stream;
-    pub use swap;
-    pub use tx_sender;
+    pub mod cache;
+    pub mod constant;
+    pub mod estimator;
+    pub mod events;
+    pub mod filter;
+    pub mod gas_station;
+    pub mod graph;
+    pub mod history_db;
+    pub mod ignition;
+    pub mod market_state;
+    pub mod quoter;
+    pub mod rgen;
+    pub mod searcher;
+    pub mod simulator;
+    pub mod stream;
+    pub mod swap;
+    pub mod tx_sender;
 }

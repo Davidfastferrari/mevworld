@@ -1,12 +1,7 @@
 use alloy::network::Network;
 use alloy::primitives::Address;
 use alloy::providers::Provider;
-use alloy::{
-    primitives::{I256, U256, Uint},
-    sol,
-    sol_types::SolCall,
-};
-use eyre::Result;
+use alloy::{primitives::U256, sol, sol_types::SolCall};
 use once_cell::sync::Lazy;
 use std::str::FromStr;
 
