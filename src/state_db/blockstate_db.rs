@@ -1,4 +1,4 @@
-use tracing::{debug, warn};
+use tracing::{debug, warn, trace};
 use alloy::alloy_sol_types::SolCall;
 use alloy::network::Network;
 use alloy::primitives::{Address, BlockNumber, B256, U256};
@@ -369,5 +369,3 @@ impl BlockStateDBAccount {
         }
     }
 }
-
-

@@ -1,7 +1,7 @@
 use alloy::network::Network;
 use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
-use log::{trace};
+use log::trace;
 use lazy_static::lazy_static;
 use pool_sync::{Pool, PoolInfo};
 use revm::DatabaseRef;
