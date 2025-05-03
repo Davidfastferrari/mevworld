@@ -9,12 +9,12 @@ use std::sync::Arc;
 use alloy::providers::Network;
 use tracing::{trace, warn, error};
 use reth_node_ethereum::DebugApi;
-use reth::core::primitives::Bytecode;
+use reth::revm::revm::bytecode::Bytecode;
 use reth::revm::revm::primitives::Bytes;
 use reth::revm::revm::state::AccountInfo;
 use alloy::consensus::constants::KECCAK_EMPTY;
-use reth_ethereum::evm::revm::db::AccountState;
-use reth_ethereum::rpc::DebugApi::debug_trace_block;
+use reth::revm::db::AccountState;
+use reth::rpc::api::DebugApiServer::debug_trace_block;
 use reth_tracing::RethTracer;
 use reth_config::config::PruneStageConfig;
 

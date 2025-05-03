@@ -8,6 +8,7 @@ use tracing::info;
 
 mod calculation;
 mod utile;
+mod state_db;
 
 use crate::utile:ignition::start_workers;
 

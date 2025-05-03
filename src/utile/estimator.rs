@@ -1,5 +1,5 @@
 
-use super::calculator::Calculator;
+use super::calculator;
 use super::constant::AMOUNT;
 use super::market_state::MarketState;
 use super::rgen::FlashQuoter;

@@ -25,10 +25,12 @@ use reqwest::header::{HeaderMap, HeaderValue};
 use reth::chainspec::arbitrary::Result;
 use reth::revm::revm::primitives::Bytes;
 use reth::revm::revm::primitives::*;
-use reth_ethereum::evm::primitives::execute::Executor;
-use reth_ethereum::evm::revm::Database;
-use reth_ethereum::evm::revm::revm::primitives::{Address, U256};
-use reth_ethereum::provider::db::mdbx::Database;
+use reth::builder::components::ExecutorBuilder::Executor;
+use reth::api::FullNodeComponents;
+use reth::revm::Database;
+use reth::revm::database;
+use reth::revm::revm::primitives::Address;
+use reth::revm::revm::primitives::U256;
 use serde::{Deserialize, Serialize};
 
 /// Represents the logical router + calldata type for different swap protocols

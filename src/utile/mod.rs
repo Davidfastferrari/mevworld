@@ -21,6 +21,7 @@ pub mod simulator;
 pub mod stream;
 pub mod swap;
 pub mod tx_sender;
+pub mod node_db;
 
 pub use cache::Cache;
 pub use constant::AMOUNT;
@@ -30,13 +31,4 @@ pub use simulator::V2State;
 pub use rgen::FlashQuoter;
 pub use rgen::FlashSwap;
 
-pub mod calculation {
-    #[doc(inline)]
-    pub use calculator::*;
-}
-
-pub mod state_db {
-    #[doc(inline)]
-    pub use blockstate_db::*;
-}
 // Re-export Calculator for easier import
