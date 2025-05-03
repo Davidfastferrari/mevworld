@@ -7,7 +7,6 @@ use alloy::network::EthereumWallet;
 use alloy::network::TransactionBuilder;
 use alloy::transport_http::Http;
 use alloy::hex;
-use k256::ecdsa::SigningKey as SecretKey;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -44,7 +43,6 @@ impl<HttpClient> TransactionSender<HttpClient> {
         // construct a wallet
         let key = std::env::var("PRIVATE_KEY").expect("PRIVATE_KEY not set");
         let key_hex = hex::decode(&key).expect("Invalid hex");
-        let key = SecretKey::from_bytes((&key_hex[..]).into()).expect("Invalid secret key");
         let signer = PrivateKeySigner::from(key);
         let wallet = EthereumWallet::from(signer);
 
