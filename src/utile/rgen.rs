@@ -1,4 +1,4 @@
-use alloy::sol;
+use alloy::sol_types::sol;
 use alloy::json_abi::JsonAbi;
 // define our flash swap contract {FlashQuoter, FlashSwap};     // #[derive(Debug)]   // #[derive(Debug)]
 

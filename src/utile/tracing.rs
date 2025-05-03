@@ -1,7 +1,8 @@
-use alloy_sol_types::sol;
+use alloy::sol_types::sol;
 use alloy::primitives::Address;
-use alloy_sol_types::trace::{common::TraceResult, geth::GethDebugTracingOptions};
-use alloy_sol_types::BlockNumberOrTag;
+use alloy::rpc::types::trace::geth::GethDebugTracingOptions;
+use alloy::rpc::types::trace::common::TraceResult;
+use alloy::eips::BlockNumberOrTag;
 use std::collections::BTreeMap;
 use std::sync::Arc;
 
@@ -11,7 +12,7 @@ use reth_node_ethereum::DebugApi;
 use reth::core::primitives::Bytecode;
 use reth::revm::revm::primitives::Bytes;
 use reth::revm::revm::state::AccountInfo;
-use alloy_consensus::constants::KECCAK_EMPTY;
+use alloy::consensus::constants::KECCAK_EMPTY;
 use reth_ethereum::evm::revm::db::AccountState;
 use reth_ethereum::rpc::DebugApi::debug_trace_block;
 use reth_tracing::RethTracer;

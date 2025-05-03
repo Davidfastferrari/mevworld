@@ -5,7 +5,7 @@ use super::rgen::{FlashQuoter, FlashSwap};
 use alloy::network::Ethereum;
 use alloy::primitives::{U256, address};
 use alloy::providers::RootProvider;
-use alloy_sol_types::SolCall;
+use alloy::sol_types::SolCall;
 
 /// Quoter – runs an EVM simulation to quote arbitrage profitability.
 pub struct Quoter;

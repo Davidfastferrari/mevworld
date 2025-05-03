@@ -3,8 +3,8 @@ use std::sync::Arc;
 use alloy::primitives::{address, U256};
 use pool_sync::{Pool, PoolType};
 use crate::calculator::calculator;
-use crate::market_state::MarketState;
-use crate::swap::{SwapPath, SwapStep};
+use crate::utile::market_state::MarketState;
+use crate::utile::swap::{SwapPath, SwapStep};
 
 fn bench_calculator(c: &mut Criterion) {
     // Setup dummy path

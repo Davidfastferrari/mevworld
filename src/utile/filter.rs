@@ -1,6 +1,6 @@
 use alloy::primitives::{Address, U160, U256, address};
-use alloy_primitives::abi::AbiDecode;
-use alloy_sol_types::{SolCall, SolValue};
+use alloy::sol_types::SolInterface::abi_decode;
+use alloy::sol_types::{SolCall, SolValue};
 use std::{
     collections::HashMap,
     fs::{File, create_dir_all},

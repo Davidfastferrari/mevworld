@@ -3,10 +3,10 @@ use alloy::{
     providers::{Provider, ProviderBuilder, RootProvider},
     signers::local::PrivateKeySigner,
 };
-use alloy_network::EthereumWallet;
-use alloy_network::TransactionBuilder;
-use alloy_transport_http::Http;
-use hex;
+use alloy::network::EthereumWallet;
+use alloy::network::TransactionBuilder;
+use alloy::transport_http::Http;
+use alloy::hex;
 use k256::ecdsa::SigningKey as SecretKey;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};

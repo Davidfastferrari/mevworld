@@ -2,7 +2,7 @@ use std::collections::HashSet;
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 use alloy::primitives::Address;
-use alloy_sol_types::SolCall;
+use alloy::sol_types::SolCall;
 use petgraph::graph::UnGraph;
 use petgraph::prelude::*;
 

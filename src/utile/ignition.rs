@@ -9,7 +9,7 @@ use std::{
 // use std::sync::mpmc::channel;
 use super::{
     estimator::Estimator, events::Event, filter::filter_pools, gas_station::GasStation,
-    graph::ArbGraph, market_state::MarketState, searcher::Searchoor, simulator::simulate_paths,
+    graph::ArbGraph, market_state::MarketState, searcher::Searchoor, simulator,
     stream::stream_new_blocks, tx_sender::TransactionSender,
 };
 use alloy::providers::ProviderBuilder;

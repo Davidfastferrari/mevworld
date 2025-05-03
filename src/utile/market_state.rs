@@ -10,16 +10,16 @@ use std::{
 use alloy::network::Network;
 use alloy::primitives::{Address, U256, address};
 use alloy::providers::{Provider, ProviderBuilder};
-use alloy_primitives::keccak256;
-use alloy_transport_http::{Client, Http};
+use alloy::primitives::Keccak256;
+use alloy::transports::http::Http;
+use alloy::transports::http::Client;
 use anyhow::{Context, Result};
 use tokio::sync::{
     RwLock,
     mpsc::{Receiver, Sender},
 };
 use tracing::{debug, info};
-
-use alloy_sol_types::{SolCall, SolValue};
+use alloy::sol_types::{SolCall, SolValue};
 use pool_sync::{Pool, PoolInfo};
 use reth::primitives::Bytecode;
 use reth::revm::revm::context::Evm;
