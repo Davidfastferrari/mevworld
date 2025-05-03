@@ -1,9 +1,9 @@
 use alloy::primitives::B256;
 use lazy_static::lazy_static;
-use reth_ethereum::evm::revm::revm::bytecode::Bytecode;
-use reth_ethereum::evm::revm::revm::primitives::Bytes;
+use reth::core::primitives::Bytecode;
+use reth::revm::revm::primitives::Bytes;
 use std::str::FromStr;
-/// 🛠 Bytecode and code hash constants for Uniswap V2 pool contracts.
+/// 🛠 Bytecode and code hash constants for Uniswap V2 pool contracts. reth_ethereum
 lazy_static! {
     /// Raw bytecode for UniswapV2-style contracts, used for hash validation and simulation.
     /// ⚠️ NOTE: Replace the hex string with actual deployed bytecode.
