@@ -5,9 +5,13 @@ pub mod calculator;
 pub mod curve;
 pub mod maverick;
 pub mod uniswap;
-pub mod utile{
-    pub mod bytecode;
+pub use maverick::MaverickOut;
+pub use curve::CurveOut;
+pub use  aerodrome::V2State;
+
+pub mod utile {
     #[doc(inline)]
+    pub mod bytecode;
     pub mod cache;
     pub mod constant;
     pub mod estimator;

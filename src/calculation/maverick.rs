@@ -4,6 +4,7 @@ use alloy::{primitives::U256, sol, sol_types::SolCall};
 use reth::revm::revm::context::Evm;
 use reth::revm::revm::context::TransactTo;
 use reth::revm::revm::context::result::ExecutionResult;
+use alloy::json_abi::JsonAbi;
 use tracing::{debug, info, warn};
 
 sol! {
@@ -18,6 +19,8 @@ sol! {
         ) external view returns (uint256 amountIn, uint256 amountOut, uint256 gasEstimate);
     }
 }
+
+pub use MaverickOut;
 
 impl<N, P> Calculator<N, P>
 where

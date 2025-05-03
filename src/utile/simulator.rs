@@ -5,6 +5,7 @@ use alloy::providers::Provider;
 use alloy::sol;
 use once_cell::sync::Lazy;
 use std::str::FromStr;
+use alloy::json_abi::JsonAbi;
 
 pub static WETH: Lazy<Address> =
     Lazy::new(|| Address::from_str("0x4200000000000000000000000000000000000006").unwrap());
@@ -23,6 +24,8 @@ sol! {
         );
     }
 }
+
+pub use V2State::*;
 
 impl<N, P> Calculator<N, P>
 where

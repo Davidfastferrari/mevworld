@@ -26,6 +26,9 @@ pub use cache::Cache;
 pub use constant::AMOUNT;
 pub use market_state::MarketState;
 pub use swap::SwapPath;
+pub use simulator::V2State;
+pub use rgen::FlashQuoter;
+pub use rgen::FlashSwap;
 
 pub mod calculation {
     #[doc(inline)]

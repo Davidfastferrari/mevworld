@@ -1,6 +1,7 @@
 use alloy::network::Network;
 use alloy::primitives::Address;
 use alloy::providers::Provider;
+use alloy::json_abi::JsonAbi;
 use alloy::{primitives::U256, sol, sol_types::SolCall};
 use once_cell::sync::Lazy;
 use std::str::FromStr;
@@ -22,6 +23,7 @@ sol! {
         );
     }
 }
+pub use V2State;
 
 impl<N, P> Calculator<N, P>
 where
