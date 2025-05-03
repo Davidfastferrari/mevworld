@@ -91,3 +91,8 @@ hex = "0.4"
 k256 = "0.13.4"
 tiny-keccak = "2.0"
 uniswap_v3_math = "=0.6.0"
+
+[patch.crates-io]
+alloy-network = { version = "0.15.6" }
+alloy-primitives = { version = "1.0.0" }
+alloy-sol-types = { version = "1.0.0" }
