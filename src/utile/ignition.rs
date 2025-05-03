@@ -68,7 +68,7 @@ pub async fn start_workers(pools: Vec<Pool>, last_synced_block: u64) {
     // --- Market State ---
     info!("Initializing market state...");
     let http_url = std::env::var("FULL").unwrap().parse().unwrap();
-    let provider = ProviderBuilder::new().on_http(http_url);
+    let provider = ProviderBuilder::connect_http(http_url).await;
 
     let market_state = MarketState::init_state_and_start_stream(
         pools.clone(),

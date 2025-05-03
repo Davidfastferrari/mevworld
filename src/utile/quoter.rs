@@ -1,11 +1,16 @@
 use std::sync::Arc;
 use tracing::{info, warn};
+use anyhow::Result;
+use alloy_rlp::Decodable;
 
 use super::rgen::{FlashQuoter, FlashSwap};
 use alloy::network::Ethereum;
 use alloy::primitives::{U256, address};
 use alloy::providers::RootProvider;
 use alloy::sol_types::SolCall;
+use reth::revm::revm::context::Evm;
+use reth::revm::revm::context::TransactTo;
+use reth::revm::revm::ExecutionResult;
 
 /// Quoter – runs an EVM simulation to quote arbitrage profitability.
 pub struct Quoter;
@@ -15,10 +20,10 @@ impl Quoter {
     pub fn quote_path(
         quote_params: FlashQuoter::SwapParams,
         market_state: Arc<MarketState<Ethereum, RootProvider<Http>>>,
-    ) -> Result<Vec<U256>> {
+    ) -> Result<Vec<U256>, anyhow::Error> {
         let mut guard = market_state.db.write().unwrap();
 
-        let mut evm = Evm::builder().with_db(&mut *guard).build();
+        let mut evm = Evm::new(&mut *guard, (), ());
 
         evm.tx_mut().caller = address!("d8da6bf26964af9d7eed9e03e53415d37aa96045");
         evm.tx_mut().transact_to =
@@ -38,21 +43,21 @@ impl Quoter {
                     Ok(decoded) => Ok(decoded),
                     Err(e) => {
                         warn!("❌ ABI decode failed: {e:?}");
-                        Err(anyhow!("Failed to decode EVM output"))
+                        Err(anyhow::anyhow!("Failed to decode EVM output"))
                     }
                 }
             }
             Ok(ExecutionResult::Revert { output, .. }) => {
                 warn!("🚫 Simulation reverted with output: {:?}", output);
-                Err(anyhow!("Simulation reverted"))
+                Err(anyhow::anyhow!("Simulation reverted"))
             }
             Ok(_) => {
                 warn!("🤔 Unexpected simulation result");
-                Err(anyhow!("Unexpected EVM result"))
+                Err(anyhow::anyhow!("Unexpected EVM result"))
             }
             Err(e) => {
                 warn!("🔥 Simulation transaction failed: {:?}", e);
-                Err(anyhow!("Simulation failure"))
+                Err(anyhow::anyhow!("Simulation failure"))
             }
         }
     }

@@ -17,6 +17,8 @@ use std::{
 };
 use tokio::sync::mpsc::Receiver;
 use tracing::info;
+use url::Url;
+use alloy::primitives::FixedBytes;
 
 use super::events::Event;
 use super::gas_station::GasStation;
@@ -42,8 +44,8 @@ impl<HttpClient> TransactionSender<HttpClient> {
     pub async fn new(gas_station: Arc<GasStation>) -> Self {
         // construct a wallet
         let key = std::env::var("PRIVATE_KEY").expect("PRIVATE_KEY not set");
-        let key_hex = hex::decode(&key).expect("Invalid hex");
-        let signer = PrivateKeySigner::from(key);
+        let key_bytes = hex::decode(&key).expect("Invalid hex");
+        let signer = PrivateKeySigner::from_bytes(&key_bytes).expect("Invalid private key bytes");
         let wallet = EthereumWallet::from(signer);
 
         // Create persistent reqwest client
@@ -70,7 +72,7 @@ impl<HttpClient> TransactionSender<HttpClient> {
 
         // setup provider
         let http_url = std::env::var("FULL").expect("FULL env var not set");
-        let provider = Arc::new(ProviderBuilder::new().on_http(Url::parse(&http_url).unwrap()));
+        let provider = Arc::new(ProviderBuilder::connect_http(Url::parse(&http_url).unwrap()).await);
 
         let nonce = provider
             .get_transaction_count(std::env::var("ACCOUNT").unwrap().parse().unwrap())
@@ -101,7 +103,7 @@ impl<HttpClient> TransactionSender<HttpClient> {
 
             let (max_fee, priority_fee) = self.gas_station.get_gas_fees(profit);
 
-            let tx = <dyn TransactionBuilder>::default()
+            let tx = <dyn TransactionBuilder<alloy_network::Ethereum>>::default()
                 .with_to(self.contract_address)
                 .with_nonce(self.nonce)
                 .with_gas_limit(2_000_000)

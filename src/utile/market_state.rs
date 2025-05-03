@@ -111,14 +111,16 @@ where
             }
             .abi_encode();
 
-            let mut evm = Evm::builder()
-                .with_db(&mut *db)
-                .modify_tx_env(|tx| {
-                    tx.caller = account;
-                    tx.data = approve.into();
-                    tx.transact_to = TransactTo::Call(pool.token0_address());
-                })
-                .build();
+            let mut evm = Evm::new(
+                &mut *db,
+                (),
+                (),
+            );
+            evm.modify_tx_env(|tx| {
+                tx.caller = account;
+                tx.data = approve.into();
+                tx.transact_to = TransactTo::Call(pool.token0_address());
+            });
 
             evm.transact_commit().unwrap();
 
@@ -145,7 +147,7 @@ where
         caught_up: Arc<AtomicBool>,
     ) {
         let http_url = std::env::var("FULL").unwrap(); // assumed validated externally
-        let http = Arc::new(ProviderBuilder::new().on_http(http_url.parse().unwrap()));
+        let http = Arc::new(ProviderBuilder::connect_http(http_url.parse().unwrap()).await);
 
         let mut current_block = http.get_block_number().await.unwrap();
 

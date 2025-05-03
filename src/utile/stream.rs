@@ -11,7 +11,7 @@ pub async fn stream_new_blocks(block_sender: Sender<Event>) {
 
     // 👇 Connect to the Ethereum node via IPC
     let ipc_conn = IpcConnect::new(ipc_path);
-    let ipc = match ProviderBuilder::new().on_ipc(ipc_conn).await {
+    let ipc = match ProviderBuilder::connect_ipc(ipc_conn).await {
         Ok(p) => p,
         Err(e) => {
             warn!("Failed to connect via IPC: {:?}", e);
