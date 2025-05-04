@@ -1,21 +1,23 @@
 use alloy::sol_types::sol;
+use alloy::primitives::{Address, U256, I24, U160, U24, U112, U128, U16, U8, U32};
 
-// define our flash swap contract {FlashQuoter, FlashSwap};     // #[derive(Debug)]   // #[derive(Debug)]
-
+// define our flash swap contract
 sol!(
     #[sol(rpc)]
-    FlashSwap, ("./abi/FlashSwap.json");
+    FlashSwap,
+    "./abi/FlashSwap.json"
 );
 
 sol!(
     #[sol(rpc)]
-    FlashQuoter, ("./abi/FlashQuoter.json");
+    FlashQuoter,
+    "./abi/FlashQuoter.json"
 );
 
-pub use FlashQuoter;
-pub use FlashSwap;
+pub use FlashSwap::FlashSwapInstance;
+pub use FlashQuoter::FlashQuoterInstance;
 
-// Abi Generation an ERC20 token
+// Abi Generation for an ERC20 token
 sol!(
     #[sol(rpc)]
     contract ERC20Token {
@@ -26,13 +28,12 @@ sol!(
 
 // State function signatures
 sol! {
-    #[sol(rpc)]
     contract V2State {
-        function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blocktimestamplast);
+        function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
     }
 }
+
 sol! {
-    #[sol(rpc)]
     contract V3State {
         function liquidity() external view returns (uint128);
         function slot0() external view returns (
@@ -73,7 +74,7 @@ sol!(
             uint256 amountOutMinimum;
             uint160 sqrtPriceLimitX96;
         }
-        function exactInputSingle(ExactInputSingleParams calldata params) external returns (uint256 amountOut);
+        function exactInputSingle(ExactInputSingleParams calldata params) external payable returns (uint256 amountOut);
     }
 );
 
@@ -90,7 +91,7 @@ sol!(
             uint256 amountOutMinimum;
             uint160 sqrtPriceLimitX96;
         }
-        function exactInputSingle(ExactInputSingleParams calldata params) external returns (uint256 amountOut);
+        function exactInputSingle(ExactInputSingleParams calldata params) external payable returns (uint256 amountOut);
     }
 );
 

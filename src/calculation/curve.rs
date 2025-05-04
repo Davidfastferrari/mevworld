@@ -9,11 +9,11 @@ use alloy::sol;
 use alloy::sol_types::{SolCall, SolValue}; // SolValue needed for <U256>::abi_decode
 
 // Correct imports for revm v22.0.1
-use revm::primitives::{ExecutionResult, TransactTo};
+use revm::primitives::{ExecutionResult, Output, TransactTo, Env};
 use revm::{Database, Evm}; // Use top-level Evm and Database trait
 
 use std::collections::HashMap;
-use tracing::{info, warn};
+use tracing::{debug, info, warn};
 
 sol! {
     #[sol(rpc)]
@@ -51,27 +51,29 @@ where
         let mut db_guard = self.market_state.db.write().expect("Failed to acquire DB write lock");
         let db = &mut *db_guard; // Get mutable reference to the DB
 
+        // Create a default Env and modify it
+        let mut env = Env::default();
+        env.tx.caller = address!("0000000000000000000000000000000000000001"); // Arbitrary caller
+        env.tx.transact_to = TransactTo::Call(pool); // Target Curve pool contract
+        env.tx.data = Bytes::from(calldata); // Convert Vec<u8> to revm::primitives::Bytes
+        env.tx.value = U256::ZERO;
+        env.tx.gas_limit = 1_000_000; // Set a reasonable gas limit for the view call
+        env.tx.gas_price = U256::ZERO; // For view calls, gas price isn't strictly needed
+        // Configure env.block, env.cfg as needed if necessary
+
         // Setup EVM for simulation
         let mut evm = Evm::builder()
+            .with_env(Box::new(env))
             .with_db(db) // Provide the database implementation
-            .modify_tx_env(|tx| {
-                tx.caller = address!("0000000000000000000000000000000000000001"); // Arbitrary caller
-                tx.transact_to = TransactTo::Call(pool); // Target Curve pool contract
-                tx.data = Bytes::from(calldata); // Convert Vec<u8> to revm::primitives::Bytes
-                tx.value = U256::ZERO;
-                tx.gas_limit = 1_000_000; // Set a reasonable gas limit for the view call
-                // tx.gas_price = U256::ZERO; // For view calls, gas price isn't strictly needed
-            })
-            // Potentially modify_block_env if needed (e.g., timestamp)
             .build();
 
         // --- Optional: Snapshot before execution ---
         // Cloning the accounts map might be expensive depending on its size.
         // let pre_snapshot = db.accounts.clone(); // Assuming db has 'accounts' field
 
-        // Execute the transaction simulation
-        let tx_result = match evm.transact() {
-            Ok(ref_tx) => ref_tx.result, // ResultAndState or similar
+        // Execute the transaction simulation using transact_ref for read-only operation
+        let tx_result = match evm.transact_ref() {
+            Ok(result_and_state) => result_and_state.result,
             Err(err) => {
                 warn!(?pool, %amount_in, "CurveOut simulation EVM error: {:?}", err);
                 return U256::ZERO;
@@ -85,23 +87,30 @@ where
         // Process the simulation result
         match tx_result {
             ExecutionResult::Success { output, gas_used, .. } => {
+                let output_bytes = match output {
+                    Output::Call(bytes) => bytes,
+                    Output::Create(bytes, _) => {
+                        warn!(?pool, %amount_in, "CurveOut simulation resulted in contract creation?");
+                        bytes // Handle unexpected creation output if necessary
+                    }
+                };
                 debug!(?pool, %amount_in, %gas_used, "CurveOut simulation success.");
                 // Decode the output Bytes
-                match <U256>::abi_decode(output.as_ref(), false) { // Use as_ref() on revm::Bytes
+                match U256::abi_decode(output_bytes.as_ref(), false) {
                     Ok(amount_out) => amount_out,
                     Err(e) => {
-                        warn!(?pool, %amount_in, "CurveOut decoding failed: {:?}. Output: {:?}", e, output);
+                        warn!(?pool, %amount_in, "CurveOut decoding failed: {:?}. Output: {:?}", e, output_bytes);
                         U256::ZERO
                     }
                 }
             }
-            ExecutionResult::Revert { output, gas_used, .. } => {
+            ExecutionResult::Revert { output, gas_used } => {
                 // Try to decode revert reason?
                 warn!(?pool, %amount_in, %gas_used, "CurveOut simulation reverted: {:?}", output);
                 U256::ZERO
             }
-            other => {
-                warn!(?pool, %amount_in, "Unexpected CurveOut execution result: {:?}", other);
+            ExecutionResult::Halt { reason, gas_used } => {
+                warn!(?pool, %amount_in, %gas_used, "CurveOut simulation halted: {:?}", reason);
                 U256::ZERO
             }
         }

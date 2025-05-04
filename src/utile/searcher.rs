@@ -1,3 +1,9 @@
+use crate::calculation::calculator;
+use crate::utile::constant::AMOUNT;
+use crate::utile::estimator::Estimator;
+use crate::utile::events::Event;
+use crate::utile::market_state::MarketState;
+use crate::utile::swap::SwapPath;
 use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
@@ -5,13 +11,6 @@ use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::mpsc::{Receiver, Sender};
 use tracing::{debug, info};
-
-use crate::calculation::calculator;
-use crate::utile::constant::AMOUNT;
-use crate::utile::estimator::Estimator;
-use crate::utile::events::Event;
-use crate::utile::market_state::MarketState;
-use crate::utile::swap::SwapPath;
 use alloy::network::Network;
 use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
@@ -115,6 +114,22 @@ where
 
             if let Some(best_path) = profitable_paths.iter().max_by_key(|(_, amt)| amt) {
                 let calculated_out = self.calculator.compute_amount_out(&best_path.0);
+
+                let swap_path: &SwapPath = &best_path.0; // Assuming SwapPath exists
+                let first_step = swap_path.steps.first().context("Empty path")?;
+                let input_amount = swap_path.input_amount; // Assuming input amount is part of SwapPath
+                let pool_address = first_step.pool_address;
+                let token_in = first_step.token_in;
+                let pool_type = first_step.pool_type;
+                let fee = first_step.fee;
+                
+                let calculated_out = self.calculator.compute_amount_out(
+                     input_amount,
+                     pool_address,
+                     token_in,
+                     pool_type,
+                     fee
+                 )?;
 
                 if calculated_out >= self.min_profit {
                     info!("✅ Best estimated {}, real {}", best_path.1, calculated_out);

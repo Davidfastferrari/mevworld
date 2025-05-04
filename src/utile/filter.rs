@@ -18,6 +18,7 @@ use reth::chainspec::arbitrary::Result as RethResult;
 use reth::revm::revm::primitives::Bytes;
 use reth::revm::revm::primitives::*;
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet, Arc.
 use std::{
     collections::HashMap,
     fs::{File, create_dir_all},

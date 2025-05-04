@@ -1,3 +1,8 @@
+
+use crate::calculation::state_db::blockstate_db::{BlockStateDB, InsertionType};
+use crate::utile::constant::AMOUNT;
+use crate::utile::events::Event;
+use crate::utile::rgen::{ERC20Token, FlashQuoter};
 use std::{
     collections::HashSet,
     sync::{
@@ -12,8 +17,7 @@ use alloy::primitives::Keccak256;
 use alloy::primitives::{Address, U256, address};
 use alloy::providers::{Provider, ProviderBuilder};
 use alloy::sol_types::{SolCall, SolValue};
-use alloy::transports::http::Client;
-use alloy::transports::http::Http;
+use alloy::transports::http::Http, Client, RootProvider;
 use anyhow::{Context, Result};
 use pool_sync::{Pool, PoolInfo};
 use reth::primitives::Bytecode;
@@ -26,11 +30,6 @@ use tokio::sync::{
     mpsc::{Receiver, Sender},
 };
 use tracing::{debug, error, info};
-
-use crate::calculation::state_db::blockstate_db::{BlockStateDB, InsertionType};
-use crate::utile::constant::AMOUNT;
-use crate::utile::events::Event;
-use crate::utile::rgen::{ERC20Token, FlashQuoter};
 use tracing::debug_trace_block;
 
 pub struct NamedAccountInfo {
@@ -142,6 +141,7 @@ where
         mut last_synced_block: u64,
         caught_up: Arc<AtomicBool>,
     ) {
+        let http: Arc<RootProvider<Http<Client>>> = Arc::new(...)
         let http_url = std::env::var("FULL").unwrap(); // assumed validated externally
         let http = Arc::new(ProviderBuilder::connect_http(http_url.parse().unwrap()).await);
 

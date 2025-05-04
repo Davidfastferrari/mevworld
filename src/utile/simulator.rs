@@ -1,4 +1,4 @@
-use crate::calculation::calculator;
+use crate::calculation::calculator::Calculator;
 use alloy::network::Network;
 use alloy::primitives::{Address, U256};
 use alloy::providers::Provider;
@@ -166,4 +166,25 @@ pub fn ample_best_route(
     } else {
         println!("No route found!");
     }
+}
+
+
+fn simulate_trade<N, P>(
+    calculator: &Calculator<N, P>,
+    // ... other args
+) where
+    N: Network,
+    P: Provider<N>,
+{
+    // ...
+}
+
+fn another_function<N, P>(
+     calculator: &Calculator<N, P>,
+    // ... other args
+) where
+    N: Network,
+    P: Provider<N>,
+{
+     
 }

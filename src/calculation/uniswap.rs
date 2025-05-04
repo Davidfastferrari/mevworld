@@ -1,3 +1,5 @@
+use crate::calculation::Calculator;
+use uniswap_v3_sdk::prelude::TickMath; 
 use alloy::network::Network;
 use alloy::primitives::{Address, I256, U256};
 use alloy::providers::Provider;
@@ -5,9 +7,7 @@ use anyhow::{Result, anyhow};
 use log::info;
 use uniswap_v3_math::swap_math;
 use uniswap_v3_math::tick_math::{self, MAX_SQRT_RATIO, MAX_TICK, MIN_SQRT_RATIO, MIN_TICK};
-
-use crate::calculation::Calculator;
-
+use uniswap_v3_sdk::prelude::TickDataProvider;
 pub const U256_1: U256 = U256::from_limbs([1, 0, 0, 0]);
 
 // Mock DB access interface - not used in calculation functions

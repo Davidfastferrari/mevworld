@@ -13,12 +13,17 @@ use crate::utile::{
     tx_sender::TransactionSender,
 };
 use alloy::providers::ProviderBuilder;
+//use alloy_provider::{ProviderBuilder, Provider};
 use log::{error, info};
 use pool_sync::{Chain, Pool};
+use tokio::signal;
 use tokio::sync::{
     broadcast,
     mpsc::{Receiver, Sender, channel},
 };
+use alloy_transport_http::Http;
+use reqwest::Client;
+use anyhow::Context;
 
 /// Bootstraps the entire system: syncing, simulation, and arbitrage search
 pub async fn start_workers(pools: Vec<Pool>, last_synced_block: u64) {
@@ -33,7 +38,7 @@ pub async fn start_workers(pools: Vec<Pool>, last_synced_block: u64) {
 
     // --- Pool Filtering ---
     info!("Pool count before filtering: {}", pools.len());
-    let pools = filter_pools(pools, 4000, Chain::Base).await;
+    let pools = filter_pools(pools, 4000, Chain::Base).await.context("Failed to filter pools")?;
     info!("Pool count after filtering: {}", pools.len());
 
     // --- Block Event Proxy ---
@@ -67,8 +72,14 @@ pub async fn start_workers(pools: Vec<Pool>, last_synced_block: u64) {
 
     // --- Market State ---
     info!("Initializing market state...");
-    let http_url = std::env::var("FULL").unwrap().parse().unwrap();
-    let provider = ProviderBuilder::connect_http(http_url).await;
+    let http_url_str = std::env::var("FULL").context("FULL env var not set")?;
+    let http_url = http_url_str.parse::<reqwest::Url>().context("Failed to parse FULL env var as URL")?;
+    // Assuming Http transport using reqwest client
+    let http_client = Client::new();
+    let provider = ProviderBuilder::new()
+        // .with_recommended_fillers() // Consider adding fillers
+        .provider(alloy_transport_http::Http::new_with_client(http_url, http_client));
+    let provider = Arc::new(provider); // Wrap in Arc
 
     let market_state = MarketState::init_state_and_start_stream(
         pools.clone(),
@@ -138,3 +149,15 @@ pub async fn start_workers(pools: Vec<Pool>, last_synced_block: u64) {
     let _ = shutdown_rx.recv().await;
     info!("🚪 All workers will now terminate.");
 }
+
+async fn simulate_paths(
+    // Define channel types precisely
+    profitable_sender: tokio::sync::mpsc::Sender<()>,
+    paths_receiver: tokio::sync::mpsc::Receiver<()>,
+    ms: Arc<crate::utile::MarketState<impl Network + Send + Sync + 'static, impl Provider<impl Network + Send + Sync + 'static> + Send + Sync + 'static>> // Adjust generics
+) {
+     warn!("simulate_paths function is not implemented");
+     // Loop paths_receiver, simulate, send to profitable_sender
+}
+
+
