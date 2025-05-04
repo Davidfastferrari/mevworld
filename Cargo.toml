@@ -50,12 +50,11 @@ tiny-keccak = "2.0" # Keccak hashing
 
 # --- Blockchain Core (Alloy) ---
 alloy = { version = "0.15.6", features = ["full"] } # Consider specifying needed features instead of "full" for optimization
-alloy-provider = { version = "0.1.2", default-features = false, features = ["ws"] } # Ensure compatible versions
-alloy-contract = "0.1.2"
-alloy-primitives = "0.7.3"
-alloy-network = "0.1.2"
-alloy-consensus = "0.15.6"
-alloy-eips = "0.15.6"
+# alloy-contract = "0.1.2"
+# alloy-primitives = "0.7.3"
+# alloy-network = "0.1.2"
+# alloy-consensus = "0.15.6"
+# alloy-eips = "0.15.6"
 alloy-sol-types = { version = "1.0.0", features = ["std"] }
 alloy-transport-http = { version = "0.15.6", features = ["reqwest"] }
 
