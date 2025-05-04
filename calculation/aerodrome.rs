@@ -1,4 +1,3 @@
-
 use crate::calculation::Calculator; // Fix: Import Calculator struct
 
 use alloy::network::Network;
@@ -205,7 +204,7 @@ pub fn simulate_bundle_profit<N: Network, P: Provider<N>>(
 }
 
 /// Example usage to print best route
-pub fn ample_best_route<N: Network, P: Provider<N>>( // Renamed to avoid conflict with potential keywords
+pub fn example_best_route<N: Network, P: Provider<N>>( // Renamed to avoid conflict with potential keywords
     calculator: &Calculator<N, P>,
     initial_amt: U256,
     weth: Address,
@@ -224,35 +223,3 @@ pub fn ample_best_route<N: Network, P: Provider<N>>( // Renamed to avoid conflic
      // Placeholder as find_best_route definition isn't fully shown in calculator.rs
      tracing::warn!("example_best_route logic depends on Calculator::find_best_route");
 }
-// === Extra Utility Functions ===
-
-// Simulate a MEV sandwich attack on Aerodrome + Uniswap
-// pub fn simulate_bundle_profit<N: alloy::providers::Network, P: alloy::providers::Provider<N>>(
-//     calculator: &Calculator<N, P>,
-//     aerodrome_pool_address: Address,
-//     uniswap_pool_address: Address,
-// ) -> U256 {
-//     let profit = calculator.simulate_mev_bundle(
-//         *INITIAL_AMT,
-//         *WETH,
-//         *USDC,
-//         aerodrome_pool_address,
-//         uniswap_pool_address,
-//     );
-//     profit
-// }
-
-
-// pub fn ample_best_route<N: alloy::providers::Network, P: alloy::providers::Provider<N>>(
-//     calculator: &Calculator<N, P>,
-//     initial_amt: U256,
-//     weth: Address,
-//     usdc: Address,
-// ) {
-//     let best_route = calculator.find_best_route(initial_amt, weth, usdc, 3);
-//     if let Some((path, amount_out)) = best_route {
-//         println!("Best route: {:?}, Amount out: {}", path, amount_out);
-//     } else {
-//         println!("No route found!");
-//     }
-// }

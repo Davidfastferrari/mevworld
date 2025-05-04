@@ -74,60 +74,106 @@ where
         amount_out
     }
 
-    // ---------- Math Helpers ----------
+    // ---------- Scaled Math Helpers (adapted from original, assuming 1e18 scaling) ----------
+    // Renamed to avoid conflicts if other modules use similar names.
 
-    fn scale(value: U256, decimals: i8) -> U256 {
-        value * U256::from(10).pow(U256::from(decimals as u32))
-    }
+    // fn scale_balancer(value: U256, decimals: i8) -> U256 { // Scaling might be needed depending on DB values
+    //     if decimals >= 0 {
+    //         value * U256::from(10).pow(U256::from(decimals as u32))
+    //     } else {
+    //         value / U256::from(10).pow(U256::from((-decimals) as u32))
+    //     }
+    // }
 
-    fn add(a: U256, b: U256) -> U256 {
+    fn add_balancer(a: U256, b: U256) -> U256 {
         a + b
     }
 
-    fn sub(a: U256, b: U256) -> U256 {
+    fn sub_balancer(a: U256, b: U256) -> U256 {
         a.saturating_sub(b)
     }
 
-    fn div_up(a: U256, b: U256) -> U256 {
-        if a.is_zero() {
-            return U256::ZERO;
-        }
-        let one = U256::from(1_000_000_000_000_000_000u64);
-        ((a * one - 1u64) / b) + 1u64
+    // Scaled division a/b (result scaled by 1e18)
+    fn div_down_balancer(a: U256, b: U256) -> U256 {
+        if b.is_zero() { return U256::MAX; } // Or handle error appropriately
+        if a.is_zero() { return U256::ZERO; }
+        let one = U256::from(10).pow(U256::from(18));
+        (a * one) / b
     }
 
-    fn div_down(a: U256, b: U256) -> U256 {
-        if a.is_zero() {
-            return U256::ZERO;
-        }
-        (a * U256::from(1_000_000_000_000_000_000u64)) / b
+     // Scaled division a/b, rounded up (result scaled by 1e18)
+    fn div_up_balancer(a: U256, b: U256) -> U256 {
+         if b.is_zero() { return U256::MAX; } // Or handle error appropriately
+         if a.is_zero() { return U256::ZERO; }
+         let one = U256::from(10).pow(U256::from(18));
+         // (a * 1e18 + b - 1) / b
+         let numerator = a * one + b - U256::from(1);
+         numerator / b
     }
 
-    fn mul_up(a: U256, b: U256) -> U256 {
-        if a.is_zero() || b.is_zero() {
-            return U256::ZERO;
-        }
-        let one = U256::from(1_000_000_000_000_000_000u64);
-        ((a * b - 1u64) / one) + 1u64
+
+    // Scaled multiplication a*b (inputs scaled by 1e18, result scaled by 1e18)
+    fn mul_down_balancer(a: U256, b: U256) -> U256 {
+        if a.is_zero() || b.is_zero() { return U256::ZERO; }
+        let one = U256::from(10).pow(U256::from(18));
+        (a * b) / one
     }
 
-    fn mul_down(a: U256, b: U256) -> U256 {
-        (a * b) / U256::from(1_000_000_000_000_000_000u64)
+    // Scaled multiplication a*b, rounded up (inputs scaled by 1e18, result scaled by 1e18)
+    fn mul_up_balancer(a: U256, b: U256) -> U256 {
+         if a.is_zero() || b.is_zero() { return U256::ZERO; }
+         let one = U256::from(10).pow(U256::from(18));
+         // (a * b + 1e18 - 1) / 1e18
+         let numerator = a * b + one - U256::from(1);
+         numerator / one
     }
 
+    // Scaled power x^y (inputs scaled by 1e18, result scaled by 1e18)
+    // WARNING: pow_up implementation using f64 is highly imprecise for financial calculations.
+    // Consider using a dedicated fixed-point math library or integer exponentiation by squaring.
     fn pow_up_balancer(x: U256, y: U256) -> U256 {
-        // Implement pow function directly here using floating point approximation or integer math
-        // For simplicity, convert to f64, compute powf, then convert back to U256
-        let one = U256::from(1_000_000_000_000_000_000u64);
-        let x_f64 = x.as_u128() as f64 / 1e18;
-        let y_f64 = y.as_u128() as f64 / 1e18;
+        // Original f64 implementation (IMPRECISE - USE WITH EXTREME CAUTION)
+        let one = U256::from(10).pow(U256::from(18));
+        if x == one { return one; } // 1^y = 1
+        if y.is_zero() { return one; } // x^0 = 1
+        if x.is_zero() { return U256::ZERO; } // 0^y = 0 for y > 0
+
+        // Convert to f64 - large loss of precision
+        let x_f64 = x.to::<f64>() / 1e18;
+        let y_f64 = y.to::<f64>() / 1e18;
+
+        // Handle potential errors in f64 conversion or powf
+        if x_f64.is_nan() || y_f64.is_nan() {
+            warn!("NaN encountered in Balancer pow_up_balancer f64 conversion");
+            return U256::MAX; // Or some error indicator
+        }
+
         let result_f64 = x_f64.powf(y_f64);
-        let result_u128 = (result_f64 * 1e18) as u128;
-        U256::from(result_u128)
+
+        if result_f64.is_nan() || result_f64.is_infinite() || result_f64 < 0.0 {
+             warn!("Invalid result from powf in Balancer pow_up_balancer: {}", result_f64);
+             return U256::MAX; // Indicate error/overflow
+        }
+
+        // Convert back to U256 - more precision loss and potential overflow
+        let result_scaled = result_f64 * 1e18;
+        if result_scaled > U256::MAX.to::<f64>() {
+            warn!("Overflow converting f64 result back to U256 in Balancer pow_up_balancer");
+            return U256::MAX;
+        }
+
+        // Add small epsilon for rounding up? Balancer's FixedPoint math handles this better.
+        // U256::try_from(result_scaled.ceil() as u128).unwrap_or(U256::MAX) // Example rounding up
+
+        // Simple truncation conversion
+        U256::try_from(result_scaled as u128).unwrap_or(U256::MAX)
+
+        // TODO: Replace f64 pow with a precise fixed-point or integer power function.
     }
 
+    // Scaled complement 1 - x (input scaled by 1e18, result scaled by 1e18)
     fn complement_balancer(x: U256) -> U256 {
-        let one = U256::from(1_000_000_000_000_000_000u64);
-        if x < one { one - x } else { U256::ZERO }
+        let one = U256::from(10).pow(U256::from(18));
+        if x < one { one - x } else { U256::ZERO } // 1-x, or 0 if x >= 1
     }
 }
