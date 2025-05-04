@@ -5822,6 +5822,7 @@ dependencies = [
  "reth-provider",
  "revm",
  "revm-inspectors 0.20.1",
+ "rust-assistant",
  "rustc-hash 2.1.1",
  "serde",
  "serde_derive",
@@ -10262,6 +10263,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "rust-assistant"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "343af5973b77b141cbd05b5cf1c775cd50ca34e318af60315fcf26de9ada5733"
+dependencies = [
+ "anyhow",
+ "base64 0.22.1",
+ "bytes",
+ "flate2",
+ "fnv",
+ "lru 0.12.5",
+ "parking_lot",
+ "proc-macro2",
+ "quote",
+ "regex",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "syn 2.0.101",
+ "tar",
+ "tokio",
+]
+
+[[package]]
 name = "rustc-demangle"
 version = "0.1.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -11178,6 +11203,17 @@ name = "tap"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "55937e1799185b12863d447f42597ed69d9928686b8d88a1df17376a097d8369"
+
+[[package]]
+name = "tar"
+version = "0.4.44"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d863878d212c87a19c1a610eb53bb01fe12951c0501cf5a0d65f724914a667a"
+dependencies = [
+ "filetime",
+ "libc",
+ "xattr",
+]
 
 [[package]]
 name = "tempfile"
@@ -13029,6 +13065,16 @@ name = "x11rb-protocol"
 version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec107c4503ea0b4a98ef47356329af139c0a4f7750e621cf2973cd3385ebcb3d"
+
+[[package]]
+name = "xattr"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0d65cbf2f12c15564212d48f4e3dfb87923d25d611f2aed18f4cb23f0413d89e"
+dependencies = [
+ "libc",
+ "rustix 1.0.7",
+]
 
 [[package]]
 name = "xcursor"
