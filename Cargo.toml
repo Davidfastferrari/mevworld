@@ -1,89 +1,114 @@
+
 [package]
 name = "mevworld"
 version = "0.1.0"
-edition = "2024"
+edition = "2024" # Ensure compatibility with all deps
 
 [[bin]]
 name = "mevworld"
 test = false
 
 [dependencies]
+# --- Core & Async Runtime ---
 anyhow = "1.0.79"
-tokio = { version = "1.36", features = ["macros", "signal", "rt-multi-thread", "sync"] }
+tokio = { version = "1", features = ["full"] } # Consider specifying needed features instead of "full" for optimization (e.g., ["rt-multi-thread", "macros", "net", "time", "signal", "io-util"])
+futures = { version = "0.3.31", features = ["executor"] }
+futures-util = "0.3"
+once_cell = "1.21.3" # Preferred over lazy_static
+lazy_static = "1.4.0" # Consider migrating usage to once_cell
+
+# --- Logging & Error Handling ---
 eyre = "0.6.12"
+thiserror = "1.0.50"
+tracing = "0.1.40"
+tracing-subscriber = "0.3.18"
+# NOTE: Consider consolidating logging; tracing usually suffices. If tracing is primary, these might be removable unless required by a dependency.
 log = "0.4.21"
 env_logger = "0.11.3"
-clang = "2.0.0"
-proptest = "1.4.0"
-clang-sys = "1.8.1"
-criterion = "0.5"
-lazy_static = "1.4.0"
-block-db = "0.2.0"
-blockstate = "0.1.0"
-winit = "0.30.10"
-futures = { version = "0.3.31", features = ["executor"] }
+
+# --- Web & Networking ---
 reqwest = { version = "0.12.3", features = ["json", "gzip", "blocking", "stream"] }
 hyper = { version = "1.3.0", features = ["client"] }
 hyper-tls = { version = "0.6.0", features = ["alpn"] }
 hyper-util = { version = "0.1.11", features = ["client", "client-legacy", "http1", "http2"] }
 http-body-util = "0.1.1"
-bytes = "1.6.0"
+url = "2.5.4"
+
+# --- Serialization & Data Handling ---
 serde = { version = "1.0.197", features = ["derive"] }
 serde_json = "1.0.114"
-once_cell = "1.21.3"
+bytes = "1.6.0"
+hex = "0.4"
+bincode = "1.3" # Used in maverick.rs state_diff_inspect
+
+# --- Cryptography & Hashing ---
 sha2 = "0.10.8"
 rustc-hash = "2.1.1"
-uniswap-v3-sdk = "4.3.0"
-chrono = "0.4.41"
+fxhash = "0.2.1"
+k256 = "0.13.4" # Keccak/secp256k1 related
+tiny-keccak = "2.0" # Keccak hashing
 
-# Alloy (Ethereum Types, EIPs, Primitives, etc.)
-alloy = { version = "0.15.6", features = ["full"] }
-alloy-contract = "0.15.6"
+# --- Blockchain Core (Alloy) ---
+alloy = { version = "0.15.6", features = ["full"] } # Consider specifying needed features instead of "full" for optimization
+alloy-provider = { version = "0.1.2", default-features = false, features = ["ws"] } # Ensure compatible versions
+alloy-contract = "0.1.2"
+alloy-primitives = "0.7.3"
+alloy-network = "0.1.2"
 alloy-consensus = "0.15.6"
 alloy-eips = "0.15.6"
-
-enr = "0.13.0"
-zerocopy = "0.8.25-alpha.3"
-# Macro, Logging, Error handling
-tracing = "0.1.40"
-tracing-subscriber = "0.3.18"
-serde_derive = "1.0.197"
-thiserror = "1.0.50"
-
-# Alloy additional crates (sol-types + http transports)
 alloy-sol-types = { version = "1.0.0", features = ["std"] }
 alloy-transport-http = { version = "0.15.6", features = ["reqwest"] }
 
-# REVM + Precompile Logic
+# --- Blockchain Execution (REVM, Reth) ---
 revm = { version = "22.0.1", features = ["alloydb"] }
 revm-inspectors = "0.20.1"
+reth = { git = "https://github.com/paradigmxyz/reth", package = "reth", rev = "6f8e725" }
+reth-db = { git = "https://github.com/paradigmxyz/reth", package = "reth-db", rev = "6f8e725" }
+reth-node-ethereum = { git = "https://github.com/paradigmxyz/reth", package = "reth-node-ethereum", rev = "6f8e725" }
+reth-provider = { git = "https://github.com/paradigmxyz/reth", package = "reth-provider", rev = "6f8e725" }
 
+# --- Blockchain Specific Libraries ---
+uniswap-v3-sdk = "4.3.0"
+uniswap_v3_math = "0.4.1"
+block-db = "0.2.0"
+blockstate = "0.1.0"
+enr = "0.13.0" # Ethereum Node Records
 
-# Other utilities
-futures-util = "0.3"
-rayon = "1.10.0"
-petgraph = "0.8.1"
-dashmap = "6.1.0"
-foldhash = "0.1.3"
-dotenv = "0.15.0"
-procmac = "0.1.0"
+# --- External Git Dependencies ---
+# NOTE: Pin to a specific commit/tag for reproducible builds, e.g., rev = "commit_hash"
+pool-sync = { git = "https://github.com/Zacholme7/PoolSync" }
+
+# --- Utilities ---
+chrono = "0.4.41" # Time/Date
+rayon = "1.10.0" # Parallelism
+petgraph = "0.8.1" # Graph data structures
+dashmap = "6.1.0" # Concurrent HashMap
+foldhash = "0.1.3" # Hashing related utility?
+dotenv = "0.15.0" # .env file loading
+zerocopy = "0.8.25-alpha.3" # Safe bitwise type conversions
+
+# --- Build/Dev Dependencies & Tools ---
+# NOTE: clang/clang-sys often needed for specific crates requiring C bindings (e.g., maybe k256 or older secp256k1 versions). Verify if still needed.
+clang = "2.0.0"
+clang-sys = "1.8.1"
+criterion = "0.5" # Benchmarking
+proptest = "1.4.0" # Property-based testing
+
+# --- Potentially Transitive/Unusual Dependencies (Verify Necessity) ---
+# NOTE: The following proc-macro related crates are often transitive dependencies of other macro crates.
+# Verify if they are *direct* requirements of your code or the pool-sync project.
+procmac = "0.1.0" # Custom macro?
 proc-macro-crate = "3.3.0"
 proc-macro-error2 = "2.0.1"
 proc-macro2 = "1.0.67"
 proc-macro-error-attr = "1.0.4"
 proc-macro-error-attr2 = "2.0.0"
-# External project used
-pool-sync = { git = "https://github.com/Zacholme7/PoolSync" }
 
-# Optional DB support (can remove if unused)
+# NOTE: Verify if this database support is actively used.
 essential-node-db-sql = "0.5.0"
 
-# Added hex crate for encoding/decoding
-hex = "0.4"
-k256 = "0.13.4"
-tiny-keccak = "2.0"
-uniswap_v3_math = "=0.6.0"
+# NOTE: 'rust-assistant' seems unusual. Verify its purpose and necessity.
 rust-assistant = "0.5.0"
-fxhash = "0.2.1"
-url = "2.5.4"
 
+# --- Other Dependencies (Review if still needed) ---
+winit = "0.30.10" # Windowing library; seems unusual for an MEV project unless there's a GUI component.
