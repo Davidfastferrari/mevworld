@@ -1,5 +1,5 @@
-use alloy::primitives::{Address, B256, StorageKey, U256};
 use alloy::consensus::constants::KECCAK_EMPTY;
+use alloy::primitives::{Address, B256, StorageKey, U256};
 use eyre::{Context, Result};
 use reth::api::NodeTypesWithDBAdapter;
 use reth::primitives::Bytecode;

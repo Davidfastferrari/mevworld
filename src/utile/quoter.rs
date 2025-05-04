@@ -1,16 +1,16 @@
+use alloy::rlp::Decodable;
+use anyhow::Result;
 use std::sync::Arc;
 use tracing::{info, warn};
-use anyhow::Result;
-use alloy_rlp::Decodable;
 
 use crate::utile::rgen::{FlashQuoter, FlashSwap};
 use alloy::network::Ethereum;
 use alloy::primitives::{U256, address};
 use alloy::providers::RootProvider;
 use alloy::sol_types::SolCall;
+use reth::revm::revm::ExecutionResult;
 use reth::revm::revm::context::Evm;
 use reth::revm::revm::context::TransactTo;
-use reth::revm::revm::ExecutionResult;
 
 /// Quoter – runs an EVM simulation to quote arbitrage profitability.
 pub struct Quoter;

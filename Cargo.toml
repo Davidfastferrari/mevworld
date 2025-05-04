@@ -38,7 +38,7 @@ chrono = "0.4.41"
 
 # Alloy (Ethereum Types, EIPs, Primitives, etc.)
 alloy = { version = "0.15.6", features = ["full"] }
-alloy-contract = "0.15.7"
+alloy-contract = "0.15.6"
 alloy-consensus = "0.15.6"
 alloy-eips = "0.15.6"
 
@@ -58,13 +58,7 @@ alloy-transport-http = { version = "0.15.6", features = ["reqwest"] }
 revm = { version = "22.0.1", features = ["alloydb"] }
 revm-inspectors = "0.20.1"
 
-# Reth Crates
-reth = { git = "https://github.com/paradigmxyz/reth", package = "reth", rev = "6f8e725" }
-reth-db = { git = "https://github.com/paradigmxyz/reth", package = "reth-db", rev = "6f8e725" }
-reth-node-ethereum = { git = "https://github.com/paradigmxyz/reth", package = "reth-node-ethereum", rev = "6f8e725" }
-reth-chainspec = { git = "https://github.com/paradigmxyz/reth", package = "reth-chainspec", rev = "6f8e725" }
-reth-provider = { git = "https://github.com/paradigmxyz/reth", package = "reth-provider", rev = "6f8e725" }
-reth-evm = { git = "https://github.com/paradigmxyz/reth", package = "reth-evm", rev = "6f8e725" }
+
 # Other utilities
 futures-util = "0.3"
 rayon = "1.10.0"
@@ -91,4 +85,5 @@ tiny-keccak = "2.0"
 uniswap_v3_math = "=0.6.0"
 rust-assistant = "0.5.0"
 fxhash = "0.2.1"
+url = "2.5.4"
 

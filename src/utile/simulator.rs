@@ -5,7 +5,6 @@ use alloy::providers::Provider;
 use alloy::sol;
 use once_cell::sync::Lazy;
 use std::str::FromStr;
-use alloy::json_abi::JsonAbi;
 
 pub static WETH: Lazy<Address> =
     Lazy::new(|| Address::from_str("0x4200000000000000000000000000000000000006").unwrap());
@@ -155,7 +154,12 @@ pub fn simulate_bundle_profit(
     profit
 }
 /// Example usage to print best route
-pub fn ample_best_route(calculator: &calculator::Calculator<impl Network, impl Provider>, initial_amt: U256, weth: Address, usdc: Address) {
+pub fn ample_best_route(
+    calculator: &calculator::Calculator<impl Network, impl Provider>,
+    initial_amt: U256,
+    weth: Address,
+    usdc: Address,
+) {
     let best_route = calculator.find_best_route(initial_amt, weth, usdc, 3);
     if let Some((path, amount_out)) = best_route {
         println!("Best route: {:?}, Amount out: {}", path, amount_out);

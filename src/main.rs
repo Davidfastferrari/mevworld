@@ -7,8 +7,8 @@ use std::{collections::HashMap, sync::RwLock, time::Duration};
 use tracing::info;
 
 mod calculation;
-mod utile;
 mod state_db;
+mod utile;
 
 use crate::utile::ignition::start_workers;
 

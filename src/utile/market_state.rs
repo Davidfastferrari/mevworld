@@ -8,29 +8,29 @@ use std::{
 };
 
 use alloy::network::Network;
+use alloy::primitives::Keccak256;
 use alloy::primitives::{Address, U256, address};
 use alloy::providers::{Provider, ProviderBuilder};
-use alloy::primitives::Keccak256;
-use alloy::transports::http::Http;
-use alloy::transports::http::Client;
-use anyhow::{Context, Result};
-use tokio::sync::{
-    RwLock,
-    mpsc::{Receiver, Sender},
-};
-use tracing::{debug, info, error};
 use alloy::sol_types::{SolCall, SolValue};
+use alloy::transports::http::Client;
+use alloy::transports::http::Http;
+use anyhow::{Context, Result};
 use pool_sync::{Pool, PoolInfo};
 use reth::primitives::Bytecode;
 use reth::revm::revm::context::Evm;
 use reth::revm::revm::context::TransactTo;
 use reth::revm::revm::state::AccountInfo;
 use reth::rpc::types::BlockNumberOrTag;
+use tokio::sync::{
+    RwLock,
+    mpsc::{Receiver, Sender},
+};
+use tracing::{debug, error, info};
 
+use crate::calculation::state_db::blockstate_db::{BlockStateDB, InsertionType};
 use crate::utile::constant::AMOUNT;
 use crate::utile::events::Event;
 use crate::utile::rgen::{ERC20Token, FlashQuoter};
-use crate::calculation::state_db::blockstate_db::{BlockStateDB, InsertionType};
 use tracing::debug_trace_block;
 
 pub struct NamedAccountInfo {
@@ -111,11 +111,7 @@ where
             }
             .abi_encode();
 
-            let mut evm = Evm::new(
-                &mut *db,
-                (),
-                (),
-            );
+            let mut evm = Evm::new(&mut *db, (), ());
             evm.modify_tx_env(|tx| {
                 tx.caller = account;
                 tx.data = approve.into();
@@ -201,7 +197,7 @@ where
 
     async fn update_state(
         &self,
-        provider: Arc<Provider<Http<Client>>>,
+        provider: Arc<dyn Provider<Http<Client>>>,
         block_num: u64,
     ) -> HashSet<Address> {
         let mut updated_pools = HashSet::new();

@@ -5,7 +5,6 @@ use alloy::{primitives::U256, sol, sol_types::SolCall};
 use reth::revm::revm::context::Evm;
 use reth::revm::revm::context::TransactTo;
 use reth::revm::revm::context::result::ExecutionResult;
-use alloy::json_abi::JsonAbi;
 use tracing::{info, warn};
 
 use crate::calculation::Calculator;
@@ -16,8 +15,6 @@ sol! {
         function get_dy(uint256 i, uint256 j, uint256 dx) external view returns (uint256);
     }
 }
-
-pub use CurveOut;
 
 impl<N, P> Calculator<N, P>
 where

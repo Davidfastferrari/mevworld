@@ -129,4 +129,105 @@ where
             }
         }
     }
+
+    pub fn simulate_mev_bundle(
+        &self,
+        bundle: Vec<Trade>,
+        input_amount: U256,
+        token_in: Address,
+        token_out: Address,
+        fee: U256,
+    ) -> U256 {
+        let mut output_amount = input_amount;
+        for trade in bundle {
+            output_amount = self.simulate_trade(
+                output_amount,
+                token_in,
+                token_out,
+                trade.pool_address,
+                trade.pool_type,
+                fee,
+            );
+        }
+        output_amount
+    }
+
+    pub fn find_best_route(
+        &self,
+        initial_amt: U256,
+        token_in: Address,
+        token_out: Address,
+        max_hops: u8,
+    ) -> Vec<Trade> {
+        let mut best_route = Vec::new();
+        let mut best_profit = U256::ZERO;
+        let mut current_amount = initial_amt;
+
+        for hop in 1..=max_hops {
+            let mut current_route = Vec::new();
+            let mut current_profit = U256::ZERO;
+
+            for pool in self.get_pools(token_in, token_out) {
+                let output_amount = self.simulate_trade(
+                    current_amount,
+                    token_in,
+                    token_out,
+                    pool.address,
+                    pool.pool_type,
+                    U256::from(9984),
+                );
+
+                if output_amount > current_amount {
+                    current_profit = output_amount - current_amount;
+                    current_route.push(Trade {
+                        pool_address: pool.address,
+                        pool_type: pool.pool_type,
+                    });
+                }
+            }
+
+            if current_profit > best_profit {
+                best_profit = current_profit;
+                best_route = current_route;
+            }
+
+            current_amount = output_amount;
+        }
+
+        best_route
+    }
+
+    fn get_pools(&self, token_in: Address, token_out: Address) -> Vec<Pool> {
+        let pool_sync = self.market_state.pool_sync.read().unwrap();
+        let pools = pool_sync.get_pools(token_in, token_out);
+        pools
+            .into_iter()
+            .map(|pool| Pool {
+                address: pool.address,
+                pool_type: pool.pool_type,
+            })
+            .collect()
+    }
+
+    fn simulate_trade(
+        &self,
+        input_amount: U256,
+        token_in: Address,
+        token_out: Address,
+        pool_address: Address,
+        pool_type: PoolType,
+        fee: U256,
+    ) -> U256 {
+        self.compute_amount_out(input_amount, pool_address, token_in, pool_type, fee)
+    }
+}
+
+struct Trade {
+    pool_address: Address,
+    pool_type: PoolType,
+}
+
+struct Pool {
+    address: Address,
+    pool_type: PoolType,
 }

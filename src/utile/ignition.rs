@@ -9,8 +9,8 @@ use std::{
 // use std::sync::mpmc::channel;
 use crate::utile::{
     estimator::Estimator, events::Event, filter::filter_pools, gas_station::GasStation,
-    graph::ArbGraph, market_state::MarketState, searcher::Searchoor, simulator,
-    stream::stream_new_blocks, tx_sender::TransactionSender,
+    graph::ArbGraph, market_state::MarketState, searcher::Searchoor, stream::stream_new_blocks,
+    tx_sender::TransactionSender,
 };
 use alloy::providers::ProviderBuilder;
 use log::{error, info};

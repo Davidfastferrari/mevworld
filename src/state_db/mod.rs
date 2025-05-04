@@ -1,6 +1,1 @@
-pub use blockstate_db::{
-    BlockStateDB,
-    BlockStateDBAccount,
-    BlockStateDBSlot,
-    InsertionType,
-};
+pub use blockstate_db::{BlockStateDB, BlockStateDBAccount, BlockStateDBSlot, InsertionType};

@@ -1,19 +1,11 @@
-use alloy::primitives::{Address, U160, U256, address};
-use alloy::sol_types::SolInterface::abi_decode;
-use alloy::sol_types::{SolCall, SolValue};
-use std::{
-    collections::HashMap,
-    fs::{File, create_dir_all},
-    io::{BufReader, BufWriter},
-    path::Path,
-    str::FromStr,
-};
+use crate::calculation::state_db::blockstate_db::InsertionType::StateInsertionType;
 use crate::utile::constant::AMOUNT;
 use crate::utile::node_db::InsertionType::NodeInsertionType;
 use crate::utile::node_db::NodeDB;
 use crate::utile::rgen::ERC20Token::approveCall;
 use crate::utile::rgen::{V2Aerodrome, V2Swap, V3Swap, V3SwapDeadline, V3SwapDeadlineTick};
-use crate::calculation::state_db::blockstate_db::InsertionType::StateInsertionType;
+use alloy::primitives::{Address, U160, U256, address};
+use alloy::sol_types::{SolCall, SolValue};
 use anyhow::{Context, Result};
 use lazy_static::lazy_static;
 use log::{debug, info};
@@ -21,16 +13,18 @@ use once_cell::sync::Lazy;
 use pool_sync::{Chain, Pool, PoolInfo, PoolType};
 use rayon::prelude::*;
 use reqwest::header::{HeaderMap, HeaderValue};
+use reth::builder::components::ExecutorBuilder::Executor;
 use reth::chainspec::arbitrary::Result as RethResult;
 use reth::revm::revm::primitives::Bytes;
 use reth::revm::revm::primitives::*;
-use reth::builder::components::ExecutorBuilder::Executor;
-use reth::api::FullNodeComponents;
-use reth::revm::Database;
-use reth::revm::database;
-use reth::revm::revm::primitives::Address as RethAddress;
-use reth::revm::revm::primitives::U256 as RethU256;
 use serde::{Deserialize, Serialize};
+use std::{
+    collections::HashMap,
+    fs::{File, create_dir_all},
+    io::{BufReader, BufWriter},
+    path::Path,
+    str::FromStr,
+};
 
 /// Represents the logical router + calldata type for different swap protocols
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -199,7 +193,8 @@ async fn fetch_top_volume_tokens(num_results: usize, chain: Chain) -> Result<Vec
             })?;
             if let Some(tokens) = parsed.data.tokens {
                 addresses.extend(tokens.into_iter().filter_map(|t| {
-                    t.address.and_then(|addr_str| Address::from_str(&addr_str).ok())
+                    t.address
+                        .and_then(|addr_str| Address::from_str(&addr_str).ok())
                 }));
             }
         }

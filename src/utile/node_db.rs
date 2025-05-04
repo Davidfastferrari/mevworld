@@ -1,7 +1,10 @@
-use reth_db::{mdbx::{Env, WriteMap}, DatabaseEnv};
-use reth_db::Table;
-use std::path::Path;
 use anyhow::Result;
+use reth_db::Table;
+use reth_db::{
+    DatabaseEnv,
+    mdbx::{Env, WriteMap},
+};
+use std::path::Path;
 
 pub struct NodeDB {
     env: DatabaseEnv<WriteMap>,
@@ -9,11 +12,8 @@ pub struct NodeDB {
 
 impl NodeDB {
     pub fn open(path: impl AsRef<Path>) -> Result<Self> {
-        let env = DatabaseEnv::<WriteMap>::open(
-            path,
-            reth_db::mdbx::EnvironmentFlags::empty(),
-            None,
-        )?;
+        let env =
+            DatabaseEnv::<WriteMap>::open(path, reth_db::mdbx::EnvironmentFlags::empty(), None)?;
 
         Ok(Self { env })
     }

@@ -1,12 +1,13 @@
+use alloy::hex;
+use alloy::network::TransactionBuilder;
+use alloy::network::{EthereumWallet, Network};
+use alloy::primitives::FixedBytes;
+use alloy::transport_http::Http;
 use alloy::{
     primitives::Address,
     providers::{Provider, ProviderBuilder, RootProvider},
     signers::local::PrivateKeySigner,
 };
-use alloy::network::{Network, EthereumWallet};
-use alloy::network::TransactionBuilder;
-use alloy::transport_http::Http;
-use alloy::hex;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -18,7 +19,6 @@ use std::{
 use tokio::sync::mpsc::Receiver;
 use tracing::info;
 use url::Url;
-use alloy::primitives::FixedBytes;
 
 use crate::utile::events::Event;
 use crate::utile::gas_station::GasStation;
@@ -72,7 +72,8 @@ impl<HttpClient> TransactionSender<HttpClient> {
 
         // setup provider
         let http_url = std::env::var("FULL").expect("FULL env var not set");
-        let provider = Arc::new(ProviderBuilder::connect_http(Url::parse(&http_url).unwrap()).await);
+        let provider =
+            Arc::new(ProviderBuilder::connect_http(Url::parse(&http_url).unwrap()).await);
 
         let nonce = provider
             .get_transaction_count(std::env::var("ACCOUNT").unwrap().parse().unwrap())
