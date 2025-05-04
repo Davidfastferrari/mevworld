@@ -7,7 +7,7 @@ use uniswap_v3_math::swap_math;
 use uniswap_v3_math::tick_math::{MAX_SQRT_RATIO, MAX_TICK, MIN_SQRT_RATIO, MIN_TICK};
 use uniswap_v3_math::full_math::{mul_div, mul_div_rounding_up};
 
-use super::Calculator;
+use crate::calculation::Calculator;
 
 pub const U256_1: U256 = U256::from_limbs([1, 0, 0, 0]);
 

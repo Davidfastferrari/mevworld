@@ -19,6 +19,7 @@ sol! {
         ) external view returns (uint256 amountIn, uint256 amountOut, uint256 gasEstimate);
     }
 }
+pub use MaverickOut;
 
 impl<N, P> Calculator<N, P>
 where

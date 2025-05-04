@@ -5,8 +5,8 @@ use alloy::providers::Provider;
 use anyhow::Result;
 use log::trace;
 use pool_sync::{Pool, PoolInfo};
-use super::BlockStateDB;
-use super::state_db::blockstate_db::{InsertionType, BlockStateDBSlot};
+use crate::state_db::BlockStateDB;
+use crate::state_db::blockstate_db::{InsertionType, BlockStateDBSlot};
 
 // === Bitmasks used for packing slot0 ===
 lazy_static! {
@@ -33,6 +33,7 @@ sol!(
     }
 );
 
+ pub use UniswapV3;
 // === V3 Pool Insertion Logic ===
 impl<N, P> BlockStateDB<N, P>
 where

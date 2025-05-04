@@ -8,7 +8,7 @@ use reth::revm::revm::context::result::ExecutionResult;
 use alloy::json_abi::JsonAbi;
 use tracing::{info, warn};
 
-use super::Calculator;
+use crate::calculation::Calculator;
 
 sol! {
     #[sol(rpc)]
@@ -16,6 +16,8 @@ sol! {
         function get_dy(uint256 i, uint256 j, uint256 dx) external view returns (uint256);
     }
 }
+
+pub use CurveOut;
 
 impl<N, P> Calculator<N, P>
 where

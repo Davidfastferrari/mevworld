@@ -1,5 +1,5 @@
-use super::constant::AMOUNT;
-use super::rgen::{FlashQuoter, FlashSwap};
+use crate::utile::constant::AMOUNT;
+use crate::utile::rgen::{FlashQuoter, FlashSwap};
 use alloy::primitives::Address;
 use pool_sync::PoolType;
 use serde::{Deserialize, Serialize};
@@ -25,7 +25,7 @@ pub struct SwapStep {
 
 // Custom serde module for PoolType
 mod pool_type_serde {
-    use super::PoolType;
+    use crate::utile::PoolType;
     use serde::{Deserialize, Deserializer, Serializer};
 
     pub fn serialize<S>(pt: &PoolType, serializer: S) -> Result<S::Ok, S::Error>

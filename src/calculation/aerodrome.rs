@@ -24,6 +24,8 @@ sol! {
     }
 }
 
+pub use V2State;
+
 impl<N, P> Calculator<N, P>
 where
     N: Network,

@@ -5,9 +5,9 @@ use pool_sync::PoolType;
 use std::collections::HashSet;
 use std::sync::Arc;
 
-use super::aerodrome;
-use super::balancer;
-use super::uniswap;
+use crate::calculation::aerodrome;
+use crate::calculation::balancer;
+use crate::calculation::uniswap;
 use crate::utile::{AMOUNT, Cache, MarketState, SwapPath};
 
 pub struct Calculator<N, P>

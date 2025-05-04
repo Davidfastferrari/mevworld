@@ -8,7 +8,7 @@ use petgraph::prelude::*;
 
 use pool_sync::{BalancerV2Pool, CurveTriCryptoPool, Pool, PoolInfo};
 
-use super::swap::{SwapPath, SwapStep};
+use crate::utile::swap::{SwapPath, SwapStep};
 
 // Added to bring token0_address and token1_address into scope
 
