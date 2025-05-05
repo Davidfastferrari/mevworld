@@ -4,6 +4,7 @@ use alloy_provider::ProviderBuilder;
 use alloy_transport_ipc::IpcConnect; // Add impor
 use futures::StreamExt;
 use log::{debug, warn};
+use std::sync::Arc;
 use tokio::sync::broadcast::Sender;
 
 /// Subscribes to new block headers over IPC and broadcasts them via a channel.

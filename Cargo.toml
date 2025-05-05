@@ -49,13 +49,9 @@ k256 = "0.13.4" # Keccak/secp256k1 related
 tiny-keccak = "2.0" # Keccak hashing
 
 # --- Blockchain Core (Alloy) ---
-alloy = { version = "0.15.6", features = ["full"] } # Consider specifying needed features instead of "full" for optimization
-# alloy-contract = "0.1.2"
-# alloy-primitives = "0.7.3"
-# alloy-network = "0.1.2"
-# alloy-consensus = "0.15.6"
-# alloy-eips = "0.15.6"
-alloy-sol-types = { version = "1.0.0", features = ["std"] }
+alloy = { version = "0.15.8", features = ["full"] } # Using version from error messages
+# alloy-contract, alloy-primitives, alloy-network, alloy-consensus, alloy-eips, and alloy-sol-types 
+# are all included in the meta-crate with matching versions
 alloy-transport-http = { version = "0.15.6", features = ["reqwest"] }
 
 # --- Blockchain Execution (REVM, Reth) ---

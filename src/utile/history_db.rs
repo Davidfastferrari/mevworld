@@ -8,6 +8,7 @@ use reth::providers::{
     providers::StaticFileProvider, BytecodeReader, StorageReader, ProviderError,
 };
 use revm::primitives::{AccountInfo, Bytecode as RevmBytecode, DBErrorMarker};
+use revm::{Database, DatabaseRef};
 use reth::utils::open_db_read_only;
 use reth_chainspec::ChainSpecBuilder;
 use reth_db::{ClientVersion, DatabaseEnv, mdbx::DatabaseArguments};

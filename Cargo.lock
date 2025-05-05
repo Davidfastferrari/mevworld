@@ -6275,7 +6275,6 @@ name = "mevworld"
 version = "0.1.0"
 dependencies = [
  "alloy",
- "alloy-sol-types 1.1.0",
  "alloy-transport-http 0.15.8",
  "anyhow",
  "bincode",

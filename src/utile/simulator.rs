@@ -26,7 +26,7 @@ sol! {
 
 // pub use V2State::*;
 
-impl<N, P> calculator::Calculator<N, P>
+impl<N, P> crate::calculation::calculator::Calculator<N, P>
 where
     N: Network,
     P: Provider<N>,
@@ -140,7 +140,7 @@ where
 
 // === Extra Utility Functions ===
 pub fn simulate_bundle_profit(
-    calculator: &calculator::Calculator<impl Network, impl Provider>,
+    calculator: &crate::calculation::calculator::Calculator<impl Network, impl Provider>,
     aerodrome_pool_address: Address,
     uniswap_pool_address: Address,
 ) -> U256 {
@@ -155,7 +155,7 @@ pub fn simulate_bundle_profit(
 }
 /// Example usage to print best route
 pub fn ample_best_route(
-    calculator: &calculator::Calculator<impl Network, impl Provider>,
+    calculator: &crate::calculation::calculator::Calculator<impl Network, impl Provider>,
     initial_amt: U256,
     weth: Address,
     usdc: Address,
@@ -170,7 +170,7 @@ pub fn ample_best_route(
 
 
 fn simulate_trade<N, P>(
-    calculator: &Calculator<N, P>,
+    calculator: &crate::calculation::calculator::Calculator<N, P>,
     // ... other args
 ) where
     N: Network,
@@ -180,7 +180,7 @@ fn simulate_trade<N, P>(
 }
 
 fn another_function<N, P>(
-     calculator: &Calculator<N, P>,
+     calculator: &crate::calculation::calculator::Calculator<N, P>,
     // ... other args
 ) where
     N: Network,

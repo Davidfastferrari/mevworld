@@ -14,7 +14,7 @@ use crate::utile::{
 };
 use alloy::providers::ProviderBuilder;
 //use alloy_provider::{ProviderBuilder, Provider};
-use log::{error, info};
+use log::{error, info, warn};
 use pool_sync::{Chain, Pool};
 use tokio::signal;
 use tokio::sync::{
@@ -24,6 +24,8 @@ use tokio::sync::{
 use alloy_transport_http::Http;
 use reqwest::Client;
 use anyhow::Context;
+use alloy::providers::Provider;
+use alloy::network::Network;
 
 /// Bootstraps the entire system: syncing, simulation, and arbitrage search
 pub async fn start_workers(pools: Vec<Pool>, last_synced_block: u64) {
